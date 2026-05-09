@@ -20,6 +20,25 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) #151515;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #151515;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
 }
 
 body {
@@ -32,6 +51,7 @@ body {
   transition:
     opacity 0.35s ease,
     transform 0.35s ease;
+  overflow-x: hidden;
 }
 
 body.page-loaded {

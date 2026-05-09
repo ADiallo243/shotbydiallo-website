@@ -7,6 +7,29 @@ document.addEventListener('DOMContentLoaded', function () {
   document.body.classList.remove('page-exit');
   document.body.classList.add('page-loaded');
 
+  function getScrollTop() {
+    return (
+      window.scrollY ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0
+    );
+  }
+
+  function getScrollableHeight() {
+    return Math.max(
+      0,
+      Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight,
+      ) - window.innerHeight,
+    );
+  }
+
   function closeMenu() {
     if (!menuBtn || !mobileMenu) return;
 
@@ -28,11 +51,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function toggleMenu() {
-    if (!mobileMenu || !menuBtn) return;
+    if (!menuBtn || !mobileMenu) return;
 
-    const isOpen = mobileMenu.classList.contains('active');
-
-    if (isOpen) {
+    if (mobileMenu.classList.contains('active')) {
       closeMenu();
     } else {
       openMenu();
@@ -49,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     updateHeader();
-    window.addEventListener('scroll', updateHeader);
+    window.addEventListener('scroll', updateHeader, { passive: true });
   }
 
   if (menuBtn && mobileMenu) {
@@ -107,9 +128,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (scrollToggle) {
     function updateScrollButton() {
-      const scrollPosition = window.scrollY;
-      const pageHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPosition = getScrollTop();
+      const pageHeight = getScrollableHeight();
       const switchPoint = pageHeight * 0.35;
 
       if (scrollPosition > switchPoint) {
@@ -122,12 +142,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     updateScrollButton();
-    window.addEventListener('scroll', updateScrollButton);
+
+    window.addEventListener('scroll', updateScrollButton, { passive: true });
+    window.addEventListener('resize', updateScrollButton);
 
     scrollToggle.addEventListener('click', function () {
       const isGoingUp = scrollToggle.classList.contains('go-up');
-      const pageHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
+      const pageHeight = getScrollableHeight();
 
       if (isGoingUp) {
         window.scrollTo({
@@ -156,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
         href.startsWith('#') ||
         href.startsWith('mailto:') ||
         href.startsWith('tel:') ||
+        href.startsWith('http') ||
         link.target === '_blank' ||
         event.metaKey ||
         event.ctrlKey ||
