@@ -7,6 +7,7 @@
     <title>
       ShotByDiallo | Montreal Videographer for Brands, Artists & Events
     </title>
+
     <meta
       name="description"
       content="ShotByDiallo is a Montreal-based videographer creating cinematic video content for brands, artists, events, weddings and social media campaigns."
@@ -27,14 +28,16 @@
 
     <link rel="canonical" href="https://shotbydiallo.com/" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css?v=20" />
   </head>
 
   <body>
     <header class="site-header" id="siteHeader">
-      <a href="index.html" class="logo">ShotByDiallo</a>
+      <a href="index.html" class="logo" aria-label="ShotByDiallo homepage">
+        ShotByDiallo
+      </a>
 
-      <nav class="desktop-nav">
+      <nav class="desktop-nav" aria-label="Desktop navigation">
         <a href="work.html">Work</a>
         <a href="services.html">Services</a>
         <a href="contact.html">Contact</a>
@@ -42,19 +45,26 @@
 
       <a href="contact.html" class="nav-cta">Start a Project</a>
 
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">
-        <span></span>
-        <span></span>
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        type="button"
+        aria-label="Open menu"
+        aria-controls="mobileMenu"
+        aria-expanded="false"
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
       </button>
     </header>
 
-    <div class="mobile-menu" id="mobileMenu">
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
       <a href="index.html">Home</a>
       <a href="work.html">Work</a>
       <a href="services.html">Services</a>
       <a href="contact.html">Contact</a>
       <a href="contact.html" class="mobile-cta">Start a Project</a>
-    </div>
+    </nav>
 
     <main>
       <section class="hero">
@@ -69,7 +79,7 @@
           <source src="assets/videos/hero-video.mp4" type="video/mp4" />
         </video>
 
-        <div class="hero-overlay"></div>
+        <div class="hero-overlay" aria-hidden="true"></div>
 
         <div class="hero-content">
           <p class="eyebrow">Montreal-based videographer</p>
@@ -91,7 +101,7 @@
           </div>
         </div>
 
-        <div class="scroll-note">
+        <div class="scroll-note" aria-hidden="true">
           <span></span>
           Scroll
         </div>
@@ -209,9 +219,9 @@
             same: make the moment look professional and memorable.
           </p>
 
-          <a href="contact.html" class="section-link about-link"
-            >Start a Project</a
-          >
+          <a href="contact.html" class="section-link about-link">
+            Start a Project
+          </a>
         </div>
       </section>
 
@@ -240,7 +250,6 @@
         </div>
       </section>
 
-      <!-- REVIEWS -->
       <section class="reviews-section">
         <div class="section-header split">
           <div>
@@ -251,6 +260,7 @@
           <a
             href="https://www.google.com/search?q=Shot+By+Diallo+Montreal+reviews"
             target="_blank"
+            rel="noopener noreferrer"
             class="section-link"
           >
             View Google reviews
@@ -259,7 +269,7 @@
 
         <div class="reviews-grid">
           <article class="review-card">
-            <div class="review-stars">★★★★★</div>
+            <div class="review-stars" aria-label="5 star review">★★★★★</div>
             <p>
               “Super expérience avec lui ! Très professionnel, met à l’aise
               rapidement et le résultat est vraiment de qualité. Je recommande
@@ -270,7 +280,7 @@
           </article>
 
           <article class="review-card">
-            <div class="review-stars">★★★★★</div>
+            <div class="review-stars" aria-label="5 star review">★★★★★</div>
             <p>
               “Excellent service ! Photographe ponctuel, respectueux et très
               professionnel. Il a réalisé le travail demandé avec beaucoup de
@@ -298,18 +308,74 @@
     </main>
 
     <footer class="site-footer">
-      <div>
-        <a href="index.html" class="footer-logo">ShotByDiallo</a>
-        <p>Montreal videographer for brands, artists and events.</p>
+      <div class="footer-main">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">ShotByDiallo</a>
+
+          <p>
+            Montreal-based videographer creating cinematic visuals for brands,
+            artists, weddings and events.
+          </p>
+
+          <a href="contact.html" class="footer-cta">Start a Project</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Explore</h3>
+
+          <a href="index.html">Home</a>
+          <a href="work.html">Work</a>
+          <a href="services.html">Services</a>
+          <a href="contact.html">Contact</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Services</h3>
+
+          <a href="services.html">Brand Videos</a>
+          <a href="services.html">Music Videos</a>
+          <a href="services.html">Event Recaps</a>
+          <a href="services.html">Wedding Films</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Contact</h3>
+
+          <a href="mailto:bydialloo@gmail.com">bydialloo@gmail.com</a>
+          <a href="tel:+14384936114">438-493-6114</a>
+          <a
+            href="https://www.instagram.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
+          <a
+            href="https://www.tiktok.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            TikTok
+          </a>
+        </div>
       </div>
 
-      <div class="footer-links">
-        <a href="work.html">Work</a>
-        <a href="services.html">Services</a>
-        <a href="contact.html">Contact</a>
+      <div class="footer-bottom">
+        <p>© 2026 ShotByDiallo. All rights reserved.</p>
+
+        <p>Montreal, Canada · Available for local and travel projects</p>
       </div>
     </footer>
 
-    <script src="assets/js/main.js"></script>
+    <button
+      class="scroll-toggle"
+      id="scrollToggle"
+      type="button"
+      aria-label="Scroll down"
+    >
+      <span aria-hidden="true"></span>
+    </button>
+
+    <script src="assets/js/main.js?v=20"></script>
   </body>
 </html>

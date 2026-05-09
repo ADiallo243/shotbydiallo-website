@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Video Production Services in Montreal | ShotByDiallo</title>
+
     <meta
       name="description"
       content="Explore ShotByDiallo’s video production services in Montreal, including brand videos, music videos, event coverage, wedding films and social media content."
@@ -25,36 +26,46 @@
     />
     <meta property="og:image" content="assets/images/hero/hero.jpg" />
     <meta property="og:type" content="website" />
+
     <link rel="canonical" href="https://shotbydiallo.com/services.html" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css?v=21" />
   </head>
 
   <body>
     <header class="site-header" id="siteHeader">
-      <a href="index.html" class="logo">ShotByDiallo</a>
+      <a href="index.html" class="logo" aria-label="ShotByDiallo homepage">
+        ShotByDiallo
+      </a>
 
-      <nav class="desktop-nav">
+      <nav class="desktop-nav" aria-label="Desktop navigation">
         <a href="work.html">Work</a>
-        <a href="services.html">Services</a>
+        <a href="services.html" aria-current="page">Services</a>
         <a href="contact.html">Contact</a>
       </nav>
 
       <a href="contact.html" class="nav-cta">Start a Project</a>
 
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">
-        <span></span>
-        <span></span>
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        type="button"
+        aria-label="Open menu"
+        aria-controls="mobileMenu"
+        aria-expanded="false"
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
       </button>
     </header>
 
-    <div class="mobile-menu" id="mobileMenu">
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
       <a href="index.html">Home</a>
       <a href="work.html">Work</a>
-      <a href="services.html">Services</a>
+      <a href="services.html" aria-current="page">Services</a>
       <a href="contact.html">Contact</a>
       <a href="contact.html" class="mobile-cta">Start a Project</a>
-    </div>
+    </nav>
 
     <main>
       <section class="page-hero">
@@ -177,41 +188,41 @@
         </div>
 
         <div class="process-grid">
-          <div class="process-card">
+          <article class="process-card">
             <span>01</span>
             <h3>Discovery</h3>
             <p>
               We talk about your goal, your audience, the type of video you need
               and the best direction for the project.
             </p>
-          </div>
+          </article>
 
-          <div class="process-card">
+          <article class="process-card">
             <span>02</span>
             <h3>Planning</h3>
             <p>
               We define the concept, location, shot list, schedule and key
               moments so the shoot is organized.
             </p>
-          </div>
+          </article>
 
-          <div class="process-card">
+          <article class="process-card">
             <span>03</span>
             <h3>Production</h3>
             <p>
               I film the project with attention to composition, movement,
               lighting and the feeling of the final video.
             </p>
-          </div>
+          </article>
 
-          <div class="process-card">
+          <article class="process-card">
             <span>04</span>
             <h3>Delivery</h3>
             <p>
               You receive polished video content ready to post, share or use in
               your campaign.
             </p>
-          </div>
+          </article>
         </div>
       </section>
 
@@ -222,43 +233,45 @@
         </div>
 
         <div class="faq-list">
-          <div class="faq-item">
+          <article class="faq-item">
             <h3>Do you work with companies?</h3>
             <p>
               Yes. I create promotional videos, social media content,
               testimonials and event recap videos for businesses and brands.
             </p>
-          </div>
+          </article>
 
-          <div class="faq-item">
+          <article class="faq-item">
             <h3>Do you shoot music videos?</h3>
             <p>
               Yes. I work with artists on music videos, performance visuals,
               release content and short clips for social media.
             </p>
-          </div>
+          </article>
 
-          <div class="faq-item">
+          <article class="faq-item">
             <h3>Do you film weddings and events?</h3>
             <p>
               Yes. I cover weddings, corporate events, concerts and private
               events with a cinematic highlight approach.
             </p>
-          </div>
+          </article>
 
-          <div class="faq-item">
+          <article class="faq-item">
             <h3>Where are you based?</h3>
             <p>
               I’m based in Montreal and available for projects in the city and
               surrounding areas.
             </p>
-          </div>
+          </article>
         </div>
       </section>
 
       <section class="contact-cta">
         <p class="eyebrow">Start a project</p>
+
         <h2>Need a video for your brand, event or next release?</h2>
+
         <p>
           Let’s talk about your idea and create something clean, cinematic and
           useful.
@@ -272,18 +285,74 @@
     </main>
 
     <footer class="site-footer">
-      <div>
-        <a href="index.html" class="footer-logo">ShotByDiallo</a>
-        <p>Montreal videographer for brands, artists and events.</p>
+      <div class="footer-main">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">ShotByDiallo</a>
+
+          <p>
+            Montreal-based videographer creating cinematic visuals for brands,
+            artists, weddings and events.
+          </p>
+
+          <a href="contact.html" class="footer-cta">Start a Project</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Explore</h3>
+
+          <a href="index.html">Home</a>
+          <a href="work.html">Work</a>
+          <a href="services.html" aria-current="page">Services</a>
+          <a href="contact.html">Contact</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Services</h3>
+
+          <a href="services.html">Brand Videos</a>
+          <a href="services.html">Music Videos</a>
+          <a href="services.html">Event Recaps</a>
+          <a href="services.html">Wedding Films</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Contact</h3>
+
+          <a href="mailto:bydialloo@gmail.com">bydialloo@gmail.com</a>
+          <a href="tel:+14384936114">438-493-6114</a>
+          <a
+            href="https://www.instagram.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
+          <a
+            href="https://www.tiktok.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            TikTok
+          </a>
+        </div>
       </div>
 
-      <div class="footer-links">
-        <a href="work.html">Work</a>
-        <a href="services.html">Services</a>
-        <a href="contact.html">Contact</a>
+      <div class="footer-bottom">
+        <p>© 2026 ShotByDiallo. All rights reserved.</p>
+
+        <p>Montreal, Canada · Available for local and travel projects</p>
       </div>
     </footer>
 
-    <script src="assets/js/main.js"></script>
+    <button
+      class="scroll-toggle"
+      id="scrollToggle"
+      type="button"
+      aria-label="Scroll down"
+    >
+      <span aria-hidden="true"></span>
+    </button>
+
+    <script src="assets/js/main.js?v=21"></script>
   </body>
 </html>

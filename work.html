@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Videography Portfolio | ShotByDiallo</title>
+
     <meta
       name="description"
       content="View ShotByDiallo’s videography and photography portfolio featuring brand campaigns, music visuals, event recaps, wedding moments and social media content in Montreal."
@@ -25,34 +26,43 @@
 
     <link rel="canonical" href="https://shotbydiallo.com/work.html" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css?v=21" />
   </head>
 
   <body>
     <header class="site-header" id="siteHeader">
-      <a href="index.html" class="logo">ShotByDiallo</a>
+      <a href="index.html" class="logo" aria-label="ShotByDiallo homepage">
+        ShotByDiallo
+      </a>
 
-      <nav class="desktop-nav">
-        <a href="work.html">Work</a>
+      <nav class="desktop-nav" aria-label="Desktop navigation">
+        <a href="work.html" aria-current="page">Work</a>
         <a href="services.html">Services</a>
         <a href="contact.html">Contact</a>
       </nav>
 
       <a href="contact.html" class="nav-cta">Start a Project</a>
 
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">
-        <span></span>
-        <span></span>
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        type="button"
+        aria-label="Open menu"
+        aria-controls="mobileMenu"
+        aria-expanded="false"
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
       </button>
     </header>
 
-    <div class="mobile-menu" id="mobileMenu">
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
       <a href="index.html">Home</a>
-      <a href="work.html">Work</a>
+      <a href="work.html" aria-current="page">Work</a>
       <a href="services.html">Services</a>
       <a href="contact.html">Contact</a>
       <a href="contact.html" class="mobile-cta">Start a Project</a>
-    </div>
+    </nav>
 
     <main>
       <section class="page-hero">
@@ -72,7 +82,9 @@
       <section class="featured-reel-section">
         <div class="featured-reel-copy">
           <p class="eyebrow">Featured reel</p>
+
           <h2>Short-form visuals made for artists and social platforms.</h2>
+
           <p>
             A quick vertical preview showing the energy, movement and style
             behind artist-focused content made for Instagram, TikTok and digital
@@ -102,12 +114,26 @@
             <h2>Visuals with atmosphere, intention and style.</h2>
           </div>
 
-          <div class="filter-buttons">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="brand">Brands</button>
-            <button class="filter-btn" data-filter="artist">Artists</button>
-            <button class="filter-btn" data-filter="event">Events</button>
-            <button class="filter-btn" data-filter="wedding">Weddings</button>
+          <div class="filter-buttons" aria-label="Portfolio filters">
+            <button class="filter-btn active" type="button" data-filter="all">
+              All
+            </button>
+
+            <button class="filter-btn" type="button" data-filter="brand">
+              Brands
+            </button>
+
+            <button class="filter-btn" type="button" data-filter="artist">
+              Artists
+            </button>
+
+            <button class="filter-btn" type="button" data-filter="event">
+              Events
+            </button>
+
+            <button class="filter-btn" type="button" data-filter="wedding">
+              Weddings
+            </button>
           </div>
         </div>
 
@@ -126,7 +152,7 @@
           <article class="portfolio-card tall" data-category="artist">
             <img
               src="assets/images/work/music-video.jpg"
-              alt="Montreal music performance photography and video by ShotByDiallo"
+              alt="Montreal music performance video by ShotByDiallo"
             />
             <div class="portfolio-info">
               <p>Artist Content</p>
@@ -137,7 +163,7 @@
           <article class="portfolio-card" data-category="event">
             <img
               src="assets/images/work/event-video.jpg"
-              alt="Corporate event networking photography in Montreal by ShotByDiallo"
+              alt="Corporate event networking coverage in Montreal by ShotByDiallo"
             />
             <div class="portfolio-info">
               <p>Corporate Event</p>
@@ -148,7 +174,7 @@
           <article class="portfolio-card wide" data-category="wedding">
             <img
               src="assets/images/work/wedding-video.jpg"
-              alt="Montreal wedding reception photography by ShotByDiallo"
+              alt="Montreal wedding reception video by ShotByDiallo"
             />
             <div class="portfolio-info">
               <p>Wedding</p>
@@ -159,7 +185,7 @@
           <article class="portfolio-card" data-category="brand">
             <img
               src="assets/images/work/streetwear-brand.jpg"
-              alt="Streetwear brand fashion photoshoot by ShotByDiallo"
+              alt="Streetwear brand fashion shoot by ShotByDiallo"
             />
             <div class="portfolio-info">
               <p>Brand Content</p>
@@ -181,7 +207,7 @@
           <article class="portfolio-card" data-category="event">
             <img
               src="assets/images/work/cultural-event.jpg"
-              alt="African cultural event dance celebration in Montreal by ShotByDiallo"
+              alt="African cultural event celebration in Montreal by ShotByDiallo"
             />
             <div class="portfolio-info">
               <p>Event Coverage</p>
@@ -192,7 +218,7 @@
           <article class="portfolio-card" data-category="brand">
             <img
               src="assets/images/work/lifestyle-brand.jpg"
-              alt="Lifestyle brand photography in Montreal by ShotByDiallo"
+              alt="Lifestyle brand visuals in Montreal by ShotByDiallo"
             />
             <div class="portfolio-info">
               <p>Lifestyle Content</p>
@@ -205,6 +231,7 @@
       <section class="featured-project-section">
         <div>
           <p class="eyebrow">Approach</p>
+
           <h2>
             Every project is built around the same idea: make the visual feel
             useful and memorable.
@@ -228,7 +255,9 @@
 
       <section class="contact-cta">
         <p class="eyebrow">Start a project</p>
+
         <h2>Like the style?</h2>
+
         <p>
           Let’s create visuals for your brand, event, campaign or next release.
         </p>
@@ -241,18 +270,74 @@
     </main>
 
     <footer class="site-footer">
-      <div>
-        <a href="index.html" class="footer-logo">ShotByDiallo</a>
-        <p>Montreal videographer for brands, artists and events.</p>
+      <div class="footer-main">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">ShotByDiallo</a>
+
+          <p>
+            Montreal-based videographer creating cinematic visuals for brands,
+            artists, weddings and events.
+          </p>
+
+          <a href="contact.html" class="footer-cta">Start a Project</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Explore</h3>
+
+          <a href="index.html">Home</a>
+          <a href="work.html" aria-current="page">Work</a>
+          <a href="services.html">Services</a>
+          <a href="contact.html">Contact</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Services</h3>
+
+          <a href="services.html">Brand Videos</a>
+          <a href="services.html">Music Videos</a>
+          <a href="services.html">Event Recaps</a>
+          <a href="services.html">Wedding Films</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Contact</h3>
+
+          <a href="mailto:bydialloo@gmail.com">bydialloo@gmail.com</a>
+          <a href="tel:+14384936114">438-493-6114</a>
+          <a
+            href="https://www.instagram.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
+          <a
+            href="https://www.tiktok.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            TikTok
+          </a>
+        </div>
       </div>
 
-      <div class="footer-links">
-        <a href="work.html">Work</a>
-        <a href="services.html">Services</a>
-        <a href="contact.html">Contact</a>
+      <div class="footer-bottom">
+        <p>© 2026 ShotByDiallo. All rights reserved.</p>
+
+        <p>Montreal, Canada · Available for local and travel projects</p>
       </div>
     </footer>
 
-    <script src="assets/js/main.js"></script>
+    <button
+      class="scroll-toggle"
+      id="scrollToggle"
+      type="button"
+      aria-label="Scroll down"
+    >
+      <span aria-hidden="true"></span>
+    </button>
+
+    <script src="assets/js/main.js?v=21"></script>
   </body>
 </html>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Contact ShotByDiallo | Book a Videographer in Montreal</title>
+
     <meta
       name="description"
       content="Contact ShotByDiallo to book a Montreal videographer for brand videos, music videos, weddings, events and social media content."
@@ -28,34 +29,47 @@
 
     <link rel="canonical" href="https://shotbydiallo.com/contact.html" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css?v=21" />
   </head>
 
   <body>
     <header class="site-header" id="siteHeader">
-      <a href="index.html" class="logo">ShotByDiallo</a>
+      <a href="index.html" class="logo" aria-label="ShotByDiallo homepage">
+        ShotByDiallo
+      </a>
 
-      <nav class="desktop-nav">
+      <nav class="desktop-nav" aria-label="Desktop navigation">
         <a href="work.html">Work</a>
         <a href="services.html">Services</a>
-        <a href="contact.html">Contact</a>
+        <a href="contact.html" aria-current="page">Contact</a>
       </nav>
 
-      <a href="contact.html" class="nav-cta">Start a Project</a>
+      <a href="contact.html" class="nav-cta" aria-current="page">
+        Start a Project
+      </a>
 
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">
-        <span></span>
-        <span></span>
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        type="button"
+        aria-label="Open menu"
+        aria-controls="mobileMenu"
+        aria-expanded="false"
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
       </button>
     </header>
 
-    <div class="mobile-menu" id="mobileMenu">
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
       <a href="index.html">Home</a>
       <a href="work.html">Work</a>
       <a href="services.html">Services</a>
-      <a href="contact.html">Contact</a>
-      <a href="contact.html" class="mobile-cta">Start a Project</a>
-    </div>
+      <a href="contact.html" aria-current="page">Contact</a>
+      <a href="contact.html" class="mobile-cta" aria-current="page">
+        Start a Project
+      </a>
+    </nav>
 
     <main>
       <section class="page-hero contact-page-hero">
@@ -76,6 +90,7 @@
       <section class="contact-main-section">
         <div class="contact-info-panel">
           <p class="eyebrow">Book a shoot</p>
+
           <h2>Ready to create?</h2>
 
           <p>
@@ -92,6 +107,7 @@
             <a
               href="https://www.instagram.com/shotbydiallo/"
               target="_blank"
+              rel="noopener noreferrer"
               class="contact-method"
             >
               <span>Instagram</span>
@@ -124,6 +140,8 @@
                 id="name"
                 name="name"
                 placeholder="Your name"
+                autocomplete="name"
+                required
               />
             </div>
 
@@ -134,12 +152,25 @@
                 id="email"
                 name="email"
                 placeholder="your@email.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="phone">Phone number</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="Your phone number"
+                autocomplete="tel"
               />
             </div>
 
             <div class="form-row">
               <label for="project">Project type</label>
-              <select id="project" name="project_type">
+              <select id="project" name="project_type" required>
                 <option value="">Select one</option>
                 <option value="Brand / company video">
                   Brand / company video
@@ -167,12 +198,23 @@
             </div>
 
             <div class="form-row">
+              <label for="location">Project location</label>
+              <input
+                type="text"
+                id="location"
+                name="project_location"
+                placeholder="Montreal, Laval, venue name, or online"
+              />
+            </div>
+
+            <div class="form-row">
               <label for="message">Project details</label>
               <textarea
                 id="message"
                 name="message"
                 rows="7"
                 placeholder="Tell me what you want to create, where it is, and what the video is for."
+                required
               ></textarea>
             </div>
 
@@ -182,7 +224,8 @@
 
             <p class="form-note">
               Your inquiry will be sent directly to ShotByDiallo. You can also
-              email bydialloo@gmail.com.
+              email
+              <a href="mailto:bydialloo@gmail.com">bydialloo@gmail.com</a>.
             </p>
           </form>
         </div>
@@ -191,51 +234,54 @@
       <section class="inquiry-help-section">
         <div>
           <p class="eyebrow">What to include</p>
+
           <h2>To get a faster answer, include the important details.</h2>
         </div>
 
         <div class="inquiry-grid">
-          <div class="inquiry-card">
+          <article class="inquiry-card">
             <span>01</span>
             <h3>Type of project</h3>
             <p>
               Brand video, music video, wedding, event recap, social media
               content or something else.
             </p>
-          </div>
+          </article>
 
-          <div class="inquiry-card">
+          <article class="inquiry-card">
             <span>02</span>
             <h3>Date & location</h3>
             <p>
               Share the shoot date, event date, city, venue or whether you are
               still planning.
             </p>
-          </div>
+          </article>
 
-          <div class="inquiry-card">
+          <article class="inquiry-card">
             <span>03</span>
             <h3>Goal</h3>
             <p>
               Tell me where the video will be used: Instagram, TikTok, YouTube,
               website, ads or personal memories.
             </p>
-          </div>
+          </article>
 
-          <div class="inquiry-card">
+          <article class="inquiry-card">
             <span>04</span>
             <h3>Budget range</h3>
             <p>
               A budget range helps recommend the right type of video package for
               your project.
             </p>
-          </div>
+          </article>
         </div>
       </section>
 
       <section class="contact-cta">
         <p class="eyebrow">Montreal video production</p>
+
         <h2>Need visuals that look clean, cinematic and intentional?</h2>
+
         <p>
           Send a message and let’s plan the right video for your brand, event or
           release.
@@ -251,18 +297,76 @@
     </main>
 
     <footer class="site-footer">
-      <div>
-        <a href="index.html" class="footer-logo">ShotByDiallo</a>
-        <p>Montreal videographer for brands, artists and events.</p>
+      <div class="footer-main">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">ShotByDiallo</a>
+
+          <p>
+            Montreal-based videographer creating cinematic visuals for brands,
+            artists, weddings and events.
+          </p>
+
+          <a href="contact.html" class="footer-cta" aria-current="page">
+            Start a Project
+          </a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Explore</h3>
+
+          <a href="index.html">Home</a>
+          <a href="work.html">Work</a>
+          <a href="services.html">Services</a>
+          <a href="contact.html" aria-current="page">Contact</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Services</h3>
+
+          <a href="services.html">Brand Videos</a>
+          <a href="services.html">Music Videos</a>
+          <a href="services.html">Event Recaps</a>
+          <a href="services.html">Wedding Films</a>
+        </div>
+
+        <div class="footer-column">
+          <h3>Contact</h3>
+
+          <a href="mailto:bydialloo@gmail.com">bydialloo@gmail.com</a>
+          <a href="tel:+14384936114">438-493-6114</a>
+          <a
+            href="https://www.instagram.com/shotbydiallo/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
+          <a
+            href="https://www.tiktok.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            TikTok
+          </a>
+        </div>
       </div>
 
-      <div class="footer-links">
-        <a href="work.html">Work</a>
-        <a href="services.html">Services</a>
-        <a href="contact.html">Contact</a>
+      <div class="footer-bottom">
+        <p>© 2026 ShotByDiallo. All rights reserved.</p>
+
+        <p>Montreal, Canada · Available for local and travel projects</p>
       </div>
     </footer>
 
-    <script src="assets/js/main.js"></script>
+    <button
+      class="scroll-toggle"
+      id="scrollToggle"
+      type="button"
+      aria-label="Scroll down"
+    >
+      <span aria-hidden="true"></span>
+    </button>
+
+    <script src="assets/js/main.js?v=21"></script>
   </body>
 </html>
