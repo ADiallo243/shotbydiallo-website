@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>ShotByDiallo Studio CRM</title>
+    <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
+    <link rel="stylesheet" href="assets/css/admin.css?v=1" />
+    <link rel="stylesheet" href="assets/css/admin-modules.css?v=1" />
+  </head>
+  <body>
+    <aside class="crm-sidebar">
+      <a class="crm-logo" href="index.html">ShotByDiallo <span>Studio</span></a>
+      <nav>
+        <button class="nav-item active" data-view="overview"><span>⌂</span> Overview</button>
+        <button class="nav-item" data-view="leads"><span>◎</span> Leads <b id="leadBadge">4</b></button>
+        <button class="nav-item" data-view="projects"><span>▣</span> Projects</button>
+        <button class="nav-item" data-view="clients"><span>◉</span> Clients</button>
+        <button class="nav-item" data-view="contracts"><span>✎</span> Contracts</button>
+        <button class="nav-item" data-view="media"><span>▧</span> Media</button>
+        <button class="nav-item" data-view="audience"><span>✦</span> Audience</button>
+        <button class="nav-item" data-view="tasks"><span>✓</span> Tasks</button>
+        <button class="nav-item" data-view="marketing"><span>↗</span> Marketing</button>
+        <button class="nav-item" data-view="finances"><span>$</span> Finances</button>
+        <button class="nav-item" data-view="settings"><span>⚙</span> Settings</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <p>Signed in as</p><strong>Studio Owner</strong>
+        <a href="index.html">View website ↗</a>
+      </div>
+    </aside>
+
+    <main class="crm-main">
+      <header class="crm-topbar">
+        <div><p id="todayLabel"></p><h1 id="viewTitle">Studio overview</h1></div>
+        <div class="top-actions">
+          <button class="icon-button notification-trigger" id="notificationTrigger" aria-label="Notifications" aria-expanded="false">●<b id="notificationCount">4</b></button>
+          <button class="primary-action" id="globalNewLead" data-open-modal>+ New lead</button>
+        </div>
+      </header>
+
+      <aside class="notification-drawer" id="notificationDrawer" aria-hidden="true">
+        <div class="drawer-heading"><div><p class="kicker">Studio activity</p><h2>Notifications</h2></div><button id="closeNotifications" aria-label="Close">×</button></div>
+        <button class="notification-item unread"><i class="danger"></i><span><strong>Project may be delayed</strong>CleanPro final delivery is due in 2 days.</span><time>12m</time></button>
+        <button class="notification-item unread"><i></i><span><strong>Follow-up due</strong>Maison Naya has not replied in 3 days.</span><time>1h</time></button>
+        <button class="notification-item unread"><i class="success"></i><span><strong>New project request</strong>Nordik Construction requested a discovery call.</span><time>3h</time></button>
+        <button class="notification-item unread"><i class="warning"></i><span><strong>Invoice reminder</strong>$1,800 remains due from Amina.</span><time>1d</time></button>
+        <div class="drawer-actions"><button id="markRead">Mark all read</button><button id="enablePush">Enable browser alerts</button></div>
+      </aside>
+
+      <section class="crm-view active" id="overview">
+        <div class="operations-alert">
+          <div><span>Action center</span><strong>3 items need your attention today</strong></div>
+          <button data-view-jump="tasks">Review priorities →</button>
+        </div>
+        <div class="metric-grid">
+          <article><span>Pipeline value</span><strong id="pipelineValue">$18,500</strong><small>Across active opportunities</small></article>
+          <article><span>Booked this month</span><strong>$7,200</strong><small class="positive">↑ 18% from last month</small></article>
+          <article><span>Active projects</span><strong id="activeProjects">6</strong><small>2 need attention</small></article>
+          <article><span>Lead conversion</span><strong>32%</strong><small class="positive">↑ 5% this quarter</small></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel pipeline-panel">
+            <div class="panel-heading"><div><p class="kicker">Sales</p><h2>Lead pipeline</h2></div><button data-view-jump="leads">View all</button></div>
+            <div class="pipeline-summary">
+              <div><span>New</span><strong>4</strong></div><i></i>
+              <div><span>Contacted</span><strong>3</strong></div><i></i>
+              <div><span>Proposal</span><strong>2</strong></div><i></i>
+              <div><span>Booked</span><strong>2</strong></div>
+            </div>
+            <div class="lead-list" id="overviewLeadList"></div>
+          </article>
+
+          <article class="panel schedule-panel">
+            <div class="panel-heading"><div><p class="kicker">Schedule</p><h2>Coming up</h2></div><button>Calendar</button></div>
+            <div class="schedule-item"><time><b>28</b> JUL</time><div><strong>Discovery call · Nordik Construction</strong><span>10:30 AM · Google Meet</span></div></div>
+            <div class="schedule-item"><time><b>30</b> JUL</time><div><strong>Music video treatment review</strong><span>2:00 PM · Artist: Kairo</span></div></div>
+            <div class="schedule-item urgent"><time><b>02</b> AUG</time><div><strong>Restaurant campaign shoot</strong><span>8:00 AM · Old Montreal</span></div></div>
+          </article>
+
+          <article class="panel tasks-panel">
+            <div class="panel-heading"><div><p class="kicker">Focus</p><h2>Tasks due</h2></div><button data-view-jump="tasks">View all</button></div>
+            <label><input type="checkbox" /> Send revised proposal to Atlas Legal <span>Today</span></label>
+            <label><input type="checkbox" /> Follow up with Maison Naya <span>Today</span></label>
+            <label><input type="checkbox" /> Prepare shot list for Kairo <span>Tomorrow</span></label>
+            <label><input type="checkbox" /> Request final payment · CleanPro <span>Aug 1</span></label>
+          </article>
+
+          <article class="panel source-panel">
+            <div class="panel-heading"><div><p class="kicker">Marketing</p><h2>Lead sources</h2></div><button data-view-jump="marketing">Details</button></div>
+            <div class="source-row"><span>Instagram</span><i><b style="width: 78%"></b></i><strong>38%</strong></div>
+            <div class="source-row"><span>Referrals</span><i><b style="width: 62%"></b></i><strong>29%</strong></div>
+            <div class="source-row"><span>Google</span><i><b style="width: 42%"></b></i><strong>21%</strong></div>
+            <div class="source-row"><span>TikTok</span><i><b style="width: 24%"></b></i><strong>12%</strong></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="crm-view" id="leads">
+        <div class="view-tools">
+          <input id="leadSearch" type="search" placeholder="Search leads, companies or services…" />
+          <select id="leadFilter"><option value="all">All stages</option><option>New</option><option>Contacted</option><option>Proposal</option><option>Booked</option><option>Lost</option></select>
+          <button class="primary-action" data-open-modal>+ Add lead</button>
+        </div>
+        <div class="kanban" id="leadKanban"></div>
+      </section>
+
+      <section class="crm-view" id="projects">
+        <div class="section-intro"><div><p class="kicker">Production</p><h2>Active projects</h2></div><button class="primary-action">+ New project</button></div>
+        <div class="project-health-grid">
+          <article><span>On track</span><strong>3</strong><i><b class="healthy" style="width:60%"></b></i></article>
+          <article><span>At risk</span><strong>1</strong><i><b class="warning" style="width:20%"></b></i></article>
+          <article><span>Delayed</span><strong>1</strong><i><b class="danger" style="width:20%"></b></i></article>
+          <article><span>Awaiting client</span><strong>1</strong><i><b style="width:20%"></b></i></article>
+        </div>
+        <div class="project-table panel" id="projectTable"></div>
+      </section>
+
+      <section class="crm-view" id="clients">
+        <div class="section-intro"><div><p class="kicker">Relationships</p><h2>Client directory</h2></div><button class="primary-action">+ Add client</button></div>
+        <div class="client-grid" id="clientGrid"></div>
+      </section>
+
+      <section class="crm-view" id="contracts">
+        <div class="section-intro"><div><p class="kicker">Agreements</p><h2>Contracts</h2><p class="section-note">Create, review, send and track client agreements.</p></div><button class="primary-action" id="newContractButton">+ New contract</button></div>
+        <div class="metric-grid">
+          <article><span>Drafts</span><strong>2</strong><small>Need your review</small></article>
+          <article><span>Sent</span><strong>3</strong><small>Awaiting signature</small></article>
+          <article><span>Signed</span><strong>8</strong><small>This year</small></article>
+          <article><span>Deposits pending</span><strong>2</strong><small>$1,275 expected</small></article>
+        </div>
+        <div class="panel contract-table">
+          <div class="contract-row header"><span>Contract</span><span>Client</span><span>Amount</span><span>Status</span><span>Next step</span></div>
+          <div id="contractList"></div>
+        </div>
+      </section>
+
+      <section class="crm-view" id="media">
+        <div class="section-intro"><div><p class="kicker">Website content</p><h2>Media library</h2><p class="section-note">Organize the images and videos used across the public website.</p></div><button class="primary-action" id="addMediaButton">+ Add media</button></div>
+        <div class="media-tools panel">
+          <input id="mediaSearch" type="search" placeholder="Search media…" />
+          <select id="mediaFilter"><option value="all">All media</option><option value="image">Images</option><option value="video">Videos</option></select>
+          <button>Website placements</button>
+        </div>
+        <div class="media-grid" id="mediaGrid"></div>
+      </section>
+
+      <section class="crm-view" id="audience">
+        <div class="section-intro"><div><p class="kicker">Relationships</p><h2>Contacts & referrals</h2><p class="section-note">Past clients, prospects and newsletter contacts in one place.</p></div><button class="primary-action" id="addContactButton">+ Add contact</button></div>
+        <div class="metric-grid">
+          <article><span>Total contacts</span><strong id="contactTotal">128</strong><small>Clients + prospects + subscribers</small></article>
+          <article><span>Newsletter</span><strong>84</strong><small>65.6% opted in</small></article>
+          <article><span>Referrals received</span><strong>17</strong><small>12 converted to projects</small></article>
+          <article><span>Referral revenue</span><strong>$18,400</strong><small>Last 12 months</small></article>
+        </div>
+        <div class="audience-layout">
+          <article class="panel audience-table-panel">
+            <div class="panel-heading"><div><p class="kicker">Contact list</p><h2>Your audience</h2></div><button id="exportContacts">Export CSV</button></div>
+            <div class="audience-table" id="audienceTable"></div>
+          </article>
+          <article class="panel referral-panel">
+            <div class="panel-heading"><div><p class="kicker">Referral code</p><h2>Give clients a code to share</h2></div></div>
+            <p class="panel-note">The past client receives 10% off their next project, and the person they refer receives 10% off their first project.</p>
+            <label>Choose client<select id="referralClient"><option>CleanPro</option><option>Kairo</option><option>Maison Naya</option><option>Le Sillage</option></select></label>
+            <div class="generated-code"><span>Referral code</span><strong id="generatedReferralCode">SBD-CLEANPRO-10</strong><button id="copyReferralCode">Copy</button></div>
+            <label>Project request link<input id="referralProjectLink" readonly value="http://localhost:4173/contact.html?ref=SBD-CLEANPRO-10" /></label>
+            <div class="referral-actions"><button id="copyReferralLink">Copy link</button><button class="primary-action" id="prepareReferralMessage">Prepare message</button></div>
+            <div class="simple-referral-list"><p><strong>CleanPro</strong> <span>2 referrals · $720 attributed</span></p><p><strong>Kairo</strong> <span>1 referral · Reward available</span></p></div>
+          </article>
+        </div>
+        <article class="panel retention-panel">
+          <div class="panel-heading"><div><p class="kicker">Client retention</p><h2>Automatic follow-up after delivery</h2></div><button id="editRetentionSequence">Edit sequence</button></div>
+          <div class="retention-timeline">
+            <article><time>Day 0</time><i></i><div><strong>Project delivered</strong><span>Final files sent and project marked complete.</span></div><b class="badge success">Trigger</b></article>
+            <article><time>Day 7</time><i></i><div><strong>Thank-you + referral offer</strong><span>10% off their next project and 10% off for the person they refer.</span><button data-preview-sequence="7">Preview message</button></div><b class="badge success">Active</b></article>
+            <article><time>Day 14</time><i></i><div><strong>Google review request</strong><span>A personal check-in and direct Google review link.</span><button data-preview-sequence="14">Preview message</button></div><b class="badge success">Active</b></article>
+            <article><time>Day 30</time><i></i><div><strong>Relationship check-in</strong><span>Ask how the content performed and invite the client to discuss their next project.</span><button data-preview-sequence="30">Preview message</button></div><b class="badge success">Active</b></article>
+          </div>
+        </article>
+      </section>
+
+      <section class="crm-view" id="tasks">
+        <div class="section-intro"><div><p class="kicker">Operations</p><h2>Tasks & follow-ups</h2></div><button class="primary-action">+ New task</button></div>
+        <div class="panel task-board">
+          <h3>Today</h3>
+          <label><input type="checkbox" /> Send revised proposal to Atlas Legal <em>Sales</em><span>9:00 AM</span></label>
+          <label><input type="checkbox" /> Follow up with Maison Naya <em>Follow-up</em><span>11:30 AM</span></label>
+          <h3>Next</h3>
+          <label><input type="checkbox" /> Prepare Kairo music video shot list <em>Pre-production</em><span>Tomorrow</span></label>
+          <label><input type="checkbox" /> Upload CleanPro final delivery link <em>Delivery</em><span>Aug 1</span></label>
+        </div>
+      </section>
+
+      <section class="crm-view" id="marketing">
+        <div class="metric-grid marketing-metrics">
+          <article><span>Website inquiries</span><strong>24</strong><small>This month</small></article>
+          <article><span>Consultations booked</span><strong>11</strong><small>45.8% of inquiries</small></article>
+          <article><span>Outreach replies</span><strong>19%</strong><small>Last 30 days</small></article>
+          <article><span>Repeat clients</span><strong>36%</strong><small>Last 12 months</small></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="panel outreach-panel">
+            <div class="panel-heading"><div><p class="kicker">Outreach</p><h2>Prospect list</h2></div><button>+ Add prospect</button></div>
+            <div class="prospect"><div><strong>Bâtiments Nova</strong><span>Construction · Montreal</span></div><b>Follow up today</b></div>
+            <div class="prospect"><div><strong>Cabinet Laurent</strong><span>Law firm · Laval</span></div><b>Not contacted</b></div>
+            <div class="prospect"><div><strong>Le Sillage</strong><span>Restaurant · Montreal</span></div><b>Replied</b></div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="kicker">Automation</p><h2>Follow-up sequences</h2></div></div>
+            <div class="automation-row"><span>New inquiry confirmation</span><b>Active</b></div>
+            <div class="automation-row"><span>Proposal reminder · 3 days</span><b>Active</b></div>
+            <div class="automation-row"><span>Review request · after delivery</span><b>Draft</b></div>
+            <div class="automation-row"><span>Past-client check-in · 90 days</span><b>Draft</b></div>
+          </article>
+        </div>
+        <div class="marketing-workspace">
+          <article class="panel campaign-builder">
+            <div class="panel-heading"><div><p class="kicker">Campaigns</p><h2>Outreach planner</h2></div><button id="newCampaign">+ Campaign</button></div>
+            <div class="campaign-row"><div><strong>Construction company outreach</strong><span>42 prospects · Email + Instagram</span></div><div class="campaign-progress"><i><b style="width:58%"></b></i><span>18 replies</span></div><b class="badge success">Active</b></div>
+            <div class="campaign-row"><div><strong>Restaurant visual audit</strong><span>25 prospects · Personalized email</span></div><div class="campaign-progress"><i><b style="width:32%"></b></i><span>6 replies</span></div><b class="badge warning">Paused</b></div>
+            <div class="campaign-row"><div><strong>Past-client reactivation</strong><span>31 clients · Email</span></div><div class="campaign-progress"><i><b style="width:12%"></b></i><span>Scheduled</span></div><b class="badge">Draft</b></div>
+          </article>
+          <article class="panel marketing-ideas">
+            <p class="kicker">Next best actions</p><h2>Recommended today</h2>
+            <label><input type="checkbox" /> Follow up with 4 warm business leads</label>
+            <label><input type="checkbox" /> Ask 2 completed clients for referrals</label>
+            <label><input type="checkbox" /> Prepare one construction case study</label>
+            <label><input type="checkbox" /> Schedule next week’s behind-the-scenes post</label>
+          </article>
+        </div>
+      </section>
+
+      <section class="crm-view" id="finances">
+        <div class="section-intro finance-heading"><div><p class="kicker">Financial tracking</p><h2>Revenue & invoices</h2><p class="section-note">Record deposits and payments manually until a payment provider is connected.</p></div><button class="primary-action" id="addTransactionButton">+ Record payment</button></div>
+        <div class="metric-grid">
+          <article><span>Revenue this month</span><strong>$12,600</strong><small class="positive">↑ 14% month over month</small></article>
+          <article><span>Outstanding</span><strong>$4,200</strong><small>Across 3 invoices</small></article>
+          <article><span>Average project</span><strong>$3,780</strong><small>Last 12 months</small></article>
+          <article><span>Projected revenue</span><strong>$27,100</strong><small>Booked + weighted pipeline</small></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="panel"><div class="panel-heading"><div><p class="kicker">Cash flow</p><h2>Invoices</h2></div><button>+ New invoice</button></div>
+            <div id="invoiceList"></div>
+          </article>
+          <article class="panel"><div class="panel-heading"><div><p class="kicker">Revenue</p><h2>Monthly goal</h2></div></div>
+            <div class="goal-ring"><strong>63%</strong><span>$12,600 of $20,000</span></div>
+            <div class="revenue-bar"><b style="width:63%"></b></div>
+            <p class="panel-note">Two booked projects can bring this month to 87% of goal.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="crm-view" id="settings">
+        <div class="settings-layout">
+          <article class="panel">
+            <p class="kicker">Notifications</p><h2>Stay ahead of every project</h2>
+            <div class="setting-row"><div><strong>New project requests</strong><span>Browser and email alert immediately</span></div><input type="checkbox" checked /></div>
+            <div class="setting-row"><div><strong>Follow-up reminders</strong><span>Alert when a lead needs attention</span></div><input type="checkbox" checked /></div>
+            <div class="setting-row"><div><strong>Project delay warnings</strong><span>Alert 3 days before a deadline is at risk</span></div><input type="checkbox" checked /></div>
+            <div class="setting-row"><div><strong>Invoice reminders</strong><span>Notify you and prepare a client reminder</span></div><input type="checkbox" checked /></div>
+            <label class="settings-field">Notification email<input type="email" value="bydialloo@gmail.com" /></label>
+            <button class="primary-action" id="testNotification">Send test notification</button>
+          </article>
+          <article class="panel">
+            <p class="kicker">Workflow</p><h2>Automatic studio rules</h2>
+            <div class="automation-rule"><span>When a request arrives</span><strong>Create lead + reply + task</strong></div>
+            <div class="automation-rule"><span>Proposal has no reply for 3 days</span><strong>Remind me</strong></div>
+            <div class="automation-rule"><span>Deadline is within 72 hours</span><strong>Flag project at risk</strong></div>
+            <div class="automation-rule"><span>Project is delivered</span><strong>Request review in 3 days</strong></div>
+          </article>
+          <article class="panel">
+            <p class="kicker">Studio profile</p><h2>Business defaults</h2>
+            <label class="settings-field">Business name<input value="ShotByDiallo" /></label>
+            <label class="settings-field">Owner name<input value="Abdourahmane Diallo" /></label>
+            <label class="settings-field">Default currency<select><option>CAD — Canadian dollar</option><option>USD — US dollar</option><option>EUR — Euro</option></select></label>
+            <label class="settings-field">Default deposit<select><option>25%</option><option>30%</option><option>50%</option><option>Custom per project</option></select></label>
+            <label class="settings-field">Invoice numbering<input value="SBD-####" /></label>
+          </article>
+          <article class="panel">
+            <p class="kicker">Production defaults</p><h2>Project rules</h2>
+            <label class="settings-field">Default editing delay<select><option>3 weeks</option><option>2 weeks</option><option>4 weeks</option><option>Custom per project</option></select></label>
+            <label class="settings-field">Included revisions<select><option>2 revisions</option><option>1 revision</option><option>3 revisions</option></select></label>
+            <label class="settings-field">Warn about deadlines<select><option>3 days before</option><option>5 days before</option><option>7 days before</option></select></label>
+            <label class="settings-field">Client delivery retention<select><option>30 days</option><option>60 days</option><option>90 days</option><option>No automatic expiry</option></select></label>
+          </article>
+          <article class="panel">
+            <p class="kicker">Appearance & access</p><h2>Back-office preferences</h2>
+            <div class="setting-row"><div><strong>Compact tables</strong><span>Show more records on screen</span></div><input type="checkbox" /></div>
+            <div class="setting-row"><div><strong>Confirm before deleting</strong><span>Protect contracts, clients and financial records</span></div><input type="checkbox" checked /></div>
+            <div class="setting-row"><div><strong>French documents</strong><span>Generate contracts and receipts in French</span></div><input type="checkbox" checked /></div>
+            <label class="settings-field">Start page<select><option>Overview</option><option>Leads</option><option>Projects</option><option>Tasks</option></select></label>
+            <button class="primary-action" id="saveSettings">Save settings</button>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="leadModal">
+      <form method="dialog" id="newLeadForm">
+        <div class="modal-heading"><div><p class="kicker">New opportunity</p><h2>Add a lead</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Name<input name="name" required /></label>
+        <label>Company / artist<input name="company" /></label>
+        <label>Project type<select name="service"><option>Business video</option><option>Music video</option><option>Monthly content</option></select></label>
+        <label>Estimated value<input name="value" type="number" min="0" placeholder="2500" /></label>
+        <label>Lead source<select name="source"><option>Website</option><option>Instagram</option><option>Referral</option><option>Google</option><option>Outreach</option></select></label>
+        <label>Next action<input name="nextAction" placeholder="Book discovery call" /></label>
+        <button class="primary-action" value="default">Save lead</button>
+      </form>
+    </dialog>
+
+    <dialog id="messageModal">
+      <form method="dialog" id="clientMessageForm">
+        <div class="modal-heading"><div><p class="kicker">Client communication</p><h2>Send project update</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Client<select id="messageClient"><option>CleanPro</option><option>Kairo</option><option>Le Sillage</option><option>Amina</option></select></label>
+        <label>Message type<select id="messageType"><option value="preview">Preview ready</option><option value="delivery">Final delivery</option><option value="complete">Project completed</option><option value="review">Review request</option></select></label>
+        <label>Delivery or preview link<input id="messageLink" type="url" placeholder="Frame.io, Google Drive or WeTransfer link" /></label>
+        <label>Message<textarea id="messageBody" rows="9"></textarea></label>
+        <div class="modal-actions"><button type="button" id="copyMessage">Copy message</button><a id="emailMessage" class="primary-action" href="#">Open in email</a></div>
+      </form>
+    </dialog>
+
+    <dialog id="transactionModal">
+      <form method="dialog" id="transactionForm">
+        <div class="modal-heading"><div><p class="kicker">Financial record</p><h2>Record a payment</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Client<select name="client" required><option value="">Select an existing client</option><option>CleanPro</option><option>Kairo</option><option>Le Sillage</option><option>Atlas Legal</option><option>Nordik Construction</option><option>Amina</option><option>Maison Naya</option></select></label>
+        <label>Invoice number<input name="invoice" placeholder="#1043" required /></label>
+        <label>Amount received<input name="amount" type="number" min="0" step="0.01" required /></label>
+        <label>Payment status<select name="status"><option>Paid</option><option>Deposit paid</option><option>Partially paid</option><option>Due</option><option>Overdue</option></select></label>
+        <label>Payment method<select name="method"><option>E-transfer</option><option>Cash</option><option>Cheque</option><option>Bank transfer</option><option>Other</option></select></label>
+        <button class="primary-action" value="default">Save transaction</button>
+      </form>
+    </dialog>
+
+    <dialog id="contractModal" class="wide-dialog">
+      <form method="dialog" id="contractForm">
+        <div class="modal-heading"><div><p class="kicker">French service agreement</p><h2>Create a contract</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <div class="contract-form-grid">
+          <label>Existing client<select name="client" id="contractClient" required><option value="">Select client</option><option>CleanPro</option><option>Kairo</option><option>Le Sillage</option><option>Atlas Legal</option><option>Nordik Construction</option><option>Amina</option><option>Maison Naya</option></select></label>
+          <label>Project title<input name="title" placeholder="Company story video" required /></label>
+          <label>Service date<input name="service_date" type="date" required /></label>
+          <label>Location<input name="location" value="Montréal, Québec" required /></label>
+          <label>Total amount (CAD)<input name="amount" type="number" min="0" step="0.01" required /></label>
+          <label>Deposit percentage<input name="deposit_percent" type="number" min="0" max="100" value="25" required /></label>
+          <label>Remaining balance due<select name="balance_due"><option>Before production begins</option><option>On the shoot date</option><option>Before final delivery</option><option>Custom arrangement</option></select></label>
+          <label>Editing and delivery delay<input name="delivery_delay" value="3 weeks after the service date" required /></label>
+          <label>Included revisions<input name="revisions" type="number" min="0" value="2" /></label>
+          <label>Exact schedule<input name="schedule" placeholder="Full day or detailed hours" /></label>
+        </div>
+        <label>What will be produced?<textarea name="scope" rows="6" placeholder="Describe filming, photography, editing and coverage." required></textarea></label>
+        <label>Final deliverables<textarea name="deliverables" rows="5" placeholder="One short video, one long-form video, edited photos…" required></textarea></label>
+        <label>Additional notes<textarea name="notes" rows="4" placeholder="Access, travel, equipment, special conditions or agreements."></textarea></label>
+        <label class="checkbox-label"><input name="portfolio_rights" type="checkbox" checked /> ShotByDiallo may use selected extracts for portfolio and promotion unless the client objects in writing.</label>
+        <div class="modal-actions"><button type="button" id="previewContract">Preview contract</button><button type="button" id="saveContractDraft">Save draft</button><button type="button" class="primary-action" id="prepareContractEmail">Prepare email</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="contractPreviewModal" class="document-dialog">
+      <div class="document-toolbar"><button type="button" data-close-dialog>← Back</button><button type="button" id="printContract">Print / Save PDF</button></div>
+      <article id="contractDocument" class="contract-document"></article>
+    </dialog>
+
+    <dialog id="receiptModal" class="document-dialog">
+      <div class="document-toolbar"><button type="button" data-close-dialog>← Close</button><button type="button" id="printReceipt">Print / Save PDF</button></div>
+      <article id="receiptDocument" class="receipt-document"></article>
+    </dialog>
+
+    <dialog id="quickEditModal" class="small-dialog">
+      <form method="dialog" id="quickEditForm">
+        <div class="modal-heading"><div><p class="kicker">Edit record</p><h2 id="quickEditTitle">Update</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label id="quickEditLabel">Value<input id="quickEditInput" /></label>
+        <div class="modal-actions"><button type="button" data-close-dialog>Cancel</button><button type="submit" class="primary-action">Save changes</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="confirmModal" class="small-dialog">
+      <div class="confirm-content">
+        <p class="kicker">Please confirm</p><h2>Remove this record?</h2><p id="confirmMessage">This action will remove the selected item.</p>
+        <div class="modal-actions"><button type="button" data-close-dialog>Cancel</button><button type="button" class="danger-action" id="confirmRemove">Remove</button></div>
+      </div>
+    </dialog>
+
+    <dialog id="sequenceMessageModal" class="small-dialog">
+      <div class="confirm-content">
+        <div class="modal-heading"><div><p class="kicker">Automatic message</p><h2 id="sequenceMessageTitle">Follow-up</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <textarea id="sequenceMessageBody" rows="12"></textarea>
+        <div class="modal-actions"><button type="button" data-close-dialog>Close</button><button type="button" class="primary-action" id="copySequenceMessage">Copy message</button></div>
+      </div>
+    </dialog>
+
+    <div class="crm-toast" id="crmToast" role="status" aria-live="polite"></div>
+    <script src="assets/js/admin.js?v=1"></script>
+  </body>
+</html>

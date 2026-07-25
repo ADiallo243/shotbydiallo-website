@@ -8,7 +8,7 @@
 
     <meta
       name="description"
-      content="Contact ShotByDiallo to book a Montreal videographer for brand videos, music videos, weddings, events and social media content."
+      content="Start a music video or business video project with ShotByDiallo. Share your goals, budget and timeline for a focused production recommendation."
     />
     <meta
       name="keywords"
@@ -81,9 +81,8 @@
         </h1>
 
         <p>
-          Whether you need a brand video, music visual, event recap, wedding
-          film or social media content, send the details and I’ll get back to
-          you.
+          Tell me what you want the video to accomplish. I’ll review your
+          vision, timeline and budget, then recommend the strongest next step.
         </p>
       </section>
 
@@ -125,106 +124,115 @@
           <form
             action="https://formspree.io/f/xvzlwezg"
             method="POST"
-            class="contact-form"
+            class="contact-form project-form"
+            id="projectForm"
           >
             <input
               type="hidden"
               name="_subject"
               value="New inquiry from ShotByDiallo website"
             />
-
-            <div class="form-row">
-              <label for="name">Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Your name"
-                autocomplete="name"
-                required
-              />
+            <input type="hidden" name="referral_code" id="referralCode" />
+            <div class="referral-notice" id="referralNotice" hidden>
+              Referral code applied: <strong></strong>. You may qualify for 10%
+              off your first project.
             </div>
 
-            <div class="form-row">
-              <label for="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="your@email.com"
-                autocomplete="email"
-                required
-              />
+            <div class="form-progress" aria-label="Project request progress">
+              <span class="active" data-progress="1">01</span>
+              <span data-progress="2">02</span>
+              <span data-progress="3">03</span>
+              <span data-progress="4">04</span>
             </div>
 
-            <div class="form-row">
-              <label for="phone">Phone number</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                placeholder="Your phone number"
-                autocomplete="tel"
-              />
-            </div>
+            <section class="form-step active" data-step="1">
+              <p class="eyebrow">Step 1 of 4</p>
+              <h2>What are we creating?</h2>
+              <div class="choice-grid">
+                <label class="choice-card">
+                  <input type="radio" name="project_type" value="Music video" required />
+                  <span><strong>Music video</strong>For a single, EP or artist campaign</span>
+                </label>
+                <label class="choice-card">
+                  <input type="radio" name="project_type" value="Business video" required />
+                  <span><strong>Business video</strong>Company story, service or testimonial</span>
+                </label>
+                <label class="choice-card">
+                  <input type="radio" name="project_type" value="Monthly content" required />
+                  <span><strong>Monthly content</strong>Recurring social video production</span>
+                </label>
+                <label class="choice-card">
+                  <input type="radio" name="project_type" value="Other" required />
+                  <span><strong>Something else</strong>Tell me what you have in mind</span>
+                </label>
+              </div>
+            </section>
 
-            <div class="form-row">
-              <label for="project">Project type</label>
-              <select id="project" name="project_type" required>
-                <option value="">Select one</option>
-                <option value="Brand / company video">
-                  Brand / company video
-                </option>
-                <option value="Music video / artist content">
-                  Music video / artist content
-                </option>
-                <option value="Event recap">Event recap</option>
-                <option value="Wedding film">Wedding film</option>
-                <option value="Social media content">
-                  Social media content
-                </option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
+            <section class="form-step" data-step="2">
+              <p class="eyebrow">Step 2 of 4</p>
+              <h2>Scope and timing</h2>
+              <div class="form-row">
+                <label for="budget">Estimated budget</label>
+                <select id="budget" name="budget" required>
+                  <option value="">Choose a range</option>
+                  <option>Under $1,000</option>
+                  <option>$1,000–$2,500</option>
+                  <option>$2,500–$5,000</option>
+                  <option>$5,000–$10,000</option>
+                  <option>$10,000+</option>
+                  <option>Not sure yet</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="date">Desired shoot date or timeline</label>
+                <input type="text" id="date" name="project_date" placeholder="Example: September 2026" required />
+              </div>
+              <div class="form-row">
+                <label for="location">Project location</label>
+                <input type="text" id="location" name="project_location" placeholder="Montreal, Laval or another city" required />
+              </div>
+            </section>
 
-            <div class="form-row">
-              <label for="date">Project date</label>
-              <input
-                type="text"
-                id="date"
-                name="project_date"
-                placeholder="Date or estimated timeline"
-              />
-            </div>
+            <section class="form-step" data-step="3">
+              <p class="eyebrow">Step 3 of 4</p>
+              <h2>Your vision</h2>
+              <div class="form-row">
+                <label for="message">What should this video accomplish?</label>
+                <textarea id="message" name="message" rows="6" placeholder="Share the idea, audience, deliverables and result you want." required></textarea>
+              </div>
+              <div class="form-row">
+                <label for="reference">Reference or inspiration link</label>
+                <input type="url" id="reference" name="reference_link" placeholder="YouTube, Instagram, Drive or mood board" />
+              </div>
+              <div class="form-row">
+                <label for="source">How did you find ShotByDiallo?</label>
+                <select id="source" name="lead_source" required>
+                  <option value="">Select one</option>
+                  <option>Instagram</option><option>TikTok</option><option>Google</option>
+                  <option>Referral</option><option>Previous client</option><option>Other</option>
+                </select>
+              </div>
+            </section>
 
-            <div class="form-row">
-              <label for="location">Project location</label>
-              <input
-                type="text"
-                id="location"
-                name="project_location"
-                placeholder="Montreal, Laval, venue name, or online"
-              />
-            </div>
+            <section class="form-step" data-step="4">
+              <p class="eyebrow">Step 4 of 4</p>
+              <h2>Where should I reach you?</h2>
+              <div class="form-row"><label for="name">Name</label><input type="text" id="name" name="name" placeholder="Your name" autocomplete="name" required /></div>
+              <div class="form-row"><label for="company">Company or artist name</label><input type="text" id="company" name="company" placeholder="Optional" /></div>
+              <div class="form-row"><label for="email">Email</label><input type="email" id="email" name="email" placeholder="your@email.com" autocomplete="email" required /></div>
+              <div class="form-row"><label for="phone">Phone number</label><input type="tel" id="phone" name="phone" placeholder="Your phone number" autocomplete="tel" /></div>
+              <div class="form-row"><label for="contactPreference">Preferred contact</label><select id="contactPreference" name="contact_preference"><option>Email</option><option>Phone</option><option>Instagram</option></select></div>
+            </section>
 
-            <div class="form-row">
-              <label for="message">Project details</label>
-              <textarea
-                id="message"
-                name="message"
-                rows="7"
-                placeholder="Tell me what you want to create, where it is, and what the video is for."
-                required
-              ></textarea>
+            <div class="form-navigation">
+              <button type="button" class="btn secondary-btn step-back" id="stepBack">Back</button>
+              <button type="button" class="btn primary-btn step-next" id="stepNext">Continue</button>
+              <button type="submit" class="btn primary-btn form-btn step-submit">Submit Project Request</button>
             </div>
-
-            <button type="submit" class="btn primary-btn form-btn">
-              Send Inquiry
-            </button>
 
             <p class="form-note">
-              Your inquiry will be sent directly to ShotByDiallo. You can also
-              email
+              Your request goes directly to ShotByDiallo and is reviewed
+              personally. You can also email
               <a href="mailto:bydialloo@gmail.com">bydialloo@gmail.com</a>.
             </p>
           </form>
@@ -243,8 +251,8 @@
             <span>01</span>
             <h3>Type of project</h3>
             <p>
-              Brand video, music video, wedding, event recap, social media
-              content or something else.
+              Music video, business video, monthly content partnership or
+              something else.
             </p>
           </article>
 
@@ -252,7 +260,7 @@
             <span>02</span>
             <h3>Date & location</h3>
             <p>
-              Share the shoot date, event date, city, venue or whether you are
+              Share your ideal shoot date, city, location or whether you are
               still planning.
             </p>
           </article>
@@ -303,7 +311,7 @@
 
           <p>
             Montreal-based videographer creating cinematic visuals for brands,
-            artists, weddings and events.
+            artists and businesses.
           </p>
 
           <a href="contact.html" class="footer-cta" aria-current="page">
@@ -323,10 +331,10 @@
         <div class="footer-column">
           <h3>Services</h3>
 
-          <a href="services.html">Brand Videos</a>
+          <a href="services.html">Business Videos</a>
           <a href="services.html">Music Videos</a>
-          <a href="services.html">Event Recaps</a>
-          <a href="services.html">Wedding Films</a>
+          <a href="services.html">Company Stories</a>
+          <a href="services.html">Monthly Content</a>
         </div>
 
         <div class="footer-column">
