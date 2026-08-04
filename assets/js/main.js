@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   const internalLinks = document.querySelectorAll(
-    'a[href="index.html"], a[href="work.html"], a[href="services.html"], a[href="contact.html"], a[href$=".html"]',
+    'a[href="/"], a[href="/work"], a[href="/services"], a[href="/contact"]',
   );
 
   internalLinks.forEach(function (link) {

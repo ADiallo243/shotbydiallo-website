@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const slug = referralClient.value.toUpperCase().replace(/[^A-Z0-9]+/g, '').slice(0, 14);
     const code = `SBD-${slug}-10`;
     generatedReferralCode.textContent = code;
-    referralProjectLink.value = `${window.location.origin}/contact.html?ref=${encodeURIComponent(code)}`;
+    referralProjectLink.value = `${window.location.origin}/contact?ref=${encodeURIComponent(code)}`;
   }
   referralClient.addEventListener('change', updateReferralCode);
   document.getElementById('copyReferralCode').addEventListener('click', async () => {
