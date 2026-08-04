@@ -1,32 +1,39 @@
 # ShotByDiallo Studio CRM
 
-## Current local build
+## Launch build
 
 - Focused public positioning: music videos and business video production
 - Four-step project request form
-- CRM overview, leads, projects, clients, tasks and marketing views
-- Interactive lead creation and filtering using local browser storage
+- Authenticated CRM overview, leads, projects, clients, tasks and website media views
+- Website requests saved to Supabase and shown in the CRM lead inbox
+- Email notification through Resend for every successfully saved request
 - Supabase database schema with owner-scoped row-level security
-- Website media library with placement tracking
-- Client preview, delivery, completion and review message templates
-- Contact lists, newsletter consent and referral tracking
-- Manual invoices, deposits and payment records
-- French contract builder, printable contract previews and accounting receipts
+- Website media uploads with placement tracking and automatic public-site replacement
 
-The local CRM interface is a working prototype. Its sample data and newly added
-leads remain in the browser until Supabase is connected.
+Prototype-only finance, contract, marketing and automation screens are not part
+of the launch navigation. They should only be enabled after their database and
+provider integrations are complete.
 
 ## Production connection
 
-1. Create a dedicated Supabase project for ShotByDiallo.
-2. Run `supabase/schema.sql` in the Supabase SQL editor.
-3. Add the project URL and publishable key to the website environment.
-4. Replace the current Formspree submission with a secure server endpoint that
-   creates a lead and sends the client confirmation email.
-5. Add Supabase authentication to `/admin`.
-6. Replace local browser storage in `assets/js/admin.js` with database queries.
-7. Connect email, calendar and payment providers only after their credentials
-   are configured.
+1. Run `supabase/schema.sql`, then `supabase/phase2_media.sql` in Supabase.
+2. Create the owner profile linked to the Supabase Auth user.
+3. Configure these Vercel variables for Production:
+   `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_PUBLISHABLE_KEY`,
+   `SHOTBYDIALLO_OWNER_ID`, `RESEND_API_KEY`, `NOTIFICATION_EMAIL`, `EMAIL_FROM`.
+4. Keep the Supabase service-role key and Resend key server-only. Never add
+   either key to public JavaScript or Git.
+5. Sign in at `/admin.html` with the Supabase Auth email and password.
+
+## Live workflow
+
+1. A visitor completes the four-step form.
+2. `/api/leads` validates and saves the request in Supabase.
+3. Resend emails the configured notification address.
+4. The owner signs in to `/admin.html` and sees the request under Leads.
+5. Media uploaded under Website media is stored in the public `site-media`
+   bucket. A selected placement replaces the matching public image or video;
+   static optimized assets remain as the fallback.
 
 ## Financial workflow without online payments
 
@@ -51,4 +58,5 @@ professional before relying on them for every type of production.
 - Manager: clients, leads, projects, tasks and marketing
 - Contractor: assigned projects and tasks only
 
-The `/admin` page must not be published without authentication.
+The `/admin.html` page is protected by Supabase password authentication and
+owner-scoped row-level security.

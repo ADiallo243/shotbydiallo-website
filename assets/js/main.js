@@ -11,6 +11,74 @@ document.addEventListener('DOMContentLoaded', function () {
   document.body.classList.remove('page-exit');
   document.body.classList.add('page-loaded');
 
+  async function loadManagedMedia() {
+    if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') return;
+    const placements = {
+      'assets/images/hero/hero-launch.jpg': 'home-hero-poster',
+      'assets/videos/hero-video.mp4': 'home-hero-video',
+      'assets/videos/artist-reel.mp4': 'work-featured-video',
+      'assets/images/work/music-video-web.jpg': 'music-video-cover',
+      'assets/images/work/brand-video-web.jpg': 'business-video-cover',
+      'assets/images/work/event-video-web.jpg': 'event-video-cover',
+      'assets/images/work/wedding-video-web.jpg': 'wedding-video-cover',
+      'assets/images/work/streetwear-brand-optimized.jpg': 'streetwear-cover',
+      'assets/images/work/creative-portrait-optimized.jpg': 'portrait-cover',
+      'assets/images/work/cultural-event-optimized.jpg': 'culture-cover',
+      'assets/images/work/lifestyle-brand-optimized.jpg': 'lifestyle-cover',
+      'assets/images/about/portrait-optimized.jpg': 'about-portrait',
+    };
+    try {
+      const configResponse = await fetch('/api/crm-config');
+      if (!configResponse.ok) return;
+      const config = await configResponse.json();
+      const mediaResponse = await fetch(
+        `${config.url}/rest/v1/media_assets?select=storage_path,website_placement,alt_text,media_type&website_placement=not.is.null`,
+        { headers: { apikey: config.key } },
+      );
+      if (!mediaResponse.ok) return;
+      const assets = await mediaResponse.json();
+      const byPlacement = new Map(assets.map((asset) => [asset.website_placement, asset]));
+      document.querySelectorAll('img,video,source').forEach(function (element) {
+        const source = element.getAttribute('src') || element.getAttribute('poster') || element.dataset.src;
+        const placement = placements[source];
+        const asset = placement && byPlacement.get(placement);
+        if (!asset) return;
+        const publicUrl = `${config.url}/storage/v1/object/public/site-media/${asset.storage_path}`;
+        if (element.tagName === 'VIDEO') element.poster = publicUrl;
+        else if (element.tagName === 'SOURCE' && element.dataset.src) element.dataset.src = publicUrl;
+        else element.src = publicUrl;
+        if (element.tagName === 'IMG' && asset.alt_text) element.alt = asset.alt_text;
+      });
+    } catch {
+      // The static, optimized website assets remain available if managed media is unavailable.
+    }
+  }
+
+  function startDeferredVideos() {
+    if (navigator.connection?.saveData || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(min-width: 768px)').matches) return;
+    document.querySelectorAll('video source[data-src]').forEach(function (source) {
+      if (source.src) return;
+      source.src = source.dataset.src;
+      const video = source.closest('video');
+      video?.load();
+      video?.play().catch(function () {});
+    });
+  }
+
+  function scheduleDeferredVideos() {
+    let started = false;
+    const startOnce = function () {
+      if (started) return;
+      started = true;
+      startDeferredVideos();
+      ['pointerdown', 'keydown', 'scroll'].forEach((eventName) => window.removeEventListener(eventName, startOnce));
+    };
+    ['pointerdown', 'keydown', 'scroll'].forEach((eventName) => window.addEventListener(eventName, startOnce, { passive: true, once: true }));
+  }
+
+  loadManagedMedia().finally(scheduleDeferredVideos);
+
   function restoreVisiblePage() {
     document.body.classList.remove('page-exit');
     document.body.classList.add('page-loaded');
@@ -205,9 +273,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const backButton = document.getElementById('stepBack');
     const nextButton = document.getElementById('stepNext');
     const submitButton = projectForm.querySelector('.step-submit');
+    const formStatus = document.getElementById('projectFormStatus');
     let currentStep = 0;
 
-    function showStep(index) {
+    function setFormStatus(message, tone) {
+      if (!formStatus) return;
+      formStatus.textContent = message;
+      formStatus.dataset.tone = tone || 'success';
+      formStatus.hidden = !message;
+    }
+
+    function showStep(index, shouldScroll) {
       currentStep = Math.max(0, Math.min(index, steps.length - 1));
       steps.forEach(function (step, stepIndex) {
         step.classList.toggle('active', stepIndex === currentStep);
@@ -218,7 +294,9 @@ document.addEventListener('DOMContentLoaded', function () {
       backButton.hidden = currentStep === 0;
       nextButton.hidden = currentStep === steps.length - 1;
       submitButton.hidden = currentStep !== steps.length - 1;
-      projectForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (shouldScroll) {
+        projectForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     function validateCurrentStep() {
@@ -235,14 +313,55 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     nextButton.addEventListener('click', function () {
-      if (validateCurrentStep()) showStep(currentStep + 1);
+      if (validateCurrentStep()) showStep(currentStep + 1, true);
     });
 
     backButton.addEventListener('click', function () {
-      showStep(currentStep - 1);
+      showStep(currentStep - 1, true);
     });
 
-    showStep(0);
+    projectForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      if (!projectForm.checkValidity()) return;
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending…';
+      setFormStatus('');
+
+      try {
+        const response = await fetch(projectForm.action, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(Object.fromEntries(new FormData(projectForm))),
+        });
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to send your request.');
+        }
+
+        projectForm.reset();
+        showStep(0, false);
+        setFormStatus(
+          'Thanks — your project request was received. ShotByDiallo will be in touch shortly.',
+        );
+      } catch (error) {
+        setFormStatus(
+          error.message || 'Something went wrong. Please email bydialloo@gmail.com instead.',
+          'error',
+        );
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit Project Request';
+      }
+    });
+
+    showStep(0, false);
   }
 
   function selectAudience(audience, shouldScroll) {

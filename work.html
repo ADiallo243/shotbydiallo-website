@@ -21,12 +21,13 @@
       property="og:description"
       content="Portfolio of cinematic visuals for brands, artists, events and weddings in Montreal."
     />
-    <meta property="og:image" content="assets/images/work/brand-video.jpg" />
+    <meta property="og:image" content="https://www.shotbydiallo.com/assets/images/work/brand-video.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:type" content="website" />
 
-    <link rel="canonical" href="https://shotbydiallo.com/work.html" />
+    <link rel="canonical" href="https://www.shotbydiallo.com/work.html" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
-    <link rel="stylesheet" href="assets/css/style.css?v=21" />
+    <link rel="stylesheet" href="assets/css/style.css?v=35" />
   </head>
 
   <body>
@@ -100,9 +101,10 @@
             muted
             loop
             playsinline
-            poster="assets/images/work/music-video.jpg"
+            preload="none"
+            poster="assets/images/work/music-video-web.jpg"
           >
-            <source src="assets/videos/artist-reel.mp4" type="video/mp4" />
+            <source data-src="assets/videos/artist-reel.mp4" type="video/mp4" />
           </video>
         </div>
       </section>
@@ -140,8 +142,10 @@
         <div class="portfolio-grid">
           <article class="portfolio-card" data-category="brand">
             <img
-              src="assets/images/work/brand-video.jpg"
+              src="assets/images/work/brand-video-web.jpg"
               alt="Studio fashion campaign shot by ShotByDiallo in Montreal"
+              loading="lazy"
+              decoding="async"
             />
             <div class="portfolio-info">
               <p>Brand Campaign</p>
@@ -151,8 +155,10 @@
 
           <article class="portfolio-card tall" data-category="artist">
             <img
-              src="assets/images/work/music-video.jpg"
+              src="assets/images/work/music-video-web.jpg"
               alt="Montreal music performance video by ShotByDiallo"
+              loading="lazy"
+              decoding="async"
             />
             <div class="portfolio-info">
               <p>Artist Content</p>
@@ -162,8 +168,10 @@
 
           <article class="portfolio-card" data-category="event">
             <img
-              src="assets/images/work/event-video.jpg"
+              src="assets/images/work/event-video-web.jpg"
               alt="Corporate event networking coverage in Montreal by ShotByDiallo"
+              loading="lazy"
+              decoding="async"
             />
             <div class="portfolio-info">
               <p>Corporate Event</p>
@@ -173,8 +181,10 @@
 
           <article class="portfolio-card wide" data-category="wedding">
             <img
-              src="assets/images/work/wedding-video.jpg"
+              src="assets/images/work/wedding-video-web.jpg"
               alt="Montreal wedding reception video by ShotByDiallo"
+              loading="lazy"
+              decoding="async"
             />
             <div class="portfolio-info">
               <p>Wedding</p>
@@ -184,8 +194,10 @@
 
           <article class="portfolio-card" data-category="brand">
             <img
-              src="assets/images/work/streetwear-brand.jpg"
+              src="assets/images/work/streetwear-brand-optimized.jpg"
               alt="Streetwear brand fashion shoot by ShotByDiallo"
+              loading="lazy"
+              decoding="async"
             />
             <div class="portfolio-info">
               <p>Brand Content</p>
@@ -195,8 +207,10 @@
 
           <article class="portfolio-card tall" data-category="artist">
             <img
-              src="assets/images/work/creative-portrait.jpg"
+              src="assets/images/work/creative-portrait-optimized.jpg"
               alt="Cinematic artist portrait at night in Montreal by ShotByDiallo"
+              loading="lazy"
+              decoding="async"
             />
             <div class="portfolio-info">
               <p>Artist Portrait</p>
@@ -206,8 +220,10 @@
 
           <article class="portfolio-card" data-category="event">
             <img
-              src="assets/images/work/cultural-event.jpg"
+              src="assets/images/work/cultural-event-optimized.jpg"
               alt="African cultural event celebration in Montreal by ShotByDiallo"
+              loading="lazy"
+              decoding="async"
             />
             <div class="portfolio-info">
               <p>Event Coverage</p>
@@ -217,8 +233,10 @@
 
           <article class="portfolio-card" data-category="brand">
             <img
-              src="assets/images/work/lifestyle-brand.jpg"
+              src="assets/images/work/lifestyle-brand-optimized.jpg"
               alt="Lifestyle brand visuals in Montreal by ShotByDiallo"
+              loading="lazy"
+              decoding="async"
             />
             <div class="portfolio-info">
               <p>Lifestyle Content</p>
@@ -275,8 +293,7 @@
           <a href="index.html" class="footer-logo">ShotByDiallo</a>
 
           <p>
-            Montreal-based videographer creating cinematic visuals for brands,
-            artists, weddings and events.
+            Montreal music video director and business video production partner.
           </p>
 
           <a href="contact.html" class="footer-cta">Start a Project</a>
@@ -294,10 +311,10 @@
         <div class="footer-column">
           <h3>Services</h3>
 
-          <a href="services.html">Brand Videos</a>
+          <a href="services.html">Business Videos</a>
           <a href="services.html">Music Videos</a>
-          <a href="services.html">Event Recaps</a>
-          <a href="services.html">Wedding Films</a>
+          <a href="services.html">Company Stories</a>
+          <a href="services.html">Monthly Content</a>
         </div>
 
         <div class="footer-column">
@@ -338,6 +355,6 @@
       <span aria-hidden="true"></span>
     </button>
 
-    <script src="assets/js/main.js?v=21"></script>
+    <script src="assets/js/main.js?v=35"></script>
   </body>
 </html>

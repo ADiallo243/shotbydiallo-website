@@ -12,7 +12,7 @@
     />
     <meta
       name="keywords"
-      content="contact Montreal videographer, book videographer Montreal, hire videographer Montreal, ShotByDiallo contact, wedding videographer Montreal, brand video Montreal"
+      content="contact Montreal videographer, book a music video, business video production Montreal, hire videographer Montreal, ShotByDiallo contact"
     />
     <meta name="author" content="ShotByDiallo" />
 
@@ -24,12 +24,13 @@
       property="og:description"
       content="Book ShotByDiallo for cinematic video production in Montreal."
     />
-    <meta property="og:image" content="assets/images/hero/hero.jpg" />
+    <meta property="og:image" content="https://www.shotbydiallo.com/assets/images/hero/hero.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:type" content="website" />
 
-    <link rel="canonical" href="https://shotbydiallo.com/contact.html" />
+    <link rel="canonical" href="https://www.shotbydiallo.com/contact.html" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
-    <link rel="stylesheet" href="assets/css/style.css?v=33" />
+    <link rel="stylesheet" href="assets/css/style.css?v=35" />
   </head>
 
   <body>
@@ -122,7 +123,7 @@
 
         <div class="contact-form-panel">
           <form
-            action="https://formspree.io/f/xvzlwezg"
+            action="/api/leads"
             method="POST"
             class="contact-form project-form"
             id="projectForm"
@@ -133,6 +134,16 @@
               value="New inquiry from ShotByDiallo website"
             />
             <input type="hidden" name="referral_code" id="referralCode" />
+            <div class="form-honeypot" aria-hidden="true">
+              <label for="website">Leave this field empty</label>
+              <input
+                type="text"
+                id="website"
+                name="website"
+                tabindex="-1"
+                autocomplete="off"
+              />
+            </div>
             <div class="referral-notice" id="referralNotice" hidden>
               Referral code applied: <strong></strong>. You may qualify for 10%
               off your first project.
@@ -230,6 +241,8 @@
               <button type="submit" class="btn primary-btn form-btn step-submit">Submit Project Request</button>
             </div>
 
+            <p class="form-status" id="projectFormStatus" role="status" hidden></p>
+
             <p class="form-note">
               Your request goes directly to ShotByDiallo and is reviewed
               personally. You can also email
@@ -291,8 +304,8 @@
         <h2>Need visuals that look clean, cinematic and intentional?</h2>
 
         <p>
-          Send a message and let’s plan the right video for your brand, event or
-          release.
+          Send a message and let’s plan the right video for your business or
+          next release.
         </p>
 
         <div class="contact-actions">
@@ -375,6 +388,6 @@
       <span aria-hidden="true"></span>
     </button>
 
-    <script src="assets/js/main.js?v=33"></script>
+    <script src="assets/js/main.js?v=35"></script>
   </body>
 </html>

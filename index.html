@@ -23,12 +23,31 @@
       property="og:description"
       content="Cinematic music videos for artists and business videos that help Montreal companies earn attention and trust."
     />
-    <meta property="og:image" content="assets/images/hero/hero.jpg" />
+    <meta property="og:image" content="https://www.shotbydiallo.com/assets/images/hero/hero.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:type" content="website" />
 
-    <link rel="canonical" href="https://shotbydiallo.com/" />
+    <link rel="canonical" href="https://www.shotbydiallo.com/" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
-    <link rel="stylesheet" href="assets/css/style.css?v=20" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "ShotByDiallo",
+        "url": "https://www.shotbydiallo.com/",
+        "image": "https://www.shotbydiallo.com/assets/images/hero/hero.jpg",
+        "email": "bydialloo@gmail.com",
+        "telephone": "+1-438-493-6114",
+        "areaServed": "Montreal, Quebec",
+        "description": "Music video and business video production for artists and companies in Montreal.",
+        "sameAs": [
+          "https://www.instagram.com/shotbydiallo",
+          "https://www.tiktok.com/@zeusdialloo"
+        ]
+      }
+    </script>
+    <link rel="preload" as="image" href="assets/images/hero/hero-launch.jpg" fetchpriority="high" />
+    <link rel="stylesheet" href="assets/css/style.css?v=35" />
   </head>
 
   <body>
@@ -74,9 +93,11 @@
           muted
           loop
           playsinline
-          poster="assets/images/hero/hero.jpg"
+          preload="none"
+          aria-hidden="true"
+          poster="assets/images/hero/hero-launch.jpg"
         >
-          <source src="assets/videos/hero-video.mp4" type="video/mp4" />
+          <source data-src="assets/videos/hero-video.mp4" type="video/mp4" />
         </video>
 
         <div class="hero-overlay" aria-hidden="true"></div>
@@ -125,7 +146,7 @@
           </div>
         </div>
         <div class="audience-panel active" data-audience-panel="artist">
-          <div class="audience-visual"><img src="assets/images/work/music-video.jpg" alt="Cinematic music video production by ShotByDiallo" /></div>
+          <div class="audience-visual"><img src="assets/images/work/music-video-web.jpg" alt="Cinematic music video production by ShotByDiallo" loading="lazy" decoding="async" /></div>
           <div class="audience-copy">
             <p class="eyebrow">Music videos</p>
             <h3>Turn your song into a visual world.</h3>
@@ -135,7 +156,7 @@
           </div>
         </div>
         <div class="audience-panel" data-audience-panel="business">
-          <div class="audience-visual"><img src="assets/images/work/brand-video.jpg" alt="Business video production in Montreal by ShotByDiallo" /></div>
+          <div class="audience-visual"><img src="assets/images/work/brand-video-web.jpg" alt="Business video production in Montreal by ShotByDiallo" loading="lazy" decoding="async" /></div>
           <div class="audience-copy">
             <p class="eyebrow">Business videos</p>
             <h3>Show customers why they should trust you.</h3>
@@ -159,8 +180,10 @@
         <div class="work-preview-grid">
           <a href="work.html" class="work-card large">
             <img
-              src="assets/images/work/music-video.jpg"
+              src="assets/images/work/music-video-web.jpg"
               alt="Music video production project by ShotByDiallo"
+              loading="lazy"
+              decoding="async"
             />
             <div class="work-info">
               <p>Music Video</p>
@@ -170,8 +193,10 @@
 
           <a href="work.html" class="work-card">
             <img
-              src="assets/images/work/brand-video.jpg"
-              alt="Brand video production project in Montreal"
+              src="assets/images/work/brand-video-web.jpg"
+              alt="Business video production project in Montreal"
+              loading="lazy"
+              decoding="async"
             />
             <div class="work-info">
               <p>Business Video</p>
@@ -181,8 +206,10 @@
 
           <a href="work.html" class="work-card">
             <img
-              src="assets/images/work/event-video.jpg"
-              alt="Event videography and recap video in Montreal"
+              src="assets/images/work/event-video-web.jpg"
+              alt="Social video production project in Montreal"
+              loading="lazy"
+              decoding="async"
             />
             <div class="work-info">
               <p>Business Content</p>
@@ -222,7 +249,7 @@
       <section class="about-preview">
         <div class="about-image">
           <img
-            src="assets/images/about/portrait.jpg"
+            src="assets/images/about/portrait-optimized.jpg"
             alt="ShotByDiallo Montreal videographer portrait"
           />
         </div>
@@ -387,6 +414,6 @@
       <span aria-hidden="true"></span>
     </button>
 
-    <script src="assets/js/main.js?v=20"></script>
+    <script src="assets/js/main.js?v=35"></script>
   </body>
 </html>
