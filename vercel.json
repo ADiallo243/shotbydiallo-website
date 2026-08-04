@@ -1,6 +1,8 @@
 {
-  "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "redirects": [
+    { "source": "/index", "destination": "/", "permanent": true }
   ],
   "headers": [
     {

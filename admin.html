@@ -13,7 +13,7 @@
   <body>
     <main class="crm-auth" id="crmAuth">
       <section class="crm-auth-card">
-        <a class="crm-logo auth-logo" href="index.html">ShotByDiallo <span>Private studio CRM</span></a>
+        <a class="crm-logo auth-logo" href="/">ShotByDiallo <span>Private studio CRM</span></a>
         <p class="kicker">Owner access</p>
         <h1>Sign in to view new leads.</h1>
         <p>Website inquiries and client information are only visible after you sign in.</p>
@@ -28,7 +28,7 @@
     </main>
     <div id="crmApp" hidden>
     <aside class="crm-sidebar">
-      <a class="crm-logo" href="index.html">ShotByDiallo <span>Studio</span></a>
+      <a class="crm-logo" href="/">ShotByDiallo <span>Studio</span></a>
       <nav>
         <button class="nav-item active" data-view="overview"><span>⌂</span> Overview</button>
         <button class="nav-item" data-view="leads"><span>◎</span> Leads <b id="leadBadge">4</b></button>
@@ -45,7 +45,7 @@
       <div class="sidebar-bottom">
         <p>Signed in as</p><strong id="crmUserName">Studio Owner</strong>
         <button class="crm-logout" id="crmLogout" type="button">Sign out</button>
-        <a href="index.html">View website ↗</a>
+        <a href="/">View website ↗</a>
       </div>
     </aside>
 
@@ -183,7 +183,7 @@
             <p class="panel-note">The past client receives 10% off their next project, and the person they refer receives 10% off their first project.</p>
             <label>Choose client<select id="referralClient"><option>CleanPro</option><option>Kairo</option><option>Maison Naya</option><option>Le Sillage</option></select></label>
             <div class="generated-code"><span>Referral code</span><strong id="generatedReferralCode">SBD-CLEANPRO-10</strong><button id="copyReferralCode">Copy</button></div>
-            <label>Project request link<input id="referralProjectLink" readonly value="http://localhost:4173/contact.html?ref=SBD-CLEANPRO-10" /></label>
+            <label>Project request link<input id="referralProjectLink" readonly value="/contact?ref=SBD-CLEANPRO-10" /></label>
             <div class="referral-actions"><button id="copyReferralLink">Copy link</button><button class="primary-action" id="prepareReferralMessage">Prepare message</button></div>
             <div class="simple-referral-list"><p><strong>CleanPro</strong> <span>2 referrals · $720 attributed</span></p><p><strong>Kairo</strong> <span>1 referral · Reward available</span></p></div>
           </article>
@@ -412,6 +412,6 @@
 
     <div class="crm-toast" id="crmToast" role="status" aria-live="polite"></div>
     </div>
-    <script src="assets/js/admin.js?v=2"></script>
+    <script src="assets/js/admin.js?v=3"></script>
   </body>
 </html>
