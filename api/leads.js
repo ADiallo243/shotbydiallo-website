@@ -147,6 +147,10 @@ module.exports = async function createLead(request, response) {
 
   let insertResponse;
   try {
+    const { referral_code: referralCode, ...storedLead } = lead;
+    if (referralCode) {
+      storedLead.source = `${storedLead.source || 'Website'} · Referral ${referralCode}`.slice(0, MAX_LENGTHS.source);
+    }
     insertResponse = await fetch(`${supabaseUrl}/rest/v1/leads`, {
       method: 'POST',
       headers: {
@@ -155,7 +159,7 @@ module.exports = async function createLead(request, response) {
         'Content-Type': 'application/json',
         Prefer: 'return=representation',
       },
-      body: JSON.stringify({ ...lead, owner_id: ownerId }),
+      body: JSON.stringify({ ...storedLead, owner_id: ownerId }),
     });
   } catch {
     return respond(response, 502, {

@@ -1,19 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const projects = [
-    ['CleanPro Company Story', 'Editing', 'Aug 01', '$3,600', 72, 'At risk', 'warning'],
-    ['Kairo · Nuit Blanche', 'Pre-production', 'Aug 08', '$3,200', 34, 'On track', 'healthy'],
-    ['Le Sillage Campaign', 'Scheduled', 'Aug 02', '$5,400', 48, 'On track', 'healthy'],
-    ['Nordik Recruitment Film', 'Planning', 'Aug 19', '$4,800', 18, 'On track', 'healthy'],
-    ['Amina · Performance Visual', 'Client review', 'Jul 29', '$1,800', 88, 'Delayed', 'danger'],
-  ];
-  const clients = [
-    ['CP', 'CleanPro', 'Cleaning services', '3 projects'],
-    ['KN', 'Kairo', 'Music artist', '2 projects'],
-    ['LS', 'Le Sillage', 'Restaurant', '1 project'],
-    ['AL', 'Atlas Legal', 'Law firm', '1 opportunity'],
-    ['NC', 'Nordik Construction', 'Construction', '1 opportunity'],
-    ['MN', 'Maison Naya', 'Retail', '2 projects'],
-  ];
+  let projects = [];
+  let clients = [];
+  let tasks = [];
   let leads = [];
   let accessToken = sessionStorage.getItem('sbd-admin-token');
   let supabaseConfig = null;
@@ -55,6 +43,40 @@ document.addEventListener('DOMContentLoaded', function () {
     renderLeads();
   }
 
+  async function supabaseRows(table, select, order = 'created_at.desc') {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/${table}?select=${encodeURIComponent(select)}&order=${order}`, {
+      headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}` },
+    });
+    if (!response.ok) throw new Error(`Unable to load ${table}.`);
+    return response.json();
+  }
+
+  async function supabaseUpdate(table, id, changes) {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(changes),
+    });
+    if (!response.ok) throw new Error('Unable to save the update.');
+  }
+
+  async function loadOperations() {
+    const [clientRows, projectRows, taskRows] = await Promise.all([
+      supabaseRows('clients', 'id,name,company,email,phone,industry,created_at'),
+      supabaseRows('projects', 'id,title,service,stage,value,deadline_at,location,created_at'),
+      supabaseRows('tasks', 'id,title,category,due_at,completed_at,created_at'),
+    ]);
+    clients = clientRows.map((client) => ({ ...client, displayName: client.company || client.name }));
+    projects = projectRows;
+    tasks = taskRows;
+    document.getElementById('clientCount').textContent = clients.length;
+    document.getElementById('activeProjects').textContent = projects.length;
+    document.getElementById('taskCount').textContent = tasks.filter((task) => !task.completed_at).length;
+    renderClients();
+    renderProjects();
+    renderTasks();
+  }
+
   async function signIn(event) {
     event.preventDefault();
     const email = document.getElementById('crmEmail').value.trim();
@@ -75,6 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
       sessionStorage.setItem('sbd-admin-token', accessToken);
       document.getElementById('crmUserName').textContent = session.user.email;
       await loadRealLeads();
+      await loadOperations();
+      await loadManagedMedia();
       authGate.hidden = true;
       crmApp.hidden = false;
     } catch (error) { authStatus.textContent = error.message; }
@@ -139,11 +163,16 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('leadSearch').addEventListener('input', renderLeads);
   document.getElementById('leadFilter').addEventListener('change', renderLeads);
 
-  document.getElementById('projectTable').innerHTML = `<div class="project-row project-row-pro header"><span>Project</span><span>Progress</span><span>Health</span><span>Due</span><span>Value</span><span>Actions</span></div>${projects.map((project, index) => `<div class="project-row project-row-pro clickable-record" data-project-index="${index}"><div><strong>${project[0]}</strong><small>${project[1]} · Open project</small></div><div class="project-progress"><i><b class="${project[6]}" style="width:${project[4]}%"></b></i><span>${project[4]}%</span></div><span class="badge ${project[6]}">${project[5]}</span><span>${project[2]}</span><strong>${project[3]}</strong><div class="record-actions"><button data-client-update="${project[0].split(' ')[0]}">Update</button><button data-edit-project="${index}">Edit</button><button class="danger-link" data-delete-project="${index}">Remove</button></div></div>`).join('')}`;
-  function renderClients() {
-    document.getElementById('clientGrid').innerHTML = clients.map((client, index) => `<article class="client-card clickable-record"><div class="avatar">${client[0]}</div><strong>${client[1]}</strong><span>${client[2]}</span><span>${client[3]}</span><div class="record-actions"><button data-edit-client="${index}">Edit</button><button class="danger-link" data-delete-client="${index}">Remove</button></div></article>`).join('');
+  function renderProjects() {
+    const table = document.getElementById('projectTable');
+    table.innerHTML = `<div class="project-row project-row-pro header"><span>Project</span><span>Stage</span><span>Service</span><span>Due</span><span>Value</span><span>Status</span></div>${projects.map((project) => `<div class="project-row project-row-pro clickable-record"><div><strong>${escapeHTML(project.title)}</strong><small>${escapeHTML(project.location || 'Location not set')}</small></div><span>${escapeHTML(titleCase(project.stage))}</span><span class="badge">${escapeHTML(titleCase(project.service))}</span><span>${project.deadline_at ? new Date(project.deadline_at).toLocaleDateString('en-CA') : '—'}</span><strong>${money(project.value || 0)}</strong><span class="status">Active</span></div>`).join('') || '<p class="empty-state">No projects yet. Booked work will appear here.</p>'}`;
   }
-  renderClients();
+  function renderClients() {
+    document.getElementById('clientGrid').innerHTML = clients.map((client) => `<article class="client-card clickable-record"><div class="avatar">${escapeHTML(client.displayName.slice(0, 2).toUpperCase())}</div><strong>${escapeHTML(client.displayName)}</strong><span>${escapeHTML(client.industry || 'Client')}</span><span>${escapeHTML(client.email || client.phone || 'No contact details')}</span></article>`).join('') || '<p class="empty-state">No clients yet. Convert a qualified lead when they book.</p>';
+  }
+  function renderTasks() {
+    document.getElementById('taskBoard').innerHTML = tasks.map((task) => `<label><input type="checkbox" ${task.completed_at ? 'checked' : ''} disabled /><span>${escapeHTML(task.title)}</span><em>${escapeHTML(task.category || 'Task')}</em><span>${task.due_at ? new Date(task.due_at).toLocaleString('en-CA', { dateStyle: 'medium', timeStyle: 'short' }) : 'No due date'}</span></label>`).join('') || '<p class="empty-state">No tasks due.</p>';
+  }
   document.getElementById('todayLabel').textContent = new Intl.DateTimeFormat('en-CA', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
 
   const modal = document.getElementById('leadModal');
@@ -163,34 +192,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const remove = event.target.closest('[data-delete-lead]');
     if (edit) {
       const lead = leads.find((item) => String(item.id) === edit.dataset.editLead);
-      showToast('Lead editing will be connected next.', 'neutral');
+      openQuickEdit('Update lead', 'Next action', lead.next || '', async (nextAction) => {
+        try {
+          await supabaseUpdate('leads', lead.id, { next_action: nextAction || null, updated_at: new Date().toISOString() });
+          lead.next = nextAction || 'No next action'; renderLeads(); showToast('Lead updated');
+        } catch (error) { showToast(error.message, 'warning'); }
+      });
     }
     if (remove) showToast('Lead deletion is disabled for your protection.', 'warning');
-  });
-  document.getElementById('projectTable').addEventListener('click', (event) => {
-    const edit = event.target.closest('[data-edit-project]');
-    const remove = event.target.closest('[data-delete-project]');
-    if (edit) {
-      const project = projects[Number(edit.dataset.editProject)];
-      openQuickEdit('Edit project progress', 'Progress from 0 to 100', project[4], (progress) => {
-        if (!Number.isNaN(Number(progress))) {
-          project[4] = Math.max(0, Math.min(100, Number(progress)));
-          const row = edit.closest('.project-row');
-          row.querySelector('.project-progress b').style.width = `${project[4]}%`;
-          row.querySelector('.project-progress span').textContent = `${project[4]}%`;
-        }
-      }, 'number');
-    }
-    if (remove) confirmAction('Remove this project and its local preview record?', () => remove.closest('.project-row').remove());
-  });
-  document.getElementById('clientGrid').addEventListener('click', (event) => {
-    const edit = event.target.closest('[data-edit-client]');
-    const remove = event.target.closest('[data-delete-client]');
-    if (edit) {
-      const client = clients[Number(edit.dataset.editClient)];
-      openQuickEdit('Edit client', 'Client or company name', client[1], (name) => { if (name) { client[1] = name; renderClients(); } });
-    }
-    if (remove) confirmAction('Remove this client and detach their linked records?', () => { clients.splice(Number(remove.dataset.deleteClient), 1); renderClients(); });
   });
 
   const notificationTrigger = document.getElementById('notificationTrigger');
@@ -231,20 +240,41 @@ document.addEventListener('DOMContentLoaded', function () {
     ['image', 'Music video cover', 'assets/images/work/music-video.jpg', 'Homepage · Selected work'],
     ['image', 'Business video cover', 'assets/images/work/brand-video.jpg', 'Homepage · Selected work'],
     ['image', 'Social campaign cover', 'assets/images/work/event-video.jpg', 'Homepage · Selected work'],
-    ['image', 'Director portrait', 'assets/images/about/portrait.jpg', 'Homepage · About'],
+    ['image', 'Director portrait', 'assets/images/about/portrait-optimized.jpg', 'Homepage · About'],
   ];
+  let managedMedia = [];
+  function publicMediaUrl(path) { return `${supabaseConfig.url}/storage/v1/object/public/site-media/${path}`; }
+  async function loadManagedMedia() {
+    if (!supabaseConfig || !accessToken) return;
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/media_assets?select=*&order=updated_at.desc`, { headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}` } });
+    if (response.ok) { managedMedia = await response.json(); renderMedia(); }
+  }
   function renderMedia() {
     const search = (document.getElementById('mediaSearch').value || '').toLowerCase();
     const type = document.getElementById('mediaFilter').value;
-    document.getElementById('mediaGrid').innerHTML = media.filter((item) => (type === 'all' || item[0] === type) && item[1].toLowerCase().includes(search)).map((item, index) => `<article class="media-card">${item[0] === 'video' ? `<div class="video-file-placeholder"><span>▶</span><small>Video preview loads only when opened</small></div><span class="media-type">Video</span>` : `<img src="${item[2]}" alt="" loading="lazy" decoding="async" /><span class="media-type">Image</span>`}<div><strong>${item[1]}</strong><span>${item[3]}</span><code>${item[2]}</code><div class="record-actions"><button data-media-preview="${index}">Open</button><button data-media-replace>Replace</button><button class="danger-link" data-media-remove>Remove</button></div></div></article>`).join('');
+    const items = managedMedia.length ? managedMedia.map((item) => [item.media_type, item.name, publicMediaUrl(item.storage_path), item.website_placement, item.alt_text]) : media;
+    document.getElementById('mediaGrid').innerHTML = items.filter((item) => (type === 'all' || item[0] === type) && item[1].toLowerCase().includes(search)).map((item, index) => `<article class="media-card">${item[0] === 'video' ? `<div class="video-file-placeholder"><span>▶</span><small>Video ready for the website</small></div><span class="media-type">Video</span>` : `<img src="${item[2]}" alt="${item[4] || ''}" loading="lazy" decoding="async" /><span class="media-type">Image</span>`}<div><strong>${item[1]}</strong><span>${item[3]}</span><code>${item[2]}</code><div class="record-actions"><button data-media-preview="${index}">Open</button></div></div></article>`).join('');
   }
   document.getElementById('mediaSearch').addEventListener('input', renderMedia);
   document.getElementById('mediaFilter').addEventListener('change', renderMedia);
-  document.getElementById('addMediaButton').addEventListener('click', () => showToast('Uploads activate when Supabase Storage is connected.', 'neutral'));
+  const mediaUploadModal = document.getElementById('mediaUploadModal');
+  document.getElementById('addMediaButton').addEventListener('click', () => mediaUploadModal.showModal());
+  document.getElementById('mediaUploadForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget); const file = form.get('file');
+    if (!file || !supabaseConfig || !accessToken) return showToast('Sign in again before uploading.', 'warning');
+    const placement = form.get('placement'); const path = `${placement}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
+    const upload = await fetch(`${supabaseConfig.url}/storage/v1/object/site-media/${path}`, { method: 'POST', headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}`, 'Content-Type': file.type, 'x-upsert': 'false' }, body: file });
+    if (!upload.ok) return showToast('Upload failed. Check the media setup.', 'warning');
+    const record = { name: file.name, media_type: file.type.startsWith('video/') ? 'video' : 'image', storage_path: path, website_placement: placement, alt_text: form.get('alt') || null, owner_id: (await fetch(`${supabaseConfig.url}/auth/v1/user`, { headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}` } }).then(r => r.json())).id };
+    const saved = await fetch(`${supabaseConfig.url}/rest/v1/media_assets?on_conflict=website_placement`, { method: 'POST', headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(record) });
+    if (!saved.ok) return showToast('File uploaded, but placement could not be saved.', 'warning');
+    mediaUploadModal.close(); event.currentTarget.reset(); await loadManagedMedia(); showToast('Media published to the website.');
+  });
   document.getElementById('mediaGrid').addEventListener('click', (event) => {
     if (event.target.matches('[data-media-replace]')) showToast('Replacement uploads activate with Supabase Storage.', 'neutral');
     if (event.target.matches('[data-media-remove]')) confirmAction('Remove this media placement from the library?', () => event.target.closest('.media-card').remove());
-    if (event.target.matches('[data-media-preview]')) window.open(media[Number(event.target.dataset.mediaPreview)][2], '_blank', 'noopener');
+    if (event.target.matches('[data-media-preview]')) window.open((managedMedia.length ? publicMediaUrl(managedMedia[Number(event.target.dataset.mediaPreview)].storage_path) : media[Number(event.target.dataset.mediaPreview)][2]), '_blank', 'noopener');
   });
 
   let audience = [
@@ -494,11 +524,9 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('click', function (event) {
     if (!notificationDrawer.contains(event.target) && !notificationTrigger.contains(event.target)) toggleNotifications(false);
   });
-  renderMedia();
-  renderInvoices();
   if (accessToken) {
     fetch('/api/crm-config').then((response) => response.ok ? response.json() : Promise.reject()).then(async (config) => {
-      supabaseConfig = config; await loadRealLeads(); authGate.hidden = true; crmApp.hidden = false;
+      supabaseConfig = config; await loadRealLeads(); await loadOperations(); await loadManagedMedia(); authGate.hidden = true; crmApp.hidden = false;
     }).catch(() => { sessionStorage.removeItem('sbd-admin-token'); });
   }
 });

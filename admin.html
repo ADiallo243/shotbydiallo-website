@@ -6,8 +6,8 @@
     <meta name="robots" content="noindex,nofollow" />
     <title>ShotByDiallo Studio CRM</title>
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
-    <link rel="stylesheet" href="assets/css/admin.css?v=1" />
-    <link rel="stylesheet" href="assets/css/admin-modules.css?v=1" />
+    <link rel="stylesheet" href="assets/css/admin.css?v=2" />
+    <link rel="stylesheet" href="assets/css/admin-modules.css?v=2" />
   </head>
   <body>
     <main class="crm-auth" id="crmAuth">
@@ -32,13 +32,13 @@
         <button class="nav-item" data-view="leads"><span>◎</span> Leads <b id="leadBadge">4</b></button>
         <button class="nav-item" data-view="projects"><span>▣</span> Projects</button>
         <button class="nav-item" data-view="clients"><span>◉</span> Clients</button>
-        <button class="nav-item" data-view="contracts"><span>✎</span> Contracts</button>
+        <button class="nav-item" data-view="contracts" hidden><span>✎</span> Contracts</button>
         <button class="nav-item" data-view="media"><span>▧</span> Media</button>
-        <button class="nav-item" data-view="audience"><span>✦</span> Audience</button>
+        <button class="nav-item" data-view="audience" hidden><span>✦</span> Audience</button>
         <button class="nav-item" data-view="tasks"><span>✓</span> Tasks</button>
-        <button class="nav-item" data-view="marketing"><span>↗</span> Marketing</button>
-        <button class="nav-item" data-view="finances"><span>$</span> Finances</button>
-        <button class="nav-item" data-view="settings"><span>⚙</span> Settings</button>
+        <button class="nav-item" data-view="marketing" hidden><span>↗</span> Marketing</button>
+        <button class="nav-item" data-view="finances" hidden><span>$</span> Finances</button>
+        <button class="nav-item" data-view="settings" hidden><span>⚙</span> Settings</button>
       </nav>
       <div class="sidebar-bottom">
         <p>Signed in as</p><strong id="crmUserName">Studio Owner</strong>
@@ -51,8 +51,8 @@
       <header class="crm-topbar">
         <div><p id="todayLabel"></p><h1 id="viewTitle">Studio overview</h1></div>
         <div class="top-actions">
-          <button class="icon-button notification-trigger" id="notificationTrigger" aria-label="Notifications" aria-expanded="false">●<b id="notificationCount">4</b></button>
-          <button class="primary-action" id="globalNewLead" data-open-modal>+ New lead</button>
+          <button class="icon-button notification-trigger" id="notificationTrigger" aria-label="Notifications" aria-expanded="false" hidden>●<b id="notificationCount">0</b></button>
+          <button class="primary-action" id="globalNewLead" data-open-modal hidden>+ New lead</button>
         </div>
       </header>
 
@@ -72,9 +72,9 @@
         </div>
         <div class="metric-grid">
           <article><span>Pipeline value</span><strong id="pipelineValue">$18,500</strong><small>Across active opportunities</small></article>
-          <article><span>Booked this month</span><strong>$7,200</strong><small class="positive">↑ 18% from last month</small></article>
+          <article><span>Clients</span><strong id="clientCount">0</strong><small>Real client records</small></article>
           <article><span>Active projects</span><strong id="activeProjects">6</strong><small>2 need attention</small></article>
-          <article><span>Lead conversion</span><strong>32%</strong><small class="positive">↑ 5% this quarter</small></article>
+          <article><span>Tasks due</span><strong id="taskCount">0</strong><small>Open follow-ups</small></article>
         </div>
 
         <div class="dashboard-grid">
@@ -118,13 +118,13 @@
         <div class="view-tools">
           <input id="leadSearch" type="search" placeholder="Search leads, companies or services…" />
           <select id="leadFilter"><option value="all">All stages</option><option>New</option><option>Contacted</option><option>Qualified</option><option>Consultation</option><option>Proposal</option><option>Follow up</option><option>Booked</option><option>Lost</option><option>Future</option></select>
-          <button class="primary-action" data-open-modal>+ Add lead</button>
+          <button class="primary-action" data-open-modal hidden>+ Add lead</button>
         </div>
         <div class="kanban" id="leadKanban"></div>
       </section>
 
       <section class="crm-view" id="projects">
-        <div class="section-intro"><div><p class="kicker">Production</p><h2>Active projects</h2></div><button class="primary-action">+ New project</button></div>
+        <div class="section-intro"><div><p class="kicker">Production</p><h2>Active projects</h2></div></div>
         <div class="project-health-grid">
           <article><span>On track</span><strong>3</strong><i><b class="healthy" style="width:60%"></b></i></article>
           <article><span>At risk</span><strong>1</strong><i><b class="warning" style="width:20%"></b></i></article>
@@ -135,7 +135,7 @@
       </section>
 
       <section class="crm-view" id="clients">
-        <div class="section-intro"><div><p class="kicker">Relationships</p><h2>Client directory</h2></div><button class="primary-action">+ Add client</button></div>
+        <div class="section-intro"><div><p class="kicker">Relationships</p><h2>Client directory</h2></div></div>
         <div class="client-grid" id="clientGrid"></div>
       </section>
 
@@ -198,15 +198,8 @@
       </section>
 
       <section class="crm-view" id="tasks">
-        <div class="section-intro"><div><p class="kicker">Operations</p><h2>Tasks & follow-ups</h2></div><button class="primary-action">+ New task</button></div>
-        <div class="panel task-board">
-          <h3>Today</h3>
-          <label><input type="checkbox" /> Send revised proposal to Atlas Legal <em>Sales</em><span>9:00 AM</span></label>
-          <label><input type="checkbox" /> Follow up with Maison Naya <em>Follow-up</em><span>11:30 AM</span></label>
-          <h3>Next</h3>
-          <label><input type="checkbox" /> Prepare Kairo music video shot list <em>Pre-production</em><span>Tomorrow</span></label>
-          <label><input type="checkbox" /> Upload CleanPro final delivery link <em>Delivery</em><span>Aug 1</span></label>
-        </div>
+        <div class="section-intro"><div><p class="kicker">Operations</p><h2>Tasks & follow-ups</h2></div></div>
+        <div class="panel task-board" id="taskBoard"><p class="empty-state">Loading tasks…</p></div>
       </section>
 
       <section class="crm-view" id="marketing">
@@ -382,6 +375,16 @@
       <article id="receiptDocument" class="receipt-document"></article>
     </dialog>
 
+    <dialog id="mediaUploadModal">
+      <form method="dialog" id="mediaUploadForm">
+        <div class="modal-heading"><div><p class="kicker">Website media</p><h2>Upload or replace media</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Website placement<select name="placement" required><option value="home-hero-poster">Homepage hero poster</option><option value="home-hero-video">Homepage hero video</option><option value="work-featured-video">Featured work video</option><option value="music-video-cover">Music video cover</option><option value="business-video-cover">Business video cover</option><option value="event-video-cover">Event cover</option><option value="about-portrait">About portrait</option></select></label>
+        <label>File<input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm" required /></label>
+        <label>Accessible description<input name="alt" placeholder="Describe the image or video" /></label>
+        <div class="modal-actions"><button type="button" data-close-dialog>Cancel</button><button class="primary-action" type="submit">Upload and publish</button></div>
+      </form>
+    </dialog>
+
     <dialog id="quickEditModal" class="small-dialog">
       <form method="dialog" id="quickEditForm">
         <div class="modal-heading"><div><p class="kicker">Edit record</p><h2 id="quickEditTitle">Update</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
@@ -407,6 +410,6 @@
 
     <div class="crm-toast" id="crmToast" role="status" aria-live="polite"></div>
     </div>
-    <script src="assets/js/admin.js?v=1"></script>
+    <script src="assets/js/admin.js?v=2"></script>
   </body>
 </html>

@@ -11,6 +11,74 @@ document.addEventListener('DOMContentLoaded', function () {
   document.body.classList.remove('page-exit');
   document.body.classList.add('page-loaded');
 
+  async function loadManagedMedia() {
+    if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') return;
+    const placements = {
+      'assets/images/hero/hero-launch.jpg': 'home-hero-poster',
+      'assets/videos/hero-video.mp4': 'home-hero-video',
+      'assets/videos/artist-reel.mp4': 'work-featured-video',
+      'assets/images/work/music-video-web.jpg': 'music-video-cover',
+      'assets/images/work/brand-video-web.jpg': 'business-video-cover',
+      'assets/images/work/event-video-web.jpg': 'event-video-cover',
+      'assets/images/work/wedding-video-web.jpg': 'wedding-video-cover',
+      'assets/images/work/streetwear-brand-optimized.jpg': 'streetwear-cover',
+      'assets/images/work/creative-portrait-optimized.jpg': 'portrait-cover',
+      'assets/images/work/cultural-event-optimized.jpg': 'culture-cover',
+      'assets/images/work/lifestyle-brand-optimized.jpg': 'lifestyle-cover',
+      'assets/images/about/portrait-optimized.jpg': 'about-portrait',
+    };
+    try {
+      const configResponse = await fetch('/api/crm-config');
+      if (!configResponse.ok) return;
+      const config = await configResponse.json();
+      const mediaResponse = await fetch(
+        `${config.url}/rest/v1/media_assets?select=storage_path,website_placement,alt_text,media_type&website_placement=not.is.null`,
+        { headers: { apikey: config.key } },
+      );
+      if (!mediaResponse.ok) return;
+      const assets = await mediaResponse.json();
+      const byPlacement = new Map(assets.map((asset) => [asset.website_placement, asset]));
+      document.querySelectorAll('img,video,source').forEach(function (element) {
+        const source = element.getAttribute('src') || element.getAttribute('poster') || element.dataset.src;
+        const placement = placements[source];
+        const asset = placement && byPlacement.get(placement);
+        if (!asset) return;
+        const publicUrl = `${config.url}/storage/v1/object/public/site-media/${asset.storage_path}`;
+        if (element.tagName === 'VIDEO') element.poster = publicUrl;
+        else if (element.tagName === 'SOURCE' && element.dataset.src) element.dataset.src = publicUrl;
+        else element.src = publicUrl;
+        if (element.tagName === 'IMG' && asset.alt_text) element.alt = asset.alt_text;
+      });
+    } catch {
+      // The static, optimized website assets remain available if managed media is unavailable.
+    }
+  }
+
+  function startDeferredVideos() {
+    if (navigator.connection?.saveData || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(min-width: 768px)').matches) return;
+    document.querySelectorAll('video source[data-src]').forEach(function (source) {
+      if (source.src) return;
+      source.src = source.dataset.src;
+      const video = source.closest('video');
+      video?.load();
+      video?.play().catch(function () {});
+    });
+  }
+
+  function scheduleDeferredVideos() {
+    let started = false;
+    const startOnce = function () {
+      if (started) return;
+      started = true;
+      startDeferredVideos();
+      ['pointerdown', 'keydown', 'scroll'].forEach((eventName) => window.removeEventListener(eventName, startOnce));
+    };
+    ['pointerdown', 'keydown', 'scroll'].forEach((eventName) => window.addEventListener(eventName, startOnce, { passive: true, once: true }));
+  }
+
+  loadManagedMedia().finally(scheduleDeferredVideos);
+
   function restoreVisiblePage() {
     document.body.classList.remove('page-exit');
     document.body.classList.add('page-loaded');

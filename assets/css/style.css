@@ -1984,6 +1984,10 @@ select {
   color: #111;
 }
 
+.selector-heading .eyebrow {
+  color: #71501b;
+}
+
 .selector-heading {
   display: flex;
   justify-content: space-between;
@@ -2013,7 +2017,7 @@ select {
   border: 0;
   border-radius: 99px;
   background: transparent;
-  color: #696862;
+  color: #55544f;
   font-weight: 700;
   cursor: pointer;
 }
