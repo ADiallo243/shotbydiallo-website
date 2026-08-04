@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const authGate = document.getElementById('crmAuth');
   const crmApp = document.getElementById('crmApp');
   const authStatus = document.getElementById('crmAuthStatus');
+  const loginForm = document.getElementById('crmLoginForm');
+  const recoveryForm = document.getElementById('crmRecoveryForm');
+  const authHeading = document.getElementById('crmAuthHeading');
+  const authIntro = document.getElementById('crmAuthIntro');
   const crmToast = document.getElementById('crmToast');
   const quickEditModal = document.getElementById('quickEditModal');
   const quickEditForm = document.getElementById('quickEditForm');
@@ -26,6 +30,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function titleCase(value) {
     return String(value || '').replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  async function getSupabaseConfig() {
+    if (supabaseConfig) return supabaseConfig;
+    const response = await fetch('/api/crm-config');
+    if (!response.ok) throw new Error('CRM configuration is not ready.');
+    supabaseConfig = await response.json();
+    return supabaseConfig;
+  }
+
+  function showLoginForm(message) {
+    recoveryForm.hidden = true;
+    loginForm.hidden = false;
+    authHeading.textContent = 'Sign in to view new leads.';
+    authIntro.textContent = 'Website inquiries and client information are only visible after you sign in.';
+    if (message) authStatus.textContent = message;
+  }
+
+  let recoveryAccessToken = null;
+  function showRecoveryForm(token) {
+    recoveryAccessToken = token;
+    loginForm.hidden = true;
+    recoveryForm.hidden = false;
+    authHeading.textContent = 'Create your new password.';
+    authIntro.textContent = 'Choose a new password with at least 12 characters, then sign in to your CRM.';
+    authStatus.textContent = '';
   }
 
   async function loadRealLeads() {
@@ -83,10 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const password = document.getElementById('crmPassword').value;
     authStatus.textContent = 'Signing in…';
     try {
-      supabaseConfig = await fetch('/api/crm-config').then(async (response) => {
-        if (!response.ok) throw new Error('CRM configuration is not ready.');
-        return response.json();
-      });
+      supabaseConfig = await getSupabaseConfig();
       const response = await fetch(`${supabaseConfig.url}/auth/v1/token?grant_type=password`, {
         method: 'POST', headers: { apikey: supabaseConfig.key, 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -103,7 +130,53 @@ document.addEventListener('DOMContentLoaded', function () {
       crmApp.hidden = false;
     } catch (error) { authStatus.textContent = error.message; }
   }
-  document.getElementById('crmLoginForm').addEventListener('submit', signIn);
+  loginForm.addEventListener('submit', signIn);
+  document.getElementById('sendPasswordReset').addEventListener('click', async () => {
+    const emailInput = document.getElementById('crmEmail');
+    if (!emailInput.reportValidity()) return;
+    authStatus.textContent = 'Sending password reset email…';
+    try {
+      const config = await getSupabaseConfig();
+      const response = await fetch(`${config.url}/auth/v1/recover`, {
+        method: 'POST',
+        headers: { apikey: config.key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput.value.trim(), redirect_to: `${window.location.origin}/admin` }),
+      });
+      if (!response.ok) throw new Error('Unable to send a reset email right now.');
+      authStatus.textContent = 'If that owner account exists, a password reset email is on its way.';
+    } catch (error) { authStatus.textContent = error.message; }
+  });
+  recoveryForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const password = document.getElementById('crmNewPassword').value;
+    const confirmPassword = document.getElementById('crmConfirmPassword').value;
+    if (password !== confirmPassword) { authStatus.textContent = 'The two passwords do not match.'; return; }
+    if (!recoveryAccessToken) { showLoginForm('This recovery link is missing or has expired. Request a new one.'); return; }
+    authStatus.textContent = 'Saving your new password…';
+    try {
+      const config = await getSupabaseConfig();
+      const response = await fetch(`${config.url}/auth/v1/user`, {
+        method: 'PUT',
+        headers: { apikey: config.key, Authorization: `Bearer ${recoveryAccessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (!response.ok) throw new Error('This recovery link has expired. Request a new one.');
+      history.replaceState({}, document.title, `${location.pathname}${location.search}`);
+      recoveryForm.reset(); recoveryAccessToken = null;
+      showLoginForm('Password updated. Sign in with your new password.');
+    } catch (error) { authStatus.textContent = error.message; }
+  });
+  document.getElementById('cancelPasswordReset').addEventListener('click', () => {
+    history.replaceState({}, document.title, `${location.pathname}${location.search}`);
+    recoveryForm.reset(); recoveryAccessToken = null; showLoginForm();
+  });
+  const recoveryParams = new URLSearchParams(location.hash.slice(1));
+  if (recoveryParams.get('type') === 'recovery' && recoveryParams.get('access_token')) {
+    showRecoveryForm(recoveryParams.get('access_token'));
+  } else if (recoveryParams.get('error_description')) {
+    showLoginForm(recoveryParams.get('error_description'));
+    history.replaceState({}, document.title, `${location.pathname}${location.search}`);
+  }
   document.getElementById('crmLogout').addEventListener('click', () => {
     sessionStorage.removeItem('sbd-admin-token'); accessToken = null; leads = [];
     crmApp.hidden = true; authGate.hidden = false; document.getElementById('crmPassword').value = '';
