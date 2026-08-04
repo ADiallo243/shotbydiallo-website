@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
       next: lead.next_action || `Website request · ${new Date(lead.created_at).toLocaleDateString('en-CA')}`,
     }));
     renderLeads();
+    renderOverview();
   }
 
   async function supabaseRows(table, select, order = 'created_at.desc') {
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderClients();
     renderProjects();
     renderTasks();
+    renderOverview();
   }
 
   function withTimeout(promise, label, milliseconds = 10000) {
@@ -260,6 +262,291 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   navItems.forEach((item) => item.addEventListener('click', () => switchView(item.dataset.view)));
   document.querySelectorAll('[data-view-jump]').forEach((button) => button.addEventListener('click', () => switchView(button.dataset.viewJump)));
+
+
+  function renderOverview() {
+    const getElement = (id) => document.getElementById(id);
+
+    const setText = (id, value) => {
+      const element = getElement(id);
+      if (element) element.textContent = value;
+    };
+
+    const completedProjectStages = new Set([
+      'delivered',
+      'completed',
+      'archived',
+    ]);
+
+    const activeProjectRows = projects.filter(
+      (project) =>
+        !completedProjectStages.has(
+          String(project.stage || '').toLowerCase()
+        )
+    );
+
+    const openTasks = tasks
+      .filter((task) => !task.completed_at)
+      .sort((first, second) => {
+        const firstDate = first.due_at
+          ? new Date(first.due_at).getTime()
+          : Number.MAX_SAFE_INTEGER;
+
+        const secondDate = second.due_at
+          ? new Date(second.due_at).getTime()
+          : Number.MAX_SAFE_INTEGER;
+
+        return firstDate - secondDate;
+      });
+
+    const activePipelineValue = leads
+      .filter((lead) => lead.stage !== 'Lost')
+      .reduce(
+        (total, lead) => total + Number(lead.value || 0),
+        0
+      );
+
+    setText('pipelineValue', money(activePipelineValue));
+    setText('clientCount', clients.length);
+    setText('activeProjects', activeProjectRows.length);
+    setText('taskCount', openTasks.length);
+
+    const stageCounts = leads.reduce((counts, lead) => {
+      const stage = lead.stage || 'New';
+      counts[stage] = (counts[stage] || 0) + 1;
+      return counts;
+    }, {});
+
+    setText('pipelineNew', stageCounts.New || 0);
+    setText('pipelineContacted', stageCounts.Contacted || 0);
+    setText('pipelineProposal', stageCounts.Proposal || 0);
+    setText('pipelineBooked', stageCounts.Booked || 0);
+    setText('leadBadge', stageCounts.New || 0);
+
+    const sourceContainer = getElement('leadSourceList');
+
+    if (sourceContainer) {
+      if (!leads.length) {
+        sourceContainer.innerHTML =
+          '<p class="empty-state">Lead sources will appear after inquiries arrive.</p>';
+      } else {
+        const sourceCounts = leads.reduce((counts, lead) => {
+          const source = lead.source || 'Unknown';
+          counts[source] = (counts[source] || 0) + 1;
+          return counts;
+        }, {});
+
+        const sources = Object.entries(sourceCounts)
+          .sort((first, second) => second[1] - first[1])
+          .slice(0, 5);
+
+        sourceContainer.innerHTML = sources
+          .map(([source, count]) => {
+            const percentage = Math.round(
+              (count / leads.length) * 100
+            );
+
+            return `
+              <div class="source-row">
+                <span>${escapeHTML(source)}</span>
+                <i><b style="width:${percentage}%"></b></i>
+                <strong>${percentage}%</strong>
+              </div>
+            `;
+          })
+          .join('');
+      }
+    }
+
+    const overviewTaskList = getElement('overviewTaskList');
+
+    if (overviewTaskList) {
+      const visibleTasks = openTasks.slice(0, 4);
+
+      overviewTaskList.innerHTML = visibleTasks.length
+        ? visibleTasks
+            .map((task) => {
+              const dueLabel = task.due_at
+                ? new Date(task.due_at).toLocaleDateString(
+                    'en-CA',
+                    { month: 'short', day: 'numeric' }
+                  )
+                : 'No due date';
+
+              return `
+                <label>
+                  <input type="checkbox" disabled />
+                  <span>${escapeHTML(task.title)}</span>
+                  <span>${escapeHTML(dueLabel)}</span>
+                </label>
+              `;
+            })
+            .join('')
+        : '<p class="empty-state">No open tasks.</p>';
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const scheduleItems = [
+      ...activeProjectRows
+        .filter((project) => project.deadline_at)
+        .map((project) => ({
+          title: project.title,
+          label: `Project deadline · ${titleCase(project.stage)}`,
+          date: new Date(project.deadline_at),
+        })),
+      ...openTasks
+        .filter((task) => task.due_at)
+        .map((task) => ({
+          title: task.title,
+          label: task.category
+            ? `Task · ${titleCase(task.category)}`
+            : 'Task',
+          date: new Date(task.due_at),
+        })),
+    ]
+      .filter(
+        (item) =>
+          !Number.isNaN(item.date.getTime()) &&
+          item.date >= today
+      )
+      .sort(
+        (first, second) =>
+          first.date.getTime() - second.date.getTime()
+      )
+      .slice(0, 4);
+
+    const scheduleContainer = getElement('overviewSchedule');
+
+    if (scheduleContainer) {
+      scheduleContainer.innerHTML = scheduleItems.length
+        ? scheduleItems
+            .map((item) => {
+              const day = item.date
+                .toLocaleDateString('en-CA', { day: '2-digit' });
+
+              const month = item.date
+                .toLocaleDateString('en-CA', { month: 'short' })
+                .toUpperCase();
+
+              const dateLabel = item.date.toLocaleString(
+                'en-CA',
+                {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                }
+              );
+
+              return `
+                <div class="schedule-item">
+                  <time><b>${day}</b>${month}</time>
+                  <div>
+                    <strong>${escapeHTML(item.title)}</strong>
+                    <span>${escapeHTML(item.label)} · ${escapeHTML(dateLabel)}</span>
+                  </div>
+                </div>
+              `;
+            })
+            .join('')
+        : '<p class="empty-state">No upcoming projects or tasks.</p>';
+    }
+
+    const threeDaysFromNow = new Date(today);
+    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+
+    const health = {
+      onTrack: 0,
+      atRisk: 0,
+      delayed: 0,
+      awaiting: 0,
+    };
+
+    activeProjectRows.forEach((project) => {
+      const stage = String(project.stage || '').toLowerCase();
+      const deadline = project.deadline_at
+        ? new Date(project.deadline_at)
+        : null;
+
+      if (stage === 'client_review') {
+        health.awaiting += 1;
+      } else if (
+        deadline &&
+        !Number.isNaN(deadline.getTime()) &&
+        deadline < today
+      ) {
+        health.delayed += 1;
+      } else if (
+        deadline &&
+        !Number.isNaN(deadline.getTime()) &&
+        deadline <= threeDaysFromNow
+      ) {
+        health.atRisk += 1;
+      } else {
+        health.onTrack += 1;
+      }
+    });
+
+    const projectTotal = activeProjectRows.length || 1;
+
+    const updateHealth = (valueId, barId, value) => {
+      setText(valueId, value);
+
+      const bar = getElement(barId);
+
+      if (bar) {
+        bar.style.width =
+          `${Math.round((value / projectTotal) * 100)}%`;
+      }
+    };
+
+    updateHealth(
+      'projectOnTrack',
+      'projectOnTrackBar',
+      health.onTrack
+    );
+
+    updateHealth(
+      'projectAtRisk',
+      'projectAtRiskBar',
+      health.atRisk
+    );
+
+    updateHealth(
+      'projectDelayed',
+      'projectDelayedBar',
+      health.delayed
+    );
+
+    updateHealth(
+      'projectAwaiting',
+      'projectAwaitingBar',
+      health.awaiting
+    );
+
+    const urgentTasks = openTasks.filter((task) => {
+      if (!task.due_at) return false;
+
+      const dueDate = new Date(task.due_at);
+
+      return (
+        !Number.isNaN(dueDate.getTime()) &&
+        dueDate <= threeDaysFromNow
+      );
+    }).length;
+
+    const attentionCount =
+      urgentTasks + health.atRisk + health.delayed;
+
+    setText(
+      'actionCenterCount',
+      attentionCount
+        ? `${attentionCount} item${attentionCount === 1 ? '' : 's'} need your attention`
+        : 'No urgent items today'
+    );
+  }
 
   function money(value) { return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(value); }
   function renderLeads() {

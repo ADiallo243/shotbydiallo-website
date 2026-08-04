@@ -38,7 +38,7 @@
       <a class="crm-logo" href="/">ShotByDiallo <span>Studio</span></a>
       <nav>
         <button class="nav-item active" data-view="overview"><span>⌂</span> Overview</button>
-        <button class="nav-item" data-view="leads"><span>◎</span> Leads <b id="leadBadge">4</b></button>
+        <button class="nav-item" data-view="leads"><span>◎</span> Leads <b id="leadBadge">0</b></button>
         <button class="nav-item" data-view="projects"><span>▣</span> Projects</button>
         <button class="nav-item" data-view="clients"><span>◉</span> Clients</button>
         <button class="nav-item" data-view="contracts" hidden><span>✎</span> Contracts</button>
@@ -66,23 +66,29 @@
       </header>
 
       <aside class="notification-drawer" id="notificationDrawer" aria-hidden="true">
-        <div class="drawer-heading"><div><p class="kicker">Studio activity</p><h2>Notifications</h2></div><button id="closeNotifications" aria-label="Close">×</button></div>
-        <button class="notification-item unread"><i class="danger"></i><span><strong>Project may be delayed</strong>CleanPro final delivery is due in 2 days.</span><time>12m</time></button>
-        <button class="notification-item unread"><i></i><span><strong>Follow-up due</strong>Maison Naya has not replied in 3 days.</span><time>1h</time></button>
-        <button class="notification-item unread"><i class="success"></i><span><strong>New project request</strong>Nordik Construction requested a discovery call.</span><time>3h</time></button>
-        <button class="notification-item unread"><i class="warning"></i><span><strong>Invoice reminder</strong>$1,800 remains due from Amina.</span><time>1d</time></button>
-        <div class="drawer-actions"><button id="markRead">Mark all read</button><button id="enablePush">Enable browser alerts</button></div>
+        <div class="drawer-heading">
+          <div>
+            <p class="kicker">Studio activity</p>
+            <h2>Notifications</h2>
+          </div>
+          <button id="closeNotifications" aria-label="Close">×</button>
+        </div>
+        <p class="empty-state">No notifications yet.</p>
+        <div class="drawer-actions">
+          <button id="markRead">Mark all read</button>
+          <button id="enablePush">Enable browser alerts</button>
+        </div>
       </aside>
 
       <section class="crm-view active" id="overview">
         <div class="operations-alert">
-          <div><span>Action center</span><strong>3 items need your attention today</strong></div>
+          <div><span>Action center</span><strong id="actionCenterCount">No urgent items today</strong></div>
           <button data-view-jump="tasks">Review priorities →</button>
         </div>
         <div class="metric-grid">
-          <article><span>Pipeline value</span><strong id="pipelineValue">$18,500</strong><small>Across active opportunities</small></article>
+          <article><span>Pipeline value</span><strong id="pipelineValue">$0</strong><small>Across active opportunities</small></article>
           <article><span>Clients</span><strong id="clientCount">0</strong><small>Real client records</small></article>
-          <article><span>Active projects</span><strong id="activeProjects">6</strong><small>2 need attention</small></article>
+          <article><span>Active projects</span><strong id="activeProjects">0</strong><small>Projects not yet completed</small></article>
           <article><span>Tasks due</span><strong id="taskCount">0</strong><small>Open follow-ups</small></article>
         </div>
 
@@ -90,35 +96,40 @@
           <article class="panel pipeline-panel">
             <div class="panel-heading"><div><p class="kicker">Sales</p><h2>Lead pipeline</h2></div><button data-view-jump="leads">View all</button></div>
             <div class="pipeline-summary">
-              <div><span>New</span><strong>4</strong></div><i></i>
-              <div><span>Contacted</span><strong>3</strong></div><i></i>
-              <div><span>Proposal</span><strong>2</strong></div><i></i>
-              <div><span>Booked</span><strong>2</strong></div>
+              <div><span>New</span><strong id="pipelineNew">0</strong></div><i></i>
+              <div><span>Contacted</span><strong id="pipelineContacted">0</strong></div><i></i>
+              <div><span>Proposal</span><strong id="pipelineProposal">0</strong></div><i></i>
+              <div><span>Booked</span><strong id="pipelineBooked">0</strong></div>
             </div>
             <div class="lead-list" id="overviewLeadList"></div>
           </article>
 
           <article class="panel schedule-panel">
-            <div class="panel-heading"><div><p class="kicker">Schedule</p><h2>Coming up</h2></div><button>Calendar</button></div>
-            <div class="schedule-item"><time><b>28</b> JUL</time><div><strong>Discovery call · Nordik Construction</strong><span>10:30 AM · Google Meet</span></div></div>
-            <div class="schedule-item"><time><b>30</b> JUL</time><div><strong>Music video treatment review</strong><span>2:00 PM · Artist: Kairo</span></div></div>
-            <div class="schedule-item urgent"><time><b>02</b> AUG</time><div><strong>Restaurant campaign shoot</strong><span>8:00 AM · Old Montreal</span></div></div>
+            <div class="panel-heading">
+              <div><p class="kicker">Schedule</p><h2>Coming up</h2></div>
+            </div>
+            <div id="overviewSchedule">
+              <p class="empty-state">No upcoming projects or tasks.</p>
+            </div>
           </article>
 
           <article class="panel tasks-panel">
-            <div class="panel-heading"><div><p class="kicker">Focus</p><h2>Tasks due</h2></div><button data-view-jump="tasks">View all</button></div>
-            <label><input type="checkbox" /> Send revised proposal to Atlas Legal <span>Today</span></label>
-            <label><input type="checkbox" /> Follow up with Maison Naya <span>Today</span></label>
-            <label><input type="checkbox" /> Prepare shot list for Kairo <span>Tomorrow</span></label>
-            <label><input type="checkbox" /> Request final payment · CleanPro <span>Aug 1</span></label>
+            <div class="panel-heading">
+              <div><p class="kicker">Focus</p><h2>Tasks due</h2></div>
+              <button data-view-jump="tasks">View all</button>
+            </div>
+            <div id="overviewTaskList">
+              <p class="empty-state">No open tasks.</p>
+            </div>
           </article>
 
           <article class="panel source-panel">
-            <div class="panel-heading"><div><p class="kicker">Marketing</p><h2>Lead sources</h2></div><button data-view-jump="marketing">Details</button></div>
-            <div class="source-row"><span>Instagram</span><i><b style="width: 78%"></b></i><strong>38%</strong></div>
-            <div class="source-row"><span>Referrals</span><i><b style="width: 62%"></b></i><strong>29%</strong></div>
-            <div class="source-row"><span>Google</span><i><b style="width: 42%"></b></i><strong>21%</strong></div>
-            <div class="source-row"><span>TikTok</span><i><b style="width: 24%"></b></i><strong>12%</strong></div>
+            <div class="panel-heading">
+              <div><p class="kicker">Acquisition</p><h2>Lead sources</h2></div>
+            </div>
+            <div id="leadSourceList">
+              <p class="empty-state">Lead sources will appear after inquiries arrive.</p>
+            </div>
           </article>
         </div>
       </section>
@@ -135,10 +146,26 @@
       <section class="crm-view" id="projects">
         <div class="section-intro"><div><p class="kicker">Production</p><h2>Active projects</h2></div></div>
         <div class="project-health-grid">
-          <article><span>On track</span><strong>3</strong><i><b class="healthy" style="width:60%"></b></i></article>
-          <article><span>At risk</span><strong>1</strong><i><b class="warning" style="width:20%"></b></i></article>
-          <article><span>Delayed</span><strong>1</strong><i><b class="danger" style="width:20%"></b></i></article>
-          <article><span>Awaiting client</span><strong>1</strong><i><b style="width:20%"></b></i></article>
+          <article>
+            <span>On track</span>
+            <strong id="projectOnTrack">0</strong>
+            <i><b id="projectOnTrackBar" class="healthy" style="width:0%"></b></i>
+          </article>
+          <article>
+            <span>At risk</span>
+            <strong id="projectAtRisk">0</strong>
+            <i><b id="projectAtRiskBar" class="warning" style="width:0%"></b></i>
+          </article>
+          <article>
+            <span>Delayed</span>
+            <strong id="projectDelayed">0</strong>
+            <i><b id="projectDelayedBar" class="danger" style="width:0%"></b></i>
+          </article>
+          <article>
+            <span>Awaiting client</span>
+            <strong id="projectAwaiting">0</strong>
+            <i><b id="projectAwaitingBar" style="width:0%"></b></i>
+          </article>
         </div>
         <div class="project-table panel" id="projectTable"></div>
       </section>
@@ -148,7 +175,7 @@
         <div class="client-grid" id="clientGrid"></div>
       </section>
 
-      <section class="crm-view" id="contracts">
+      <section class="crm-view" id="contracts" hidden>
         <div class="section-intro"><div><p class="kicker">Agreements</p><h2>Contracts</h2><p class="section-note">Create, review, send and track client agreements.</p></div><button class="primary-action" id="newContractButton">+ New contract</button></div>
         <div class="metric-grid">
           <article><span>Drafts</span><strong>2</strong><small>Need your review</small></article>
@@ -172,7 +199,7 @@
         <div class="media-grid" id="mediaGrid"></div>
       </section>
 
-      <section class="crm-view" id="audience">
+      <section class="crm-view" id="audience" hidden>
         <div class="section-intro"><div><p class="kicker">Relationships</p><h2>Contacts & referrals</h2><p class="section-note">Past clients, prospects and newsletter contacts in one place.</p></div><button class="primary-action" id="addContactButton">+ Add contact</button></div>
         <div class="metric-grid">
           <article><span>Total contacts</span><strong id="contactTotal">128</strong><small>Clients + prospects + subscribers</small></article>
@@ -211,7 +238,7 @@
         <div class="panel task-board" id="taskBoard"><p class="empty-state">Loading tasks…</p></div>
       </section>
 
-      <section class="crm-view" id="marketing">
+      <section class="crm-view" id="marketing" hidden>
         <div class="metric-grid marketing-metrics">
           <article><span>Website inquiries</span><strong>24</strong><small>This month</small></article>
           <article><span>Consultations booked</span><strong>11</strong><small>45.8% of inquiries</small></article>
@@ -250,7 +277,7 @@
         </div>
       </section>
 
-      <section class="crm-view" id="finances">
+      <section class="crm-view" id="finances" hidden>
         <div class="section-intro finance-heading"><div><p class="kicker">Financial tracking</p><h2>Revenue & invoices</h2><p class="section-note">Record deposits and payments manually until a payment provider is connected.</p></div><button class="primary-action" id="addTransactionButton">+ Record payment</button></div>
         <div class="metric-grid">
           <article><span>Revenue this month</span><strong>$12,600</strong><small class="positive">↑ 14% month over month</small></article>
@@ -270,7 +297,7 @@
         </div>
       </section>
 
-      <section class="crm-view" id="settings">
+      <section class="crm-view" id="settings" hidden>
         <div class="settings-layout">
           <article class="panel">
             <p class="kicker">Notifications</p><h2>Stay ahead of every project</h2>
@@ -419,6 +446,6 @@
 
     <div class="crm-toast" id="crmToast" role="status" aria-live="polite"></div>
     </div>
-    <script src="assets/js/admin.js?v=5"></script>
+    <script src="assets/js/admin.js?v=7"></script>
   </body>
 </html>
