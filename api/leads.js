@@ -51,6 +51,51 @@ function validReferenceUrl(value) {
   }
 }
 
+async function notifyOwner(lead, leadId) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const recipient = process.env.NOTIFICATION_EMAIL;
+  const from = process.env.EMAIL_FROM;
+  if (!apiKey || !recipient || !from) return;
+
+  const details = [
+    `Name: ${lead.name}`,
+    `Company / artist: ${lead.company || 'Not provided'}`,
+    `Email: ${lead.email}`,
+    `Phone: ${lead.phone || 'Not provided'}`,
+    `Service: ${lead.service.replace(/_/g, ' ')}`,
+    `Budget: ${lead.budget_range || 'Not provided'}`,
+    `Timeline: ${lead.project_date || 'Not provided'}`,
+    `Location: ${lead.project_location || 'Not provided'}`,
+    `Source: ${lead.source || 'Not provided'}`,
+    `Referral code: ${lead.referral_code || 'None'}`,
+    '',
+    'Project details:',
+    lead.brief,
+  ].join('\n');
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'shotbydiallo-website/1.0',
+        'Idempotency-Key': `new-lead-${leadId || lead.email}`,
+      },
+      body: JSON.stringify({
+        from,
+        to: [recipient],
+        reply_to: lead.email,
+        subject: `New ${lead.service.replace(/_/g, ' ')} request from ${lead.name}`,
+        text: details,
+      }),
+    });
+    if (!response.ok) console.error('Lead notification email was not accepted.');
+  } catch {
+    console.error('Lead notification email could not be sent.');
+  }
+}
+
 module.exports = async function createLead(request, response) {
   if (request.method !== 'POST') {
     response.setHeader('Allow', 'POST');
@@ -108,7 +153,7 @@ module.exports = async function createLead(request, response) {
         apikey: serviceRoleKey,
         Authorization: `Bearer ${serviceRoleKey}`,
         'Content-Type': 'application/json',
-        Prefer: 'return=minimal',
+        Prefer: 'return=representation',
       },
       body: JSON.stringify({ ...lead, owner_id: ownerId }),
     });
@@ -123,6 +168,11 @@ module.exports = async function createLead(request, response) {
       error: 'Unable to save your request. Please email bydialloo@gmail.com.',
     });
   }
+
+  const savedLead = await insertResponse.json().catch(function () {
+    return [];
+  });
+  await notifyOwner(lead, savedLead[0] && savedLead[0].id);
 
   return respond(response, 201, { ok: true });
 };

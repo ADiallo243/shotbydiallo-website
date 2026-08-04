@@ -10,6 +10,21 @@
     <link rel="stylesheet" href="assets/css/admin-modules.css?v=1" />
   </head>
   <body>
+    <main class="crm-auth" id="crmAuth">
+      <section class="crm-auth-card">
+        <a class="crm-logo auth-logo" href="index.html">ShotByDiallo <span>Private studio CRM</span></a>
+        <p class="kicker">Owner access</p>
+        <h1>Sign in to view new leads.</h1>
+        <p>Website inquiries and client information are only visible after you sign in.</p>
+        <form id="crmLoginForm">
+          <label>Email<input id="crmEmail" type="email" autocomplete="email" required /></label>
+          <label>Password<input id="crmPassword" type="password" autocomplete="current-password" required /></label>
+          <button class="primary-action" type="submit">Sign in</button>
+          <p class="crm-auth-status" id="crmAuthStatus" role="status"></p>
+        </form>
+      </section>
+    </main>
+    <div id="crmApp" hidden>
     <aside class="crm-sidebar">
       <a class="crm-logo" href="index.html">ShotByDiallo <span>Studio</span></a>
       <nav>
@@ -26,7 +41,8 @@
         <button class="nav-item" data-view="settings"><span>⚙</span> Settings</button>
       </nav>
       <div class="sidebar-bottom">
-        <p>Signed in as</p><strong>Studio Owner</strong>
+        <p>Signed in as</p><strong id="crmUserName">Studio Owner</strong>
+        <button class="crm-logout" id="crmLogout" type="button">Sign out</button>
         <a href="index.html">View website ↗</a>
       </div>
     </aside>
@@ -101,7 +117,7 @@
       <section class="crm-view" id="leads">
         <div class="view-tools">
           <input id="leadSearch" type="search" placeholder="Search leads, companies or services…" />
-          <select id="leadFilter"><option value="all">All stages</option><option>New</option><option>Contacted</option><option>Proposal</option><option>Booked</option><option>Lost</option></select>
+          <select id="leadFilter"><option value="all">All stages</option><option>New</option><option>Contacted</option><option>Qualified</option><option>Consultation</option><option>Proposal</option><option>Follow up</option><option>Booked</option><option>Lost</option><option>Future</option></select>
           <button class="primary-action" data-open-modal>+ Add lead</button>
         </div>
         <div class="kanban" id="leadKanban"></div>
@@ -390,6 +406,7 @@
     </dialog>
 
     <div class="crm-toast" id="crmToast" role="status" aria-live="polite"></div>
+    </div>
     <script src="assets/js/admin.js?v=1"></script>
   </body>
 </html>

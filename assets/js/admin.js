@@ -1,11 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const initialLeads = [
-    { id: 1, name: 'Marc Gagnon', company: 'Nordik Construction', service: 'Business video', value: 4800, stage: 'New', source: 'Google', next: 'Discovery call' },
-    { id: 2, name: 'Kairo', company: 'Independent artist', service: 'Music video', value: 3200, stage: 'Contacted', source: 'Instagram', next: 'Send treatment' },
-    { id: 3, name: 'Sofia Benali', company: 'Atlas Legal', service: 'Business video', value: 6500, stage: 'Proposal', source: 'Referral', next: 'Follow up today' },
-    { id: 4, name: 'Amélie Roy', company: 'Maison Naya', service: 'Monthly content', value: 2400, stage: 'New', source: 'Instagram', next: 'Reply to inquiry' },
-    { id: 5, name: 'David Chen', company: 'CleanPro', service: 'Business video', value: 3600, stage: 'Booked', source: 'Referral', next: 'Prepare shoot' },
-  ];
   const projects = [
     ['CleanPro Company Story', 'Editing', 'Aug 01', '$3,600', 72, 'At risk', 'warning'],
     ['Kairo · Nuit Blanche', 'Pre-production', 'Aug 08', '$3,200', 34, 'On track', 'healthy'],
@@ -21,7 +14,12 @@ document.addEventListener('DOMContentLoaded', function () {
     ['NC', 'Nordik Construction', 'Construction', '1 opportunity'],
     ['MN', 'Maison Naya', 'Retail', '2 projects'],
   ];
-  let leads = JSON.parse(localStorage.getItem('sbd-leads') || 'null') || initialLeads;
+  let leads = [];
+  let accessToken = sessionStorage.getItem('sbd-admin-token');
+  let supabaseConfig = null;
+  const authGate = document.getElementById('crmAuth');
+  const crmApp = document.getElementById('crmApp');
+  const authStatus = document.getElementById('crmAuthStatus');
   const crmToast = document.getElementById('crmToast');
   const quickEditModal = document.getElementById('quickEditModal');
   const quickEditForm = document.getElementById('quickEditForm');
@@ -37,6 +35,55 @@ document.addEventListener('DOMContentLoaded', function () {
     window.clearTimeout(showToast.timeout);
     showToast.timeout = window.setTimeout(() => crmToast.classList.remove('show'), 2800);
   }
+
+  function titleCase(value) {
+    return String(value || '').replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  async function loadRealLeads() {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/leads?select=id,name,company,email,phone,service,stage,budget_range,estimated_value,project_date,project_location,brief,source,next_action,created_at&order=created_at.desc`, {
+      headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}` },
+    });
+    if (!response.ok) throw new Error('Unable to load your leads. Please sign in again.');
+    const records = await response.json();
+    leads = records.map((lead) => ({
+      id: lead.id, name: lead.name, company: lead.company || lead.name,
+      service: titleCase(lead.service), value: Number(lead.estimated_value || 0),
+      stage: titleCase(lead.stage), source: lead.source || 'Website',
+      next: lead.next_action || `Website request · ${new Date(lead.created_at).toLocaleDateString('en-CA')}`,
+    }));
+    renderLeads();
+  }
+
+  async function signIn(event) {
+    event.preventDefault();
+    const email = document.getElementById('crmEmail').value.trim();
+    const password = document.getElementById('crmPassword').value;
+    authStatus.textContent = 'Signing in…';
+    try {
+      supabaseConfig = await fetch('/api/crm-config').then(async (response) => {
+        if (!response.ok) throw new Error('CRM configuration is not ready.');
+        return response.json();
+      });
+      const response = await fetch(`${supabaseConfig.url}/auth/v1/token?grant_type=password`, {
+        method: 'POST', headers: { apikey: supabaseConfig.key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) throw new Error('Incorrect email or password.');
+      const session = await response.json();
+      accessToken = session.access_token;
+      sessionStorage.setItem('sbd-admin-token', accessToken);
+      document.getElementById('crmUserName').textContent = session.user.email;
+      await loadRealLeads();
+      authGate.hidden = true;
+      crmApp.hidden = false;
+    } catch (error) { authStatus.textContent = error.message; }
+  }
+  document.getElementById('crmLoginForm').addEventListener('submit', signIn);
+  document.getElementById('crmLogout').addEventListener('click', () => {
+    sessionStorage.removeItem('sbd-admin-token'); accessToken = null; leads = [];
+    crmApp.hidden = true; authGate.hidden = false; document.getElementById('crmPassword').value = '';
+  });
   function openQuickEdit(title, label, value, callback, inputType = 'text') {
     document.getElementById('quickEditTitle').textContent = title;
     document.getElementById('quickEditLabel').firstChild.textContent = label;
@@ -100,16 +147,14 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('todayLabel').textContent = new Intl.DateTimeFormat('en-CA', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
 
   const modal = document.getElementById('leadModal');
-  document.querySelectorAll('[data-open-modal]').forEach((button) => button.addEventListener('click', () => modal.showModal()));
+  document.querySelectorAll('[data-open-modal]').forEach((button) => button.addEventListener('click', () => showToast('New website requests appear here automatically.', 'neutral')));
   document.getElementById('newLeadForm').addEventListener('submit', function (event) {
     if (event.submitter?.value === 'cancel') return;
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    leads.unshift({ id: Date.now(), name: data.get('name'), company: data.get('company'), service: data.get('service'), value: Number(data.get('value') || 0), stage: 'New', source: data.get('source'), next: data.get('nextAction') });
-    localStorage.setItem('sbd-leads', JSON.stringify(leads));
+    showToast('Manual lead creation will be connected next.', 'neutral');
     event.currentTarget.reset();
     modal.close();
-    renderLeads();
     switchView('leads');
   });
 
@@ -118,9 +163,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const remove = event.target.closest('[data-delete-lead]');
     if (edit) {
       const lead = leads.find((item) => String(item.id) === edit.dataset.editLead);
-      openQuickEdit('Edit lead', 'Next action', lead.next || '', (nextAction) => { lead.next = nextAction; localStorage.setItem('sbd-leads', JSON.stringify(leads)); renderLeads(); });
+      showToast('Lead editing will be connected next.', 'neutral');
     }
-    if (remove) confirmAction('Remove this lead from the sales pipeline?', () => { leads = leads.filter((item) => String(item.id) !== remove.dataset.deleteLead); localStorage.setItem('sbd-leads', JSON.stringify(leads)); renderLeads(); });
+    if (remove) showToast('Lead deletion is disabled for your protection.', 'warning');
   });
   document.getElementById('projectTable').addEventListener('click', (event) => {
     const edit = event.target.closest('[data-edit-project]');
@@ -451,5 +496,9 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   renderMedia();
   renderInvoices();
-  renderLeads();
+  if (accessToken) {
+    fetch('/api/crm-config').then((response) => response.ok ? response.json() : Promise.reject()).then(async (config) => {
+      supabaseConfig = config; await loadRealLeads(); authGate.hidden = true; crmApp.hidden = false;
+    }).catch(() => { sessionStorage.removeItem('sbd-admin-token'); });
+  }
 });
