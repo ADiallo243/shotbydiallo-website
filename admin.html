@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
     <link rel="stylesheet" href="assets/css/admin.css?v=2" />
     <link rel="stylesheet" href="assets/css/admin-modules.css?v=2" />
-    <link rel="stylesheet" href="assets/css/admin-auth.css?v=4" />
+    <link rel="stylesheet" href="assets/css/admin-auth.css?v=5" />
   </head>
   <body>
     <main class="crm-auth" id="crmAuth">
@@ -41,12 +41,12 @@
         <button class="nav-item" data-view="leads"><span>◎</span> Leads <b id="leadBadge">0</b></button>
         <button class="nav-item" data-view="projects"><span>▣</span> Projects</button>
         <button class="nav-item" data-view="clients"><span>◉</span> Clients</button>
-        <button class="nav-item" data-view="contracts" hidden><span>✎</span> Contracts</button>
+        <button class="nav-item" data-view="contracts"><span>✎</span> Contracts</button>
         <button class="nav-item" data-view="media"><span>▧</span> Media</button>
-        <button class="nav-item" data-view="audience" hidden><span>✦</span> Audience</button>
+        <button class="nav-item" data-view="audience"><span>✦</span> Audience</button>
         <button class="nav-item" data-view="tasks"><span>✓</span> Tasks</button>
-        <button class="nav-item" data-view="marketing" hidden><span>↗</span> Marketing</button>
-        <button class="nav-item" data-view="finances" hidden><span>$</span> Finances</button>
+        <button class="nav-item" data-view="marketing"><span>↗</span> Marketing</button>
+        <button class="nav-item" data-view="finances"><span>$</span> Finances</button>
         <button class="nav-item" data-view="settings" hidden><span>⚙</span> Settings</button>
       </nav>
       <div class="sidebar-bottom">
@@ -137,14 +137,25 @@
       <section class="crm-view" id="leads">
         <div class="view-tools">
           <input id="leadSearch" type="search" placeholder="Search leads, companies or services…" />
-          <select id="leadFilter"><option value="all">All stages</option><option>New</option><option>Contacted</option><option>Qualified</option><option>Consultation</option><option>Proposal</option><option>Follow up</option><option>Booked</option><option>Lost</option><option>Future</option></select>
-          <button class="primary-action" data-open-modal hidden>+ Add lead</button>
+          <select id="leadFilter">
+            <option value="all">All stages</option>
+            <option value="New">New</option>
+            <option value="Contacted">Contacted</option>
+            <option value="Qualified">Qualified</option>
+            <option value="Consultation">Consultation</option>
+            <option value="Proposal">Proposal</option>
+            <option value="Follow Up">Follow up</option>
+            <option value="Booked">Booked</option>
+            <option value="Future">Future</option>
+            <option value="Lost">Lost</option>
+          </select>
+          <button class="primary-action" data-open-modal>+ Add lead</button>
         </div>
         <div class="kanban" id="leadKanban"></div>
       </section>
 
       <section class="crm-view" id="projects">
-        <div class="section-intro"><div><p class="kicker">Production</p><h2>Active projects</h2></div></div>
+        <div class="section-intro"><div><p class="kicker">Production</p><h2>Active projects</h2></div><button class="primary-action" id="newProjectButton">+ New project</button></div>
         <div class="project-health-grid">
           <article>
             <span>On track</span>
@@ -171,21 +182,24 @@
       </section>
 
       <section class="crm-view" id="clients">
-        <div class="section-intro"><div><p class="kicker">Relationships</p><h2>Client directory</h2></div></div>
+        <div class="section-intro"><div><p class="kicker">Relationships</p><h2>Client directory</h2></div><button class="primary-action" id="newClientButton">+ Add client</button></div>
         <div class="client-grid" id="clientGrid"></div>
       </section>
 
-      <section class="crm-view" id="contracts" hidden>
-        <div class="section-intro"><div><p class="kicker">Agreements</p><h2>Contracts</h2><p class="section-note">Create, review, send and track client agreements.</p></div><button class="primary-action" id="newContractButton">+ New contract</button></div>
+      <section class="crm-view" id="contracts">
+        <div class="section-intro">
+          <div><p class="kicker">Agreements</p><h2>Contracts</h2><p class="section-note">Create and track only real client agreements.</p></div>
+          <button class="primary-action" id="newContractButton">+ New contract</button>
+        </div>
         <div class="metric-grid">
-          <article><span>Drafts</span><strong>2</strong><small>Need your review</small></article>
-          <article><span>Sent</span><strong>3</strong><small>Awaiting signature</small></article>
-          <article><span>Signed</span><strong>8</strong><small>This year</small></article>
-          <article><span>Deposits pending</span><strong>2</strong><small>$1,275 expected</small></article>
+          <article><span>Drafts</span><strong id="contractDraftCount">0</strong><small>Not yet sent</small></article>
+          <article><span>Awaiting signature</span><strong id="contractSentCount">0</strong><small>Sent or viewed</small></article>
+          <article><span>Signed</span><strong id="contractSignedCount">0</strong><small>Completed agreements</small></article>
+          <article><span>Total contract value</span><strong id="contractValue">$0</strong><small>All real contracts</small></article>
         </div>
         <div class="panel contract-table">
-          <div class="contract-row header"><span>Contract</span><span>Client</span><span>Amount</span><span>Status</span><span>Next step</span></div>
-          <div id="contractList"></div>
+          <div class="contract-row header"><span>Contract</span><span>Client</span><span>Amount</span><span>Status</span><span>Actions</span></div>
+          <div id="contractList"><p class="empty-state">No contracts yet.</p></div>
         </div>
       </section>
 
@@ -199,102 +213,57 @@
         <div class="media-grid" id="mediaGrid"></div>
       </section>
 
-      <section class="crm-view" id="audience" hidden>
-        <div class="section-intro"><div><p class="kicker">Relationships</p><h2>Contacts & referrals</h2><p class="section-note">Past clients, prospects and newsletter contacts in one place.</p></div><button class="primary-action" id="addContactButton">+ Add contact</button></div>
+      <section class="crm-view" id="audience">
+        <div class="section-intro">
+          <div><p class="kicker">Relationships</p><h2>Audience & contacts</h2><p class="section-note">Real clients, website leads and contacts you add manually.</p></div>
+          <button class="primary-action" id="addContactButton">+ Add contact</button>
+        </div>
         <div class="metric-grid">
-          <article><span>Total contacts</span><strong id="contactTotal">128</strong><small>Clients + prospects + subscribers</small></article>
-          <article><span>Newsletter</span><strong>84</strong><small>65.6% opted in</small></article>
-          <article><span>Referrals received</span><strong>17</strong><small>12 converted to projects</small></article>
-          <article><span>Referral revenue</span><strong>$18,400</strong><small>Last 12 months</small></article>
+          <article><span>Total contacts</span><strong id="audienceTotal">0</strong><small>Unique real contacts</small></article>
+          <article><span>Clients</span><strong id="audienceClientCount">0</strong><small>Client directory</small></article>
+          <article><span>Website leads</span><strong id="audienceLeadCount">0</strong><small>Automatic inquiries</small></article>
+          <article><span>Manual contacts</span><strong id="audienceManualCount">0</strong><small>Added by you</small></article>
         </div>
-        <div class="audience-layout">
-          <article class="panel audience-table-panel">
-            <div class="panel-heading"><div><p class="kicker">Contact list</p><h2>Your audience</h2></div><button id="exportContacts">Export CSV</button></div>
-            <div class="audience-table" id="audienceTable"></div>
-          </article>
-          <article class="panel referral-panel">
-            <div class="panel-heading"><div><p class="kicker">Referral code</p><h2>Give clients a code to share</h2></div></div>
-            <p class="panel-note">The past client receives 10% off their next project, and the person they refer receives 10% off their first project.</p>
-            <label>Choose client<select id="referralClient"><option>CleanPro</option><option>Kairo</option><option>Maison Naya</option><option>Le Sillage</option></select></label>
-            <div class="generated-code"><span>Referral code</span><strong id="generatedReferralCode">SBD-CLEANPRO-10</strong><button id="copyReferralCode">Copy</button></div>
-            <label>Project request link<input id="referralProjectLink" readonly value="/contact?ref=SBD-CLEANPRO-10" /></label>
-            <div class="referral-actions"><button id="copyReferralLink">Copy link</button><button class="primary-action" id="prepareReferralMessage">Prepare message</button></div>
-            <div class="simple-referral-list"><p><strong>CleanPro</strong> <span>2 referrals · $720 attributed</span></p><p><strong>Kairo</strong> <span>1 referral · Reward available</span></p></div>
-          </article>
-        </div>
-        <article class="panel retention-panel">
-          <div class="panel-heading"><div><p class="kicker">Client retention</p><h2>Automatic follow-up after delivery</h2></div><button id="editRetentionSequence">Edit sequence</button></div>
-          <div class="retention-timeline">
-            <article><time>Day 0</time><i></i><div><strong>Project delivered</strong><span>Final files sent and project marked complete.</span></div><b class="badge success">Trigger</b></article>
-            <article><time>Day 7</time><i></i><div><strong>Thank-you + referral offer</strong><span>10% off their next project and 10% off for the person they refer.</span><button data-preview-sequence="7">Preview message</button></div><b class="badge success">Active</b></article>
-            <article><time>Day 14</time><i></i><div><strong>Google review request</strong><span>A personal check-in and direct Google review link.</span><button data-preview-sequence="14">Preview message</button></div><b class="badge success">Active</b></article>
-            <article><time>Day 30</time><i></i><div><strong>Relationship check-in</strong><span>Ask how the content performed and invite the client to discuss their next project.</span><button data-preview-sequence="30">Preview message</button></div><b class="badge success">Active</b></article>
-          </div>
+        <article class="panel audience-table-panel">
+          <div class="panel-heading"><div><p class="kicker">Contact list</p><h2>Your real audience</h2></div><button id="exportContacts">Export CSV</button></div>
+          <div class="audience-table" id="audienceTable"><p class="empty-state">No contacts yet.</p></div>
         </article>
       </section>
 
       <section class="crm-view" id="tasks">
-        <div class="section-intro"><div><p class="kicker">Operations</p><h2>Tasks & follow-ups</h2></div></div>
+        <div class="section-intro"><div><p class="kicker">Operations</p><h2>Tasks & follow-ups</h2></div><button class="primary-action" id="newTaskButton">+ Add task</button></div>
         <div class="panel task-board" id="taskBoard"><p class="empty-state">Loading tasks…</p></div>
       </section>
 
-      <section class="crm-view" id="marketing" hidden>
+      <section class="crm-view" id="marketing">
+        <div class="section-intro">
+          <div><p class="kicker">Outreach</p><h2>Marketing prospects</h2><p class="section-note">Track only companies and people you are genuinely contacting.</p></div>
+          <button class="primary-action" id="addProspectButton">+ Add prospect</button>
+        </div>
         <div class="metric-grid marketing-metrics">
-          <article><span>Website inquiries</span><strong>24</strong><small>This month</small></article>
-          <article><span>Consultations booked</span><strong>11</strong><small>45.8% of inquiries</small></article>
-          <article><span>Outreach replies</span><strong>19%</strong><small>Last 30 days</small></article>
-          <article><span>Repeat clients</span><strong>36%</strong><small>Last 12 months</small></article>
+          <article><span>Total prospects</span><strong id="marketingTotal">0</strong><small>Real outreach records</small></article>
+          <article><span>Research</span><strong id="marketingResearch">0</strong><small>Not contacted yet</small></article>
+          <article><span>Contacted</span><strong id="marketingContacted">0</strong><small>Waiting for a reply</small></article>
+          <article><span>Replies / qualified</span><strong id="marketingReplied">0</strong><small>Positive progress</small></article>
         </div>
-        <div class="dashboard-grid">
-          <article class="panel outreach-panel">
-            <div class="panel-heading"><div><p class="kicker">Outreach</p><h2>Prospect list</h2></div><button>+ Add prospect</button></div>
-            <div class="prospect"><div><strong>Bâtiments Nova</strong><span>Construction · Montreal</span></div><b>Follow up today</b></div>
-            <div class="prospect"><div><strong>Cabinet Laurent</strong><span>Law firm · Laval</span></div><b>Not contacted</b></div>
-            <div class="prospect"><div><strong>Le Sillage</strong><span>Restaurant · Montreal</span></div><b>Replied</b></div>
-          </article>
-          <article class="panel">
-            <div class="panel-heading"><div><p class="kicker">Automation</p><h2>Follow-up sequences</h2></div></div>
-            <div class="automation-row"><span>New inquiry confirmation</span><b>Active</b></div>
-            <div class="automation-row"><span>Proposal reminder · 3 days</span><b>Active</b></div>
-            <div class="automation-row"><span>Review request · after delivery</span><b>Draft</b></div>
-            <div class="automation-row"><span>Past-client check-in · 90 days</span><b>Draft</b></div>
-          </article>
-        </div>
-        <div class="marketing-workspace">
-          <article class="panel campaign-builder">
-            <div class="panel-heading"><div><p class="kicker">Campaigns</p><h2>Outreach planner</h2></div><button id="newCampaign">+ Campaign</button></div>
-            <div class="campaign-row"><div><strong>Construction company outreach</strong><span>42 prospects · Email + Instagram</span></div><div class="campaign-progress"><i><b style="width:58%"></b></i><span>18 replies</span></div><b class="badge success">Active</b></div>
-            <div class="campaign-row"><div><strong>Restaurant visual audit</strong><span>25 prospects · Personalized email</span></div><div class="campaign-progress"><i><b style="width:32%"></b></i><span>6 replies</span></div><b class="badge warning">Paused</b></div>
-            <div class="campaign-row"><div><strong>Past-client reactivation</strong><span>31 clients · Email</span></div><div class="campaign-progress"><i><b style="width:12%"></b></i><span>Scheduled</span></div><b class="badge">Draft</b></div>
-          </article>
-          <article class="panel marketing-ideas">
-            <p class="kicker">Next best actions</p><h2>Recommended today</h2>
-            <label><input type="checkbox" /> Follow up with 4 warm business leads</label>
-            <label><input type="checkbox" /> Ask 2 completed clients for referrals</label>
-            <label><input type="checkbox" /> Prepare one construction case study</label>
-            <label><input type="checkbox" /> Schedule next week’s behind-the-scenes post</label>
-          </article>
-        </div>
+        <div class="panel" id="marketingTable"><p class="empty-state">No marketing prospects yet.</p></div>
       </section>
 
-      <section class="crm-view" id="finances" hidden>
-        <div class="section-intro finance-heading"><div><p class="kicker">Financial tracking</p><h2>Revenue & invoices</h2><p class="section-note">Record deposits and payments manually until a payment provider is connected.</p></div><button class="primary-action" id="addTransactionButton">+ Record payment</button></div>
+      <section class="crm-view" id="finances">
+        <div class="section-intro finance-heading">
+          <div><p class="kicker">Financial tracking</p><h2>Finances</h2><p class="section-note">Record real invoices, payments, deposits, refunds and expenses manually.</p></div>
+          <button class="primary-action" id="addTransactionButton">+ Add entry</button>
+        </div>
         <div class="metric-grid">
-          <article><span>Revenue this month</span><strong>$12,600</strong><small class="positive">↑ 14% month over month</small></article>
-          <article><span>Outstanding</span><strong>$4,200</strong><small>Across 3 invoices</small></article>
-          <article><span>Average project</span><strong>$3,780</strong><small>Last 12 months</small></article>
-          <article><span>Projected revenue</span><strong>$27,100</strong><small>Booked + weighted pipeline</small></article>
+          <article><span>Cash received this month</span><strong id="financeRevenueMonth">$0</strong><small>Payments and deposits</small></article>
+          <article><span>Outstanding invoices</span><strong id="financeOutstanding">$0</strong><small>Due, overdue or pending</small></article>
+          <article><span>Expenses this month</span><strong id="financeExpensesMonth">$0</strong><small>Recorded expenses</small></article>
+          <article><span>Net cash this month</span><strong id="financeNetMonth">$0</strong><small>Received minus expenses and refunds</small></article>
         </div>
-        <div class="dashboard-grid">
-          <article class="panel"><div class="panel-heading"><div><p class="kicker">Cash flow</p><h2>Invoices</h2></div><button>+ New invoice</button></div>
-            <div id="invoiceList"></div>
-          </article>
-          <article class="panel"><div class="panel-heading"><div><p class="kicker">Revenue</p><h2>Monthly goal</h2></div></div>
-            <div class="goal-ring"><strong>63%</strong><span>$12,600 of $20,000</span></div>
-            <div class="revenue-bar"><b style="width:63%"></b></div>
-            <p class="panel-note">Two booked projects can bring this month to 87% of goal.</p>
-          </article>
-        </div>
+        <article class="panel">
+          <div class="panel-heading"><div><p class="kicker">Entries</p><h2>Financial history</h2></div></div>
+          <div id="invoiceList"><p class="empty-state">No financial entries yet.</p></div>
+        </article>
       </section>
 
       <section class="crm-view" id="settings" hidden>
@@ -347,18 +316,89 @@
         <div class="modal-heading"><div><p class="kicker">New opportunity</p><h2>Add a lead</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
         <label>Name<input name="name" required /></label>
         <label>Company / artist<input name="company" /></label>
-        <label>Project type<select name="service"><option>Business video</option><option>Music video</option><option>Monthly content</option></select></label>
-        <label>Estimated value<input name="value" type="number" min="0" placeholder="2500" /></label>
-        <label>Lead source<select name="source"><option>Website</option><option>Instagram</option><option>Referral</option><option>Google</option><option>Outreach</option></select></label>
-        <label>Next action<input name="nextAction" placeholder="Book discovery call" /></label>
-        <button class="primary-action" value="default">Save lead</button>
+        <label>Email<input name="email" type="email" required /></label>
+        <label>Phone<input name="phone" /></label>
+        <label>Project type<select name="service" required><option value="business_video">Business video</option><option value="music_video">Music video</option><option value="monthly_content">Monthly content</option><option value="other">Other</option></select></label>
+        <label>Estimated value<input name="estimated_value" type="number" min="0" step="0.01" value="0" /></label>
+        <label>Lead source<input name="source" placeholder="Website, Instagram, referral…" value="Manual" /></label>
+        <label>Next action<input name="next_action" placeholder="Book discovery call" /></label>
+        <label>Notes<textarea name="brief" rows="4"></textarea></label>
+        <button class="primary-action" type="submit">Save lead</button>
+      </form>
+    </dialog>
+
+    <dialog id="clientModal">
+      <form method="dialog" id="clientForm">
+        <div class="modal-heading"><div><p class="kicker">Client directory</p><h2>Add a client</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Contact name<input name="name" required /></label>
+        <label>Company / artist<input name="company" /></label>
+        <label>Email<input name="email" type="email" /></label>
+        <label>Phone<input name="phone" /></label>
+        <label>Industry<input name="industry" /></label>
+        <label>Notes<textarea name="notes" rows="3"></textarea></label>
+        <button class="primary-action" type="submit">Save client</button>
+      </form>
+    </dialog>
+
+    <dialog id="projectModal">
+      <form method="dialog" id="projectFormAdmin">
+        <div class="modal-heading"><div><p class="kicker">Production</p><h2>Add a project</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Client<select name="client_id" id="projectClient" required><option value="">Select a client</option></select></label>
+        <label>Project title<input name="title" required /></label>
+        <label>Service<select name="service"><option value="business_video">Business video</option><option value="music_video">Music video</option><option value="monthly_content">Monthly content</option><option value="other">Other</option></select></label>
+        <label>Stage<select name="stage"><option value="brief">Brief</option><option value="pre_production">Pre-production</option><option value="scheduled">Scheduled</option><option value="filming">Filming</option><option value="editing">Editing</option><option value="client_review">Client review</option><option value="delivered">Delivered</option><option value="completed">Completed</option></select></label>
+        <label>Value (CAD)<input name="value" type="number" min="0" step="0.01" value="0" /></label>
+        <label>Deadline<input name="deadline_at" type="datetime-local" /></label>
+        <label>Location<input name="location" /></label>
+        <label>Brief<textarea name="brief" rows="4"></textarea></label>
+        <button class="primary-action" type="submit">Save project</button>
+      </form>
+    </dialog>
+
+    <dialog id="taskModal">
+      <form method="dialog" id="taskForm">
+        <div class="modal-heading"><div><p class="kicker">Operations</p><h2>Add a task</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Task<input name="title" required /></label>
+        <label>Category<input name="category" placeholder="Follow-up, editing, payment…" /></label>
+        <label>Due date<input name="due_at" type="datetime-local" /></label>
+        <button class="primary-action" type="submit">Save task</button>
+      </form>
+    </dialog>
+
+    <dialog id="audienceContactModal">
+      <form method="dialog" id="audienceContactForm">
+        <div class="modal-heading"><div><p class="kicker">Audience</p><h2>Add a contact</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Person name<input name="contact_name" required /></label>
+        <label>Company / brand<input name="company" /></label>
+        <label>Email<input name="email" type="email" /></label>
+        <label>Phone<input name="phone" /></label>
+        <label>Industry<input name="industry" /></label>
+        <label>Source<input name="source" placeholder="Networking, event, Instagram…" /></label>
+        <label>Notes<textarea name="notes" rows="3"></textarea></label>
+        <button class="primary-action" type="submit">Save contact</button>
+      </form>
+    </dialog>
+
+    <dialog id="marketingContactModal">
+      <form method="dialog" id="marketingContactForm">
+        <div class="modal-heading"><div><p class="kicker">Outreach</p><h2>Add a prospect</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Company / brand<input name="company" required /></label>
+        <label>Contact person<input name="contact_name" /></label>
+        <label>Email<input name="email" type="email" /></label>
+        <label>Phone<input name="phone" /></label>
+        <label>Industry<input name="industry" /></label>
+        <label>Source<input name="source" placeholder="Google, Instagram, referral…" /></label>
+        <label>Status<select name="status"><option value="research">Research</option><option value="contacted">Contacted</option><option value="replied">Replied</option><option value="qualified">Qualified</option><option value="booked">Booked</option><option value="not_interested">Not interested</option></select></label>
+        <label>Next follow-up<input name="next_follow_up_at" type="datetime-local" /></label>
+        <label>Notes<textarea name="notes" rows="3"></textarea></label>
+        <button class="primary-action" type="submit">Save prospect</button>
       </form>
     </dialog>
 
     <dialog id="messageModal">
       <form method="dialog" id="clientMessageForm">
         <div class="modal-heading"><div><p class="kicker">Client communication</p><h2>Send project update</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
-        <label>Client<select id="messageClient"><option>CleanPro</option><option>Kairo</option><option>Le Sillage</option><option>Amina</option></select></label>
+        <label>Client<select id="messageClient"><option value="">Select a real client</option></select></label>
         <label>Message type<select id="messageType"><option value="preview">Preview ready</option><option value="delivery">Final delivery</option><option value="complete">Project completed</option><option value="review">Review request</option></select></label>
         <label>Delivery or preview link<input id="messageLink" type="url" placeholder="Frame.io, Google Drive or WeTransfer link" /></label>
         <label>Message<textarea id="messageBody" rows="9"></textarea></label>
@@ -368,36 +408,37 @@
 
     <dialog id="transactionModal">
       <form method="dialog" id="transactionForm">
-        <div class="modal-heading"><div><p class="kicker">Financial record</p><h2>Record a payment</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
-        <label>Client<select name="client" required><option value="">Select an existing client</option><option>CleanPro</option><option>Kairo</option><option>Le Sillage</option><option>Atlas Legal</option><option>Nordik Construction</option><option>Amina</option><option>Maison Naya</option></select></label>
-        <label>Invoice number<input name="invoice" placeholder="#1043" required /></label>
-        <label>Amount received<input name="amount" type="number" min="0" step="0.01" required /></label>
-        <label>Payment status<select name="status"><option>Paid</option><option>Deposit paid</option><option>Partially paid</option><option>Due</option><option>Overdue</option></select></label>
-        <label>Payment method<select name="method"><option>E-transfer</option><option>Cash</option><option>Cheque</option><option>Bank transfer</option><option>Other</option></select></label>
-        <button class="primary-action" value="default">Save transaction</button>
+        <div class="modal-heading"><div><p class="kicker">Financial record</p><h2>Add an entry</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <label>Client<select name="client_id" id="financeClient"><option value="">No client / general expense</option></select></label>
+        <label>Entry type<select name="entry_type" required><option value="invoice">Invoice</option><option value="deposit">Deposit received</option><option value="payment">Payment received</option><option value="expense">Expense</option><option value="refund">Refund</option></select></label>
+        <label>Invoice number<input name="invoice_number" placeholder="SBD-0001" /></label>
+        <label>Amount (CAD)<input name="amount" type="number" min="0" step="0.01" required /></label>
+        <label>Status<select name="status"><option value="pending">Pending</option><option value="due">Due</option><option value="overdue">Overdue</option><option value="paid">Paid</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></label>
+        <label>Payment method<input name="payment_method" placeholder="E-transfer, cash, bank transfer…" /></label>
+        <label>Date<input name="occurred_at" type="datetime-local" /></label>
+        <label>Notes<textarea name="notes" rows="3"></textarea></label>
+        <button class="primary-action" type="submit">Save entry</button>
       </form>
     </dialog>
 
     <dialog id="contractModal" class="wide-dialog">
       <form method="dialog" id="contractForm">
-        <div class="modal-heading"><div><p class="kicker">French service agreement</p><h2>Create a contract</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
+        <div class="modal-heading"><div><p class="kicker">Client agreement</p><h2>Create a contract</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
         <div class="contract-form-grid">
-          <label>Existing client<select name="client" id="contractClient" required><option value="">Select client</option><option>CleanPro</option><option>Kairo</option><option>Le Sillage</option><option>Atlas Legal</option><option>Nordik Construction</option><option>Amina</option><option>Maison Naya</option></select></label>
-          <label>Project title<input name="title" placeholder="Company story video" required /></label>
-          <label>Service date<input name="service_date" type="date" required /></label>
-          <label>Location<input name="location" value="Montréal, Québec" required /></label>
-          <label>Total amount (CAD)<input name="amount" type="number" min="0" step="0.01" required /></label>
-          <label>Deposit percentage<input name="deposit_percent" type="number" min="0" max="100" value="25" required /></label>
-          <label>Remaining balance due<select name="balance_due"><option>Before production begins</option><option>On the shoot date</option><option>Before final delivery</option><option>Custom arrangement</option></select></label>
-          <label>Editing and delivery delay<input name="delivery_delay" value="3 weeks after the service date" required /></label>
-          <label>Included revisions<input name="revisions" type="number" min="0" value="2" /></label>
-          <label>Exact schedule<input name="schedule" placeholder="Full day or detailed hours" /></label>
+          <label>Client<select name="client_id" id="contractClient" required><option value="">Select a client</option></select></label>
+          <label>Project title<input name="title" required /></label>
+          <label>Service date<input name="service_date" type="date" /></label>
+          <label>Location<input name="location" value="Montréal, Québec" /></label>
+          <label>Total amount (CAD)<input name="total_amount" type="number" min="0" step="0.01" required /></label>
+          <label>Deposit percentage<input name="deposit_percent" type="number" min="0" max="100" value="25" /></label>
+          <label>Status<select name="status"><option value="draft">Draft</option><option value="sent">Sent</option><option value="signed">Signed</option></select></label>
+          <label>Delivery delay<input name="delivery_delay" value="3 weeks after the service date" /></label>
+          <label>Included revisions<input name="revision_count" type="number" min="0" value="2" /></label>
         </div>
-        <label>What will be produced?<textarea name="scope" rows="6" placeholder="Describe filming, photography, editing and coverage." required></textarea></label>
-        <label>Final deliverables<textarea name="deliverables" rows="5" placeholder="One short video, one long-form video, edited photos…" required></textarea></label>
-        <label>Additional notes<textarea name="notes" rows="4" placeholder="Access, travel, equipment, special conditions or agreements."></textarea></label>
-        <label class="checkbox-label"><input name="portfolio_rights" type="checkbox" checked /> ShotByDiallo may use selected extracts for portfolio and promotion unless the client objects in writing.</label>
-        <div class="modal-actions"><button type="button" id="previewContract">Preview contract</button><button type="button" id="saveContractDraft">Save draft</button><button type="button" class="primary-action" id="prepareContractEmail">Prepare email</button></div>
+        <label>Scope of work<textarea name="scope" rows="5" required></textarea></label>
+        <label>Deliverables<textarea name="deliverables" rows="4" required></textarea></label>
+        <label>Additional notes<textarea name="notes" rows="3"></textarea></label>
+        <div class="modal-actions"><button type="button" id="previewContract">Preview</button><button class="primary-action" type="submit">Save contract</button></div>
       </form>
     </dialog>
 
@@ -446,6 +487,6 @@
 
     <div class="crm-toast" id="crmToast" role="status" aria-live="polite"></div>
     </div>
-    <script src="assets/js/admin.js?v=7"></script>
+    <script src="assets/js/admin-live.js?v=1"></script>
   </body>
 </html>

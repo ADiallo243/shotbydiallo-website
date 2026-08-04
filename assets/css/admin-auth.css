@@ -29,3 +29,26 @@
 #crmApp[hidden] {
   display: none !important;
 }
+
+
+/* LIVE CRM DATA MODULES */
+[hidden] { display: none !important; }
+.inline-control { display: grid; gap: 5px; margin-top: 12px; color: var(--muted); font-size: 10px; }
+.inline-control select,
+.project-row select { min-width: 120px; padding: 8px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+.record-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.task-board label { grid-template-columns: auto minmax(180px, 1fr) auto auto auto; }
+.task-board label button { justify-self: end; }
+#marketingTable .project-row { grid-template-columns: 1.5fr .8fr .8fr 1fr; }
+#marketingTable .project-row > div:last-child { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.audience-table .empty-state,
+.contract-table .empty-state,
+#marketingTable .empty-state,
+#invoiceList .empty-state { padding: 24px; }
+.empty-state { color: var(--muted); font-size: 12px; }
+@media (max-width: 900px) {
+  .task-board label { grid-template-columns: auto 1fr auto; }
+  .task-board label > span:last-of-type,
+  .task-board label button { grid-column: 2 / -1; }
+  #marketingTable .project-row { grid-template-columns: 1fr 1fr; }
+}
