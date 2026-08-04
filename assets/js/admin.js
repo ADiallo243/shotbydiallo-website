@@ -107,6 +107,44 @@ document.addEventListener('DOMContentLoaded', function () {
     renderTasks();
   }
 
+  function withTimeout(promise, label, milliseconds = 10000) {
+    let timer;
+
+    const timeout = new Promise((_, reject) => {
+      timer = window.setTimeout(
+        () => reject(new Error(`${label} timed out.`)),
+        milliseconds
+      );
+    });
+
+    return Promise.race([promise, timeout])
+      .finally(() => window.clearTimeout(timer));
+  }
+
+  async function loadCrmData() {
+    const results = await Promise.allSettled([
+      withTimeout(loadRealLeads(), 'Leads'),
+      withTimeout(loadOperations(), 'Operations'),
+      withTimeout(loadManagedMedia(), 'Media'),
+    ]);
+
+    const failures = results.filter(
+      (result) => result.status === 'rejected'
+    );
+
+    if (failures.length) {
+      console.warn(
+        'Some CRM sections failed to load:',
+        failures.map((result) => result.reason)
+      );
+
+      showToast(
+        'Signed in. Some CRM data could not be loaded yet.',
+        'warning'
+      );
+    }
+  }
+
   async function signIn(event) {
     event.preventDefault();
     const email = document.getElementById('crmEmail').value.trim();
@@ -123,11 +161,12 @@ document.addEventListener('DOMContentLoaded', function () {
       accessToken = session.access_token;
       sessionStorage.setItem('sbd-admin-token', accessToken);
       document.getElementById('crmUserName').textContent = session.user.email;
-      await loadRealLeads();
-      await loadOperations();
-      await loadManagedMedia();
+
       authGate.hidden = true;
       crmApp.hidden = false;
+      authStatus.textContent = '';
+
+      await loadCrmData();
     } catch (error) { authStatus.textContent = error.message; }
   }
   loginForm.addEventListener('submit', signIn);
@@ -319,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function publicMediaUrl(path) { return `${supabaseConfig.url}/storage/v1/object/public/site-media/${path}`; }
   async function loadManagedMedia() {
     if (!supabaseConfig || !accessToken) return;
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/media_assets?select=*&order=updated_at.desc`, { headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}` } });
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/media_assets?select=*&order=created_at.desc`, { headers: { apikey: supabaseConfig.key, Authorization: `Bearer ${accessToken}` } });
     if (response.ok) { managedMedia = await response.json(); renderMedia(); }
   }
   function renderMedia() {
@@ -598,8 +637,43 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!notificationDrawer.contains(event.target) && !notificationTrigger.contains(event.target)) toggleNotifications(false);
   });
   if (accessToken) {
-    fetch('/api/crm-config').then((response) => response.ok ? response.json() : Promise.reject()).then(async (config) => {
-      supabaseConfig = config; await loadRealLeads(); await loadOperations(); await loadManagedMedia(); authGate.hidden = true; crmApp.hidden = false;
-    }).catch(() => { sessionStorage.removeItem('sbd-admin-token'); });
+    fetch('/api/crm-config')
+      .then((response) => (
+        response.ok
+          ? response.json()
+          : Promise.reject(new Error('CRM configuration is not ready.'))
+      ))
+      .then(async (config) => {
+        supabaseConfig = config;
+
+        const userResponse = await withTimeout(
+          fetch(`${config.url}/auth/v1/user`, {
+            headers: {
+              apikey: config.key,
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }),
+          'Session verification'
+        );
+
+        if (!userResponse.ok) {
+          throw new Error('Your session has expired.');
+        }
+
+        const user = await userResponse.json();
+        document.getElementById('crmUserName').textContent =
+          user.email || 'Studio Owner';
+
+        authGate.hidden = true;
+        crmApp.hidden = false;
+
+        await loadCrmData();
+      })
+      .catch(() => {
+        sessionStorage.removeItem('sbd-admin-token');
+        accessToken = null;
+        authGate.hidden = false;
+        crmApp.hidden = true;
+      });
   }
 });
