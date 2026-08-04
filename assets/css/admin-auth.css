@@ -5,3 +5,15 @@
   font-size: 11px;
   line-height: 1.55;
 }
+
+.crm-auth-link {
+  width: max-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #4e4f49;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -8,22 +8,29 @@
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
     <link rel="stylesheet" href="assets/css/admin.css?v=2" />
     <link rel="stylesheet" href="assets/css/admin-modules.css?v=2" />
-    <link rel="stylesheet" href="assets/css/admin-auth.css?v=1" />
+    <link rel="stylesheet" href="assets/css/admin-auth.css?v=2" />
   </head>
   <body>
     <main class="crm-auth" id="crmAuth">
       <section class="crm-auth-card">
         <a class="crm-logo auth-logo" href="/">ShotByDiallo <span>Private studio CRM</span></a>
         <p class="kicker">Owner access</p>
-        <h1>Sign in to view new leads.</h1>
-        <p>Website inquiries and client information are only visible after you sign in.</p>
+        <h1 id="crmAuthHeading">Sign in to view new leads.</h1>
+        <p id="crmAuthIntro">Website inquiries and client information are only visible after you sign in.</p>
         <form id="crmLoginForm">
           <label>Email<input id="crmEmail" type="email" autocomplete="email" required /></label>
           <label>Password<input id="crmPassword" type="password" autocomplete="current-password" required /></label>
           <button class="primary-action" type="submit">Sign in</button>
-          <p class="crm-auth-status" id="crmAuthStatus" role="status"></p>
+          <button class="crm-auth-link" id="sendPasswordReset" type="button">Forgot password? Send a reset email</button>
         </form>
-        <p class="crm-auth-help">Forgot your password? Reset it in Supabase under <strong>Authentication → Users</strong>, then return here with the new password.</p>
+        <form id="crmRecoveryForm" hidden>
+          <label>New password<input id="crmNewPassword" type="password" autocomplete="new-password" minlength="12" required /></label>
+          <label>Confirm new password<input id="crmConfirmPassword" type="password" autocomplete="new-password" minlength="12" required /></label>
+          <button class="primary-action" type="submit">Save new password</button>
+          <button class="crm-auth-link" id="cancelPasswordReset" type="button">Back to sign in</button>
+        </form>
+        <p class="crm-auth-status" id="crmAuthStatus" role="status"></p>
+        <p class="crm-auth-help">Use the email address of your existing Supabase owner account. If you need to configure recovery, go to <strong>Authentication → URL Configuration</strong> in Supabase.</p>
       </section>
     </main>
     <div id="crmApp" hidden>
@@ -412,6 +419,6 @@
 
     <div class="crm-toast" id="crmToast" role="status" aria-live="polite"></div>
     </div>
-    <script src="assets/js/admin.js?v=3"></script>
+    <script src="assets/js/admin.js?v=4"></script>
   </body>
 </html>

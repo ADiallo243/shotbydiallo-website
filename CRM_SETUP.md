@@ -24,6 +24,10 @@ provider integrations are complete.
 4. Keep the Supabase service-role key and Resend key server-only. Never add
    either key to public JavaScript or Git.
 5. Sign in at `/admin` with the Supabase Auth email and password.
+6. In Supabase **Authentication → URL Configuration**, set the Site URL to
+   `https://www.shotbydiallo.com` and add
+   `https://www.shotbydiallo.com/admin` as a Redirect URL. This enables the
+   CRM password-recovery email to return safely to the live website.
 
 ## Live workflow
 
