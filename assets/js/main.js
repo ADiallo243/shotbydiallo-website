@@ -3,9 +3,26 @@ document.addEventListener('DOMContentLoaded', function () {
   const menuBtn = document.getElementById('menuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
   const scrollToggle = document.getElementById('scrollToggle');
+  const projectForm = document.getElementById('projectForm');
+  const audienceTabs = document.querySelectorAll('[data-audience-tab]');
+  const audiencePanels = document.querySelectorAll('[data-audience-panel]');
+  const audienceJumpButtons = document.querySelectorAll('[data-audience-jump]');
 
   document.body.classList.remove('page-exit');
   document.body.classList.add('page-loaded');
+
+  function restoreVisiblePage() {
+    document.body.classList.remove('page-exit');
+    document.body.classList.add('page-loaded');
+  }
+
+  window.addEventListener('pageshow', restoreVisiblePage);
+  window.addEventListener('pagehide', function () {
+    document.body.classList.remove('page-exit');
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) restoreVisiblePage();
+  });
 
   function getScrollTop() {
     return (
@@ -163,6 +180,154 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  if (projectForm) {
+    const projectParams = new URLSearchParams(window.location.search);
+    const referralCode = projectParams.get('ref');
+    const requestedType = projectParams.get('type');
+    const referralInput = document.getElementById('referralCode');
+    const referralNotice = document.getElementById('referralNotice');
+    if (referralCode && referralInput && referralNotice) {
+      referralInput.value = referralCode.slice(0, 80);
+      referralNotice.hidden = false;
+      referralNotice.querySelector('strong').textContent = referralInput.value;
+    }
+    if (requestedType) {
+      const requestedRadio = projectForm.querySelector(
+        `input[name="project_type"][value="${requestedType === 'music-video' ? 'Music video' : requestedType === 'business-video' ? 'Business video' : ''}"]`,
+      );
+      if (requestedRadio) requestedRadio.checked = true;
+    }
+    const steps = Array.from(projectForm.querySelectorAll('.form-step'));
+    const progressItems = Array.from(
+      projectForm.querySelectorAll('[data-progress]'),
+    );
+    const backButton = document.getElementById('stepBack');
+    const nextButton = document.getElementById('stepNext');
+    const submitButton = projectForm.querySelector('.step-submit');
+    const formStatus = document.getElementById('projectFormStatus');
+    let currentStep = 0;
+
+    function setFormStatus(message, tone) {
+      if (!formStatus) return;
+      formStatus.textContent = message;
+      formStatus.dataset.tone = tone || 'success';
+      formStatus.hidden = !message;
+    }
+
+    function showStep(index, shouldScroll) {
+      currentStep = Math.max(0, Math.min(index, steps.length - 1));
+      steps.forEach(function (step, stepIndex) {
+        step.classList.toggle('active', stepIndex === currentStep);
+      });
+      progressItems.forEach(function (item, itemIndex) {
+        item.classList.toggle('active', itemIndex <= currentStep);
+      });
+      backButton.hidden = currentStep === 0;
+      nextButton.hidden = currentStep === steps.length - 1;
+      submitButton.hidden = currentStep !== steps.length - 1;
+      if (shouldScroll) {
+        projectForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function validateCurrentStep() {
+      const fields = Array.from(
+        steps[currentStep].querySelectorAll('input, select, textarea'),
+      );
+      for (const field of fields) {
+        if (!field.checkValidity()) {
+          field.reportValidity();
+          return false;
+        }
+      }
+      return true;
+    }
+
+    nextButton.addEventListener('click', function () {
+      if (validateCurrentStep()) showStep(currentStep + 1, true);
+    });
+
+    backButton.addEventListener('click', function () {
+      showStep(currentStep - 1, true);
+    });
+
+    projectForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      if (!projectForm.checkValidity()) return;
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending…';
+      setFormStatus('');
+
+      try {
+        const response = await fetch(projectForm.action, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(Object.fromEntries(new FormData(projectForm))),
+        });
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Unable to send your request.');
+        }
+
+        projectForm.reset();
+        showStep(0, false);
+        setFormStatus(
+          'Thanks — your project request was received. ShotByDiallo will be in touch shortly.',
+        );
+      } catch (error) {
+        setFormStatus(
+          error.message || 'Something went wrong. Please email bydialloo@gmail.com instead.',
+          'error',
+        );
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit Project Request';
+      }
+    });
+
+    showStep(0, false);
+  }
+
+  function selectAudience(audience, shouldScroll) {
+    audienceTabs.forEach(function (tab) {
+      const active = tab.dataset.audienceTab === audience;
+      tab.classList.toggle('active', active);
+      tab.setAttribute('aria-selected', String(active));
+    });
+    audiencePanels.forEach(function (panel) {
+      panel.classList.toggle(
+        'active',
+        panel.dataset.audiencePanel === audience,
+      );
+    });
+    if (shouldScroll) {
+      document.getElementById('chooseService')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }
+
+  audienceTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      selectAudience(tab.dataset.audienceTab, false);
+    });
+  });
+  audienceJumpButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      audienceJumpButtons.forEach((item) => item.classList.remove('active'));
+      button.classList.add('active');
+      selectAudience(button.dataset.audienceJump, true);
+    });
+  });
 
   const internalLinks = document.querySelectorAll(
     'a[href="index.html"], a[href="work.html"], a[href="services.html"], a[href="contact.html"], a[href$=".html"]',
