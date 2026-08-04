@@ -23,14 +23,14 @@ provider integrations are complete.
    `SHOTBYDIALLO_OWNER_ID`, `RESEND_API_KEY`, `NOTIFICATION_EMAIL`, `EMAIL_FROM`.
 4. Keep the Supabase service-role key and Resend key server-only. Never add
    either key to public JavaScript or Git.
-5. Sign in at `/admin.html` with the Supabase Auth email and password.
+5. Sign in at `/admin` with the Supabase Auth email and password.
 
 ## Live workflow
 
 1. A visitor completes the four-step form.
 2. `/api/leads` validates and saves the request in Supabase.
 3. Resend emails the configured notification address.
-4. The owner signs in to `/admin.html` and sees the request under Leads.
+4. The owner signs in to `/admin` and sees the request under Leads.
 5. Media uploaded under Website media is stored in the public `site-media`
    bucket. A selected placement replaces the matching public image or video;
    static optimized assets remain as the fallback.
@@ -58,5 +58,5 @@ professional before relying on them for every type of production.
 - Manager: clients, leads, projects, tasks and marketing
 - Contractor: assigned projects and tasks only
 
-The `/admin.html` page is protected by Supabase password authentication and
+The `/admin` page is protected by Supabase password authentication and
 owner-scoped row-level security.
