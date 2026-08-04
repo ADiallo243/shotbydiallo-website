@@ -22,3 +22,10 @@
 #crmRecoveryForm[hidden] {
   display: none;
 }
+
+
+/* Always hide the authentication screen or CRM app when requested by JavaScript. */
+#crmAuth[hidden],
+#crmApp[hidden] {
+  display: none !important;
+}
