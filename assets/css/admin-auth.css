@@ -17,3 +17,8 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+#crmLoginForm[hidden],
+#crmRecoveryForm[hidden] {
+  display: none;
+}
