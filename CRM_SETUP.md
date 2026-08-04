@@ -23,6 +23,9 @@ provider integrations are complete.
    `SHOTBYDIALLO_OWNER_ID`, `RESEND_API_KEY`, `NOTIFICATION_EMAIL`, `EMAIL_FROM`.
 4. Keep the Supabase service-role key and Resend key server-only. Never add
    either key to public JavaScript or Git.
+   `SUPABASE_URL` must be the base Project URL (for example,
+   `https://your-project.supabase.co`), not the REST endpoint ending in
+   `/rest/v1`.
 5. Sign in at `/admin` with the Supabase Auth email and password.
 6. In Supabase **Authentication → URL Configuration**, set the Site URL to
    `https://www.shotbydiallo.com` and add

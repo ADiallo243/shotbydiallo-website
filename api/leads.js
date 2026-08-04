@@ -51,6 +51,14 @@ function validReferenceUrl(value) {
   }
 }
 
+function projectUrl(value) {
+  try {
+    return new URL(value).origin;
+  } catch {
+    return '';
+  }
+}
+
 async function notifyOwner(lead, leadId) {
   const apiKey = process.env.RESEND_API_KEY;
   const recipient = process.env.NOTIFICATION_EMAIL;
@@ -136,7 +144,7 @@ module.exports = async function createLead(request, response) {
     return respond(response, 400, { error: 'Please enter a valid reference link.' });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseUrl = projectUrl(process.env.SUPABASE_URL);
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const ownerId = process.env.SHOTBYDIALLO_OWNER_ID;
   if (!supabaseUrl || !serviceRoleKey || !ownerId) {
