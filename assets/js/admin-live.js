@@ -630,7 +630,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const unique = new Map();
     rows.forEach((row) => {
       const key = (row.email || `${row.type}:${row.name}`).toLowerCase();
-      if (!unique.has(key)) unique.set(key, row);
+      const existing = unique.get(key);
+      if (!existing) unique.set(key, row);
+      else if (row.removable) existing.manualContactId = row.id;
     });
     return [...unique.values()];
   }
@@ -647,7 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div><strong>${escapeHTML(row.name)}</strong><small>${escapeHTML(row.email || row.phone || 'No contact details')}</small></div>
       <span class="badge">${escapeHTML(row.type)}</span>
       <span>${escapeHTML(row.source)}</span>
-      <div class="record-actions">${row.removable ? `<button class="danger-link" data-delete-contact="${escapeHTML(row.id)}">Remove</button>` : `<button data-open-managed="${escapeHTML(row.managedView)}">Open ${escapeHTML(row.type.toLowerCase())}</button>`}</div>
+      <div class="record-actions">${row.removable ? `<button class="danger-link" data-delete-contact="${escapeHTML(row.id)}">Remove</button>` : `<button data-open-managed="${escapeHTML(row.managedView)}">Open ${escapeHTML(row.type.toLowerCase())}</button>${row.manualContactId ? `<button class="danger-link" data-delete-contact="${escapeHTML(row.manualContactId)}">Remove manual copy</button>` : ''}`}</div>
     </div>`).join('') || '<p class="empty-state">No contacts yet.</p>'}`;
   }
 
@@ -1164,7 +1166,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (error) { showToast(error.message, 'warning'); }
     }
     if (remove && confirm('Remove this lead permanently?')) {
-      try { await deleteRow('leads', remove.dataset.deleteLead); await loaders.leads(); populateRelationshipSelects(); renderLeads(); renderAudience(); renderOverview(); showToast('Lead removed.'); }
+      try { await deleteRow('leads', remove.dataset.deleteLead); await Promise.all([loaders.leads(), loaders.projects(), loaders.tasks()]); populateRelationshipSelects(); renderLeads(); renderProjects(); renderTasks(); renderAudience(); renderOverview(); showToast('Lead removed. Linked projects were preserved and linked tasks were removed.'); }
       catch (error) { showToast(error.message, 'warning'); }
     }
   });
@@ -1198,7 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
   byId('projectTable')?.addEventListener('click', async (event) => {
     const remove = event.target.closest('[data-delete-project]');
     if (remove && confirm('Remove this project?')) {
-      try { await deleteRow('projects', remove.dataset.deleteProject); await loaders.projects(); populateRelationshipSelects(); renderProjects(); renderOverview(); showToast('Project removed.'); }
+      try { await deleteRow('projects', remove.dataset.deleteProject); await Promise.all([loaders.projects(), loaders.tasks(), loaders.finances(), loaders.contracts()]); populateRelationshipSelects(); renderProjects(); renderTasks(); renderFinances(); renderContracts(); renderOverview(); showToast('Project removed. Finance and contracts were preserved and unlinked.'); }
       catch (error) { showToast(error.message, 'warning'); }
     }
   });
