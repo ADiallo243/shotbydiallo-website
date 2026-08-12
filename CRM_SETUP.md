@@ -4,15 +4,16 @@
 
 - Focused public positioning: music videos and business video production
 - Four-step project request form
-- Authenticated CRM overview, leads, projects, clients, tasks and website media views
+- Authenticated CRM overview, leads, projects, clients, tasks, contracts,
+  finances, audience, marketing and website media views
 - Website requests saved to Supabase and shown in the CRM lead inbox
 - Email notification through Resend for every successfully saved request
 - Supabase database schema with owner-scoped row-level security
 - Website media uploads with placement tracking and automatic public-site replacement
 
-Prototype-only finance, contract, marketing and automation screens are not part
-of the launch navigation. They should only be enabled after their database and
-provider integrations are complete.
+The automation and settings screens remain hidden until their provider
+integrations are complete. The visible launch modules read and write the real
+owner-scoped Supabase tables defined in `supabase/schema.sql`.
 
 ## Production connection
 
@@ -33,6 +34,18 @@ provider integrations are complete.
    `https://www.shotbydiallo.com` and add
    `https://www.shotbydiallo.com/admin` as a Redirect URL. This enables the
    CRM password-recovery email to return safely to the live website.
+
+## Production verification
+
+- The CRM header must show **Connected · all modules synced** after sign-in.
+- An unauthenticated request made with only the publishable key must return no
+  client, lead, project or finance rows because row-level security is enabled.
+- Website leads should appear in the Leads pipeline and expose their complete
+  contact information, brief, budget, timeline and preferred contact method.
+- Use **Create client** on a qualified lead to link it to the client directory
+  without copying the record by hand.
+- Replacing a website media placement updates the existing placement record so
+  the public site receives the new asset without a duplicate-placement error.
 
 ## Live workflow
 

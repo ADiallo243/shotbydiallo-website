@@ -11,8 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let config = null;
   let accessToken = sessionStorage.getItem('sbd-admin-token');
+  let refreshToken = sessionStorage.getItem('sbd-admin-refresh-token');
+  let tokenExpiresAt = Number(sessionStorage.getItem('sbd-admin-expires-at') || 0);
   let currentUser = null;
   let recoveryAccessToken = null;
+  let refreshPromise = null;
 
   const state = {
     leads: [],
@@ -72,6 +75,16 @@ document.addEventListener('DOMContentLoaded', () => {
       : date.toLocaleString('en-CA', { dateStyle: 'medium', timeStyle: 'short' });
   }
 
+  function safeExternalUrl(value) {
+    if (!value) return '';
+    try {
+      const url = new URL(value);
+      return ['https:', 'http:'].includes(url.protocol) ? url.href : '';
+    } catch {
+      return '';
+    }
+  }
+
   function clientName(clientId) {
     const client = state.clients.find((item) => item.id === clientId);
     return client ? (client.company || client.name) : 'No client';
@@ -85,6 +98,63 @@ document.addEventListener('DOMContentLoaded', () => {
     return config;
   }
 
+  function setConnection(tone, message, canRetry = false) {
+    const connection = byId('crmConnection');
+    if (!connection) return;
+    connection.dataset.tone = tone;
+    connection.querySelector('span').textContent = message;
+    byId('retryCrmLoad').hidden = !canRetry;
+  }
+
+  function storeSession(session) {
+    accessToken = session.access_token;
+    refreshToken = session.refresh_token || refreshToken;
+    tokenExpiresAt = Number(session.expires_at || 0) ||
+      Math.floor(Date.now() / 1000) + Number(session.expires_in || 3600);
+    sessionStorage.setItem('sbd-admin-token', accessToken);
+    if (refreshToken) sessionStorage.setItem('sbd-admin-refresh-token', refreshToken);
+    sessionStorage.setItem('sbd-admin-expires-at', String(tokenExpiresAt));
+  }
+
+  function clearSession() {
+    accessToken = null;
+    refreshToken = null;
+    tokenExpiresAt = 0;
+    currentUser = null;
+    sessionStorage.removeItem('sbd-admin-token');
+    sessionStorage.removeItem('sbd-admin-refresh-token');
+    sessionStorage.removeItem('sbd-admin-expires-at');
+  }
+
+  async function refreshSession() {
+    if (!refreshToken) throw new Error('Your session expired. Please sign in again.');
+    if (refreshPromise) return refreshPromise;
+    refreshPromise = (async () => {
+      await getConfig();
+      const response = await fetch(`${config.url}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: { apikey: config.key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      const session = await response.json().catch(() => ({}));
+      if (!response.ok || !session.access_token) {
+        clearSession();
+        throw new Error('Your session expired. Please sign in again.');
+      }
+      storeSession(session);
+      return session;
+    })().finally(() => { refreshPromise = null; });
+    return refreshPromise;
+  }
+
+  async function ensureFreshSession() {
+    if (!accessToken && refreshToken) return refreshSession();
+    if (!accessToken) throw new Error('Please sign in to continue.');
+    if (tokenExpiresAt && tokenExpiresAt <= Math.floor(Date.now() / 1000) + 60) {
+      await refreshSession();
+    }
+  }
+
   function apiHeaders(extra = {}) {
     return {
       apikey: config.key,
@@ -93,7 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  async function api(path, options = {}) {
+  async function api(path, options = {}, allowRefresh = true) {
+    await ensureFreshSession();
     const method = options.method || 'GET';
     const headers = apiHeaders(options.headers || {});
     let body;
@@ -108,6 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
       headers,
       body,
     });
+
+    if (response.status === 401 && allowRefresh && refreshToken) {
+      await refreshSession();
+      return api(path, options, false);
+    }
 
     const raw = await response.text();
     let payload = null;
@@ -195,9 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const session = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(session.error_description || session.msg || 'Incorrect email or password.');
-      accessToken = session.access_token;
+      storeSession(session);
       currentUser = session.user;
-      sessionStorage.setItem('sbd-admin-token', accessToken);
       byId('crmUserName').textContent = currentUser.email || 'Studio owner';
       authGate.hidden = true;
       crmApp.hidden = false;
@@ -261,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const loaders = {
     leads: async () => {
-      state.leads = await selectRows('leads', 'id,name,company,email,phone,service,stage,budget_range,estimated_value,project_date,project_location,brief,source,next_action,created_at,updated_at');
+      state.leads = await selectRows('leads', 'id,client_id,name,company,email,phone,service,stage,budget_range,estimated_value,project_date,project_location,brief,reference_url,source,contact_preference,next_action,created_at,updated_at');
     },
     clients: async () => {
       state.clients = await selectRows('clients', 'id,name,company,email,phone,industry,instagram,notes,created_at');
@@ -287,6 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   async function loadAll() {
+    setConnection('loading', 'Syncing CRM…');
     const entries = Object.entries(loaders);
     const results = await Promise.allSettled(entries.map(([, loader]) => loader()));
     const failed = [];
@@ -297,7 +373,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     renderAll();
-    if (failed.length) showToast(`Some modules could not load: ${failed.join(', ')}.`, 'warning');
+    if (failed.length) {
+      setConnection('warning', `${failed.length} module${failed.length === 1 ? '' : 's'} unavailable`, true);
+      showToast(`Some modules could not load: ${failed.join(', ')}.`, 'warning');
+    } else {
+      setConnection('connected', 'Connected · all modules synced');
+    }
   }
 
   function renderAll() {
@@ -353,13 +434,30 @@ document.addEventListener('DOMContentLoaded', () => {
             <span>${escapeHTML(lead.name)} · ${escapeHTML(lead.serviceLabel)}</span>
             <strong>${money(lead.value)}</strong>
             <small>${escapeHTML(lead.next_action || 'No next action')} · ${escapeHTML(lead.source || 'Website')}</small>
+            ${lead.client_id ? '<span class="lead-linked">✓ Linked to client directory</span>' : ''}
+            <details class="lead-details">
+              <summary>Contact and project details</summary>
+              <dl>
+                <div><dt>Email</dt><dd><a href="mailto:${encodeURIComponent(lead.email)}">${escapeHTML(lead.email)}</a></dd></div>
+                <div><dt>Phone</dt><dd>${lead.phone ? `<a href="tel:${escapeHTML(lead.phone.replace(/[^+\d]/g, ''))}">${escapeHTML(lead.phone)}</a>` : 'Not provided'}</dd></div>
+                <div><dt>Budget</dt><dd>${escapeHTML(lead.budget_range || 'Not provided')}</dd></div>
+                <div><dt>Preferred contact</dt><dd>${escapeHTML(lead.contact_preference || 'Email')}</dd></div>
+                <div><dt>Timeline</dt><dd>${escapeHTML(lead.project_date || 'Not provided')}</dd></div>
+                <div><dt>Location</dt><dd>${escapeHTML(lead.project_location || 'Not provided')}</dd></div>
+                <div class="lead-brief"><dt>Project brief</dt><dd>${escapeHTML(lead.brief || 'No details provided').replace(/\n/g, '<br>')}</dd></div>
+                ${safeExternalUrl(lead.reference_url) ? `<div class="lead-brief"><dt>Reference</dt><dd><a href="${escapeHTML(safeExternalUrl(lead.reference_url))}" target="_blank" rel="noopener">Open reference link ↗</a></dd></div>` : ''}
+              </dl>
+            </details>
             <label class="inline-control">Stage
               <select data-lead-stage="${escapeHTML(lead.id)}">
                 ${['new','contacted','qualified','consultation','proposal','follow_up','booked','lost','future'].map((value) => `<option value="${value}" ${lead.stage === value ? 'selected' : ''}>${titleCase(value)}</option>`).join('')}
               </select>
             </label>
             <div class="record-actions">
+              <a class="contact-action" href="mailto:${encodeURIComponent(lead.email)}">Email</a>
+              ${lead.phone ? `<a class="contact-action" href="tel:${escapeHTML(lead.phone.replace(/[^+\d]/g, ''))}">Call</a>` : ''}
               <button data-lead-next="${escapeHTML(lead.id)}">Next action</button>
+              ${lead.client_id ? '' : `<button data-convert-lead="${escapeHTML(lead.id)}">Create client</button>`}
               <button class="danger-link" data-delete-lead="${escapeHTML(lead.id)}">Remove</button>
             </div>
           </article>`).join('') || '<p class="empty-state">No leads in this stage.</p>'}</section>`;
@@ -646,6 +744,22 @@ document.addEventListener('DOMContentLoaded', () => {
       <h2>Acceptation</h2><p>Fait à Montréal, le ${created}.</p><div class="signature-grid"><div><span>Signature du Prestataire</span><strong>Abdourahmane Diallo</strong><i></i></div><div><span>Signature du Client</span><strong>${escapeHTML(client)}</strong><i></i></div></div>`;
   }
 
+  function sanitizeContractHTML(markup) {
+    const parsed = new DOMParser().parseFromString(`<main>${markup || ''}</main>`, 'text/html');
+    const root = parsed.body.firstElementChild;
+    const allowedTags = new Set(['MAIN', 'HEADER', 'H1', 'H2', 'P', 'SPAN', 'STRONG', 'BR', 'DIV', 'I', 'UL', 'OL', 'LI']);
+    root.querySelectorAll('*').forEach((element) => {
+      if (!allowedTags.has(element.tagName)) {
+        element.remove();
+        return;
+      }
+      const keepSignatureClass = element.classList?.contains('signature-grid');
+      [...element.attributes].forEach((attribute) => element.removeAttribute(attribute.name));
+      if (keepSignatureClass) element.className = 'signature-grid';
+    });
+    return root.innerHTML;
+  }
+
   function openDialog(id) {
     const dialog = byId(id);
     if (dialog?.showModal) dialog.showModal();
@@ -675,9 +789,14 @@ document.addEventListener('DOMContentLoaded', () => {
   recoveryForm.addEventListener('submit', saveRecoveryPassword);
   byId('cancelPasswordReset').addEventListener('click', () => showLogin());
   byId('crmLogout').addEventListener('click', () => {
-    sessionStorage.removeItem('sbd-admin-token');
-    accessToken = null;
-    currentUser = null;
+    const token = accessToken;
+    if (token && config) {
+      fetch(`${config.url}/auth/v1/logout`, {
+        method: 'POST',
+        headers: { apikey: config.key, Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    }
+    clearSession();
     showLogin();
   });
 
@@ -686,7 +805,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const titleMap = { overview:'Studio overview', leads:'Sales pipeline', projects:'Production projects', clients:'Client relationships', contracts:'Contracts & signatures', media:'Website media library', audience:'Audience & contacts', tasks:'Tasks & follow-ups', marketing:'Marketing prospects', finances:'Finances & cash flow', settings:'Studio settings' };
   function switchView(id) {
     views.forEach((view) => view.classList.toggle('active', view.id === id));
-    navItems.forEach((item) => item.classList.toggle('active', item.dataset.view === id));
+    navItems.forEach((item) => {
+      const active = item.dataset.view === id;
+      item.classList.toggle('active', active);
+      if (active) item.setAttribute('aria-current', 'page');
+      else item.removeAttribute('aria-current');
+    });
     byId('viewTitle').textContent = titleMap[id] || 'Studio CRM';
     byId('globalNewLead').hidden = !['overview','leads'].includes(id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -703,6 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
   byId('addProspectButton')?.addEventListener('click', () => openDialog('marketingContactModal'));
   byId('addTransactionButton')?.addEventListener('click', () => openDialog('transactionModal'));
   byId('addMediaButton')?.addEventListener('click', () => openDialog('mediaUploadModal'));
+  byId('retryCrmLoad')?.addEventListener('click', () => loadAll());
 
   byId('newLeadForm')?.addEventListener('submit', (event) => submitForm(event, async (form) => {
     await insertRow('leads', {
@@ -869,6 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   byId('leadKanban')?.addEventListener('click', async (event) => {
     const next = event.target.closest('[data-lead-next]');
+    const convert = event.target.closest('[data-convert-lead]');
     const remove = event.target.closest('[data-delete-lead]');
     if (next) {
       const lead = state.leads.find((item) => item.id === next.dataset.leadNext);
@@ -877,6 +1003,32 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         await updateRow('leads', next.dataset.leadNext, { next_action: value || null, updated_at: new Date().toISOString() });
         await loaders.leads(); renderLeads(); renderOverview();
+      } catch (error) { showToast(error.message, 'warning'); }
+    }
+    if (convert) {
+      const lead = state.leads.find((item) => item.id === convert.dataset.convertLead);
+      if (!lead || !confirm(`Create a client record for ${lead.company || lead.name}?`)) return;
+      try {
+        let client = state.clients.find((item) =>
+          lead.email && item.email && item.email.toLowerCase() === lead.email.toLowerCase());
+        if (!client) {
+          client = await insertRow('clients', {
+            owner_id: currentUser.id,
+            name: lead.name,
+            company: lead.company || null,
+            email: lead.email || null,
+            phone: lead.phone || null,
+            industry: lead.service ? titleCase(lead.service) : null,
+            notes: lead.brief || null,
+          });
+        }
+        await updateRow('leads', lead.id, {
+          client_id: client.id,
+          updated_at: new Date().toISOString(),
+        });
+        await Promise.all([loaders.leads(), loaders.clients()]);
+        populateClientSelects(); renderLeads(); renderClients(); renderAudience(); renderOverview();
+        showToast('Lead linked to the client directory.');
       } catch (error) { showToast(error.message, 'warning'); }
     }
     if (remove && confirm('Remove this lead permanently?')) {
@@ -927,7 +1079,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const remove = event.target.closest('[data-delete-contract]');
     if (open) {
       const contract = state.contracts.find((item) => item.id === open.dataset.openContract);
-      byId('contractDocument').innerHTML = contract?.contract_html || '<p>Contract content unavailable.</p>';
+      byId('contractDocument').innerHTML = sanitizeContractHTML(contract?.contract_html || '<p>Contract content unavailable.</p>');
       openDialog('contractPreviewModal');
     }
     if (status) {
@@ -954,7 +1106,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   byId('exportContacts')?.addEventListener('click', () => {
     const rows = audienceRows();
-    const quote = (value) => `"${String(value || '').replace(/"/g, '""')}"`;
+    const quote = (value) => {
+      let safeValue = String(value || '');
+      if (/^[\s]*[=+\-@]/.test(safeValue)) safeValue = `'${safeValue}`;
+      return `"${safeValue.replace(/"/g, '""')}"`;
+    };
     const csv = [['Name','Email','Phone','Type','Source'], ...rows.map((row) => [row.name,row.email,row.phone,row.type,row.source])].map((row) => row.map(quote).join(',')).join('\n');
     const link = document.createElement('a');
     link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
@@ -1007,23 +1163,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = new FormData(event.currentTarget);
     const file = form.get('file');
     if (!(file instanceof File) || !file.size) return;
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'video/mp4', 'video/webm']);
+    if (!allowedTypes.has(file.type)) return showToast('Use JPG, PNG, WebP, AVIF, MP4 or WebM media.', 'warning');
+    if (file.size > 50 * 1024 * 1024) return showToast('Media must be 50 MB or smaller.', 'warning');
     const placement = form.get('placement');
     const path = `${placement}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
     try {
+      await ensureFreshSession();
       const upload = await fetch(`${config.url}/storage/v1/object/site-media/${path}`, {
         method: 'POST',
         headers: apiHeaders({ 'Content-Type': file.type, 'x-upsert': 'false' }),
         body: file,
       });
       if (!upload.ok) throw new Error('Media upload failed.');
-      await insertRow('media_assets', {
+      const mediaRecord = {
         owner_id: currentUser.id,
         name: file.name,
         media_type: file.type.startsWith('video/') ? 'video' : 'image',
         storage_path: path,
         website_placement: placement,
         alt_text: form.get('alt')?.trim() || null,
-      });
+      };
+      const existing = state.media.find((item) => item.website_placement === placement);
+      if (existing) await updateRow('media_assets', existing.id, mediaRecord);
+      else await insertRow('media_assets', mediaRecord);
       closeDialog('mediaUploadModal');
       event.currentTarget.reset();
       await loaders.media(); renderMedia();
@@ -1035,19 +1198,28 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('dialog').forEach((dialog) => dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); }));
 
   byId('todayLabel').textContent = new Intl.DateTimeFormat('en-CA', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
+  window.addEventListener('offline', () => setConnection('offline', 'Offline · changes paused', true));
+  window.addEventListener('online', () => {
+    if (currentUser) loadAll();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && currentUser) ensureFreshSession().catch(() => {
+      clearSession();
+      showLogin('Your session expired. Please sign in again.');
+    });
+  });
 
   const recoveryParams = new URLSearchParams(location.hash.slice(1));
   if (recoveryParams.get('type') === 'recovery' && recoveryParams.get('access_token')) {
     showRecovery(recoveryParams.get('access_token'));
   } else {
     getConfig().then(async () => {
-      if (!accessToken) return showLogin();
+      if (!accessToken && !refreshToken) return showLogin();
       try {
         await verifySession();
         await loadAll();
       } catch {
-        sessionStorage.removeItem('sbd-admin-token');
-        accessToken = null;
+        clearSession();
         showLogin('Your session expired. Please sign in again.');
       }
     }).catch((error) => showLogin(error.message));
