@@ -6,6 +6,11 @@
       "source": "/index",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/store/p/videography-services-montreal",
+      "destination": "/services",
+      "permanent": true
     }
   ],
   "headers": [
