@@ -865,11 +865,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function submitForm(event, action) {
     event.preventDefault();
+    const formElement = event.currentTarget;
     const button = event.submitter;
     if (button) button.disabled = true;
     try {
-      await action(new FormData(event.currentTarget));
-      event.currentTarget.reset();
+      await action(new FormData(formElement));
+      formElement.reset();
     } catch (error) {
       showToast(errorMessage(error, 'The change could not be saved. Please retry.'), 'warning');
     } finally {
@@ -1352,9 +1353,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   byId('mediaUploadForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const formElement = event.currentTarget;
     const submit = event.submitter;
     if (submit) submit.disabled = true;
-    const form = new FormData(event.currentTarget);
+    const form = new FormData(formElement);
     const file = form.get('file');
     if (!(file instanceof File) || !file.size) {
       if (submit) submit.disabled = false;
@@ -1406,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try { await deleteStorageObject(existing.storage_path); } catch { cleanupWarning = true; }
       }
       closeDialog('mediaUploadModal');
-      event.currentTarget.reset();
+      formElement.reset();
       let syncWarning = false;
       try { await loaders.media(); }
       catch {
