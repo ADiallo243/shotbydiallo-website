@@ -13,6 +13,8 @@ const MAX_LENGTHS = {
   referralCode: 80,
 };
 
+const CONTACT_EMAIL = 'shotbydiallo@gmail.com';
+
 const SERVICE_MAP = {
   'Music video': 'music_video',
   'Business video': 'business_video',
@@ -61,9 +63,8 @@ function projectUrl(value) {
 
 async function notifyOwner(lead, leadId) {
   const apiKey = process.env.RESEND_API_KEY;
-  const recipient = process.env.NOTIFICATION_EMAIL;
   const from = process.env.EMAIL_FROM;
-  if (!apiKey || !recipient || !from) return;
+  if (!apiKey || !from) return;
 
   const details = [
     `Name: ${lead.name}`,
@@ -92,7 +93,7 @@ async function notifyOwner(lead, leadId) {
       },
       body: JSON.stringify({
         from,
-        to: [recipient],
+        to: [CONTACT_EMAIL],
         reply_to: lead.email,
         subject: `New ${lead.service.replace(/_/g, ' ')} request from ${lead.name}`,
         text: details,
@@ -149,7 +150,7 @@ module.exports = async function createLead(request, response) {
   const ownerId = process.env.SHOTBYDIALLO_OWNER_ID;
   if (!supabaseUrl || !serviceRoleKey || !ownerId) {
     return respond(response, 503, {
-      error: 'Project requests are temporarily unavailable. Please email bydialloo@gmail.com.',
+      error: `Project requests are temporarily unavailable. Please email ${CONTACT_EMAIL}.`,
     });
   }
 
@@ -171,13 +172,13 @@ module.exports = async function createLead(request, response) {
     });
   } catch {
     return respond(response, 502, {
-      error: 'Unable to save your request. Please email bydialloo@gmail.com.',
+      error: `Unable to save your request. Please email ${CONTACT_EMAIL}.`,
     });
   }
 
   if (!insertResponse.ok) {
     return respond(response, 502, {
-      error: 'Unable to save your request. Please email bydialloo@gmail.com.',
+      error: `Unable to save your request. Please email ${CONTACT_EMAIL}.`,
     });
   }
 

@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const audiencePanels = document.querySelectorAll('[data-audience-panel]');
   const audienceJumpButtons = document.querySelectorAll('[data-audience-jump]');
 
+  function trackEvent(name, parameters) {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', name, parameters || {});
+  }
+
   document.body.classList.remove('page-exit');
   document.body.classList.add('page-loaded');
 
@@ -123,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.remove('menu-open');
     menuBtn.setAttribute('aria-expanded', 'false');
     menuBtn.setAttribute('aria-label', 'Open menu');
+    mobileMenu.setAttribute('aria-hidden', 'true');
   }
 
   function openMenu() {
@@ -133,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.add('menu-open');
     menuBtn.setAttribute('aria-expanded', 'true');
     menuBtn.setAttribute('aria-label', 'Close menu');
+    mobileMenu.setAttribute('aria-hidden', 'false');
   }
 
   function toggleMenu() {
@@ -159,6 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (menuBtn && mobileMenu) {
+    mobileMenu.setAttribute('aria-hidden', 'true');
+
     menuBtn.addEventListener('click', function (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -194,9 +203,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         filterButtons.forEach(function (btn) {
           btn.classList.remove('active');
+          btn.setAttribute('aria-pressed', 'false');
         });
 
         button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
+        trackEvent('select_content', {
+          content_type: 'portfolio_filter',
+          item_id: filter,
+        });
 
         portfolioCards.forEach(function (card) {
           const category = card.dataset.category;
@@ -290,6 +305,11 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       progressItems.forEach(function (item, itemIndex) {
         item.classList.toggle('active', itemIndex <= currentStep);
+        if (itemIndex === currentStep) item.setAttribute('aria-current', 'step');
+        else item.removeAttribute('aria-current');
+      });
+      steps.forEach(function (step, stepIndex) {
+        step.setAttribute('aria-hidden', String(stepIndex !== currentStep));
       });
       backButton.hidden = currentStep === 0;
       nextButton.hidden = currentStep === steps.length - 1;
@@ -313,7 +333,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     nextButton.addEventListener('click', function () {
-      if (validateCurrentStep()) showStep(currentStep + 1, true);
+      if (validateCurrentStep()) {
+        if (currentStep === 0) {
+          trackEvent('form_start', { form_id: 'project_request' });
+        }
+        showStep(currentStep + 1, true);
+      }
     });
 
     backButton.addEventListener('click', function () {
@@ -345,6 +370,13 @@ document.addEventListener('DOMContentLoaded', function () {
           throw new Error(result.error || 'Unable to send your request.');
         }
 
+        const submittedData = Object.fromEntries(new FormData(projectForm));
+        trackEvent('generate_lead', {
+          form_id: 'project_request',
+          project_type: submittedData.project_type || 'unknown',
+          lead_source: submittedData.lead_source || 'unknown',
+          contact_preference: submittedData.contact_preference || 'Email',
+        });
         projectForm.reset();
         showStep(0, false);
         setFormStatus(
@@ -352,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
       } catch (error) {
         setFormStatus(
-          error.message || 'Something went wrong. Please email bydialloo@gmail.com instead.',
+          error.message || 'Something went wrong. Please email shotbydiallo@gmail.com instead.',
           'error',
         );
       } finally {
@@ -369,12 +401,16 @@ document.addEventListener('DOMContentLoaded', function () {
       const active = tab.dataset.audienceTab === audience;
       tab.classList.toggle('active', active);
       tab.setAttribute('aria-selected', String(active));
+      tab.setAttribute('tabindex', active ? '0' : '-1');
     });
     audiencePanels.forEach(function (panel) {
-      panel.classList.toggle(
-        'active',
-        panel.dataset.audiencePanel === audience,
-      );
+      const active = panel.dataset.audiencePanel === audience;
+      panel.classList.toggle('active', active);
+      panel.hidden = !active;
+    });
+    audienceJumpButtons.forEach(function (button) {
+      button.classList.toggle('active', button.dataset.audienceJump === audience);
+      button.setAttribute('aria-pressed', String(button.dataset.audienceJump === audience));
     });
     if (shouldScroll) {
       document.getElementById('chooseService')?.scrollIntoView({
@@ -387,13 +423,46 @@ document.addEventListener('DOMContentLoaded', function () {
   audienceTabs.forEach(function (tab) {
     tab.addEventListener('click', function () {
       selectAudience(tab.dataset.audienceTab, false);
+      trackEvent('select_content', {
+        content_type: 'service_audience',
+        item_id: tab.dataset.audienceTab,
+      });
+    });
+    tab.addEventListener('keydown', function (event) {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const tabs = Array.from(audienceTabs);
+      const currentIndex = tabs.indexOf(tab);
+      const nextIndex = event.key === 'Home'
+        ? 0
+        : event.key === 'End'
+          ? tabs.length - 1
+          : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      tabs[nextIndex].focus();
+      selectAudience(tabs[nextIndex].dataset.audienceTab, false);
     });
   });
   audienceJumpButtons.forEach(function (button) {
     button.addEventListener('click', function () {
-      audienceJumpButtons.forEach((item) => item.classList.remove('active'));
-      button.classList.add('active');
       selectAudience(button.dataset.audienceJump, true);
+      trackEvent('select_content', {
+        content_type: 'hero_service_path',
+        item_id: button.dataset.audienceJump,
+      });
+    });
+  });
+
+  if (audienceTabs.length) {
+    const selectedTab = Array.from(audienceTabs).find(function (tab) {
+      return tab.getAttribute('aria-selected') === 'true';
+    });
+    selectAudience(selectedTab?.dataset.audienceTab || 'artist', false);
+  }
+
+  document.querySelectorAll('a[href^="mailto:"], a[href^="tel:"]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      const method = link.getAttribute('href').startsWith('tel:') ? 'phone' : 'email';
+      trackEvent('contact', { method: method });
     });
   });
 

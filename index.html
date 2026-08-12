@@ -5,9 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>
-      ShotByDiallo | Music Videos & Business Video Production Montreal
-    </title>
+    <title>Montreal Video Production | Shot By Diallo</title>
 
     <meta
       name="description"
@@ -19,14 +17,19 @@
     />
     <meta name="author" content="ShotByDiallo" />
 
-    <meta property="og:title" content="ShotByDiallo | Music & Business Videos" />
+    <meta property="og:title" content="ShotByDiallo | Music &amp; Business Videos" />
     <meta
       property="og:description"
       content="Cinematic music videos for artists and business videos that help Montreal companies earn attention and trust."
     />
     <meta property="og:image" content="https://www.shotbydiallo.com/assets/images/hero/hero.jpg" />
-    <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.shotbydiallo.com/" />
+    <meta property="og:site_name" content="Shot By Diallo" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Montreal Video Production | Shot By Diallo" />
+    <meta name="twitter:description" content="Cinematic music videos for artists and business videos that help Montreal companies earn attention and trust." />
+    <meta name="twitter:image" content="https://www.shotbydiallo.com/assets/images/hero/hero.jpg" />
 
     <link rel="canonical" href="https://www.shotbydiallo.com/" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
@@ -34,10 +37,11 @@
       {
         "@context": "https://schema.org",
         "@type": "ProfessionalService",
-        "name": "ShotByDiallo",
+        "name": "Shot By Diallo",
+        "alternateName": "ShotByDiallo",
         "url": "https://www.shotbydiallo.com/",
         "image": "https://www.shotbydiallo.com/assets/images/hero/hero.jpg",
-        "email": "bydialloo@gmail.com",
+        "email": "shotbydiallo@gmail.com",
         "telephone": "+1-438-493-6114",
         "areaServed": "Montreal, Quebec",
         "description": "Music video and business video production for artists and companies in Montreal.",
@@ -144,11 +148,11 @@
         <div class="selector-heading">
           <div><p class="eyebrow">Choose your path</p><h2>What do you need the video to do?</h2></div>
           <div class="selector-tabs" role="tablist" aria-label="Video services">
-            <button class="active" role="tab" aria-selected="true" data-audience-tab="artist">For artists</button>
-            <button role="tab" aria-selected="false" data-audience-tab="business">For businesses</button>
+            <button id="artistTab" class="active" role="tab" aria-selected="true" aria-controls="artistPanel" tabindex="0" data-audience-tab="artist">For artists</button>
+            <button id="businessTab" role="tab" aria-selected="false" aria-controls="businessPanel" tabindex="-1" data-audience-tab="business">For businesses</button>
           </div>
         </div>
-        <div class="audience-panel active" data-audience-panel="artist">
+        <div id="artistPanel" class="audience-panel active" role="tabpanel" aria-labelledby="artistTab" data-audience-panel="artist">
           <div class="audience-visual"><img src="assets/images/work/music-video-web.jpg" alt="Cinematic music video production by ShotByDiallo" loading="lazy" decoding="async" /></div>
           <div class="audience-copy">
             <p class="eyebrow">Music videos</p>
@@ -158,7 +162,7 @@
             <div class="audience-actions"><a class="btn primary-btn" href="/contact?type=music-video">Plan my music video</a><a class="text-link" href="/work">See artist work →</a></div>
           </div>
         </div>
-        <div class="audience-panel" data-audience-panel="business">
+        <div id="businessPanel" class="audience-panel" role="tabpanel" aria-labelledby="businessTab" data-audience-panel="business" hidden>
           <div class="audience-visual"><img src="assets/images/work/brand-video-web.jpg" alt="Business video production in Montreal by ShotByDiallo" loading="lazy" decoding="async" /></div>
           <div class="audience-copy">
             <p class="eyebrow">Business videos</p>
@@ -382,7 +386,7 @@
         <div class="footer-column">
           <h3>Contact</h3>
 
-          <a href="mailto:bydialloo@gmail.com">bydialloo@gmail.com</a>
+          <a href="mailto:shotbydiallo@gmail.com">shotbydiallo@gmail.com</a>
           <a href="tel:+14384936114">438-493-6114</a>
           <a
             href="https://www.instagram.com/shotbydiallo?igsh=b21iZmUyeDgwanBh&utm_source=qr"
@@ -417,6 +421,6 @@
       <span aria-hidden="true"></span>
     </button>
 
-    <script src="assets/js/main.js?v=36"></script>
+    <script src="assets/js/main.js?v=37"></script>
   </body>
 </html>
