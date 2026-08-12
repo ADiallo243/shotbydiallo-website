@@ -65,11 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function money(value) {
+    const amount = Number(value || 0);
+    const hasCents = Math.abs(amount - Math.round(amount)) > 0.0001;
     return new Intl.NumberFormat('en-CA', {
       style: 'currency',
       currency: 'CAD',
-      maximumFractionDigits: 0,
-    }).format(Number(value || 0));
+      minimumFractionDigits: hasCents ? 2 : 0,
+      maximumFractionDigits: 2,
+    }).format(amount);
   }
 
   function dateValue(value) {
