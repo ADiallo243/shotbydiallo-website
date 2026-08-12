@@ -348,6 +348,7 @@
       <form method="dialog" id="projectFormAdmin">
         <div class="modal-heading"><div><p class="kicker">Production</p><h2>Add a project</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
         <label>Client<select name="client_id" id="projectClient" required><option value="">Select a client</option></select></label>
+        <label>Source lead (optional)<select name="lead_id" id="projectLead"><option value="">No linked lead</option></select></label>
         <label>Project title<input name="title" required /></label>
         <label>Service<select name="service"><option value="business_video">Business video</option><option value="music_video">Music video</option><option value="monthly_content">Monthly content</option><option value="other">Other</option></select></label>
         <label>Stage<select name="stage"><option value="brief">Brief</option><option value="pre_production">Pre-production</option><option value="scheduled">Scheduled</option><option value="filming">Filming</option><option value="editing">Editing</option><option value="client_review">Client review</option><option value="delivered">Delivered</option><option value="completed">Completed</option></select></label>
@@ -364,6 +365,8 @@
         <div class="modal-heading"><div><p class="kicker">Operations</p><h2>Add a task</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
         <label>Task<input name="title" required /></label>
         <label>Category<input name="category" placeholder="Follow-up, editing, payment…" /></label>
+        <label>Project (optional)<select name="project_id" id="taskProject"><option value="">No linked project</option></select></label>
+        <label>Lead (optional)<select name="lead_id" id="taskLead"><option value="">No linked lead</option></select></label>
         <label>Due date<input name="due_at" type="datetime-local" /></label>
         <button class="primary-action" type="submit">Save task</button>
       </form>
@@ -414,9 +417,10 @@
       <form method="dialog" id="transactionForm">
         <div class="modal-heading"><div><p class="kicker">Financial record</p><h2>Add an entry</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
         <label>Client<select name="client_id" id="financeClient"><option value="">No client / general expense</option></select></label>
+        <label>Project (optional)<select name="project_id" id="financeProject"><option value="">No linked project</option></select></label>
         <label>Entry type<select name="entry_type" required><option value="invoice">Invoice</option><option value="deposit">Deposit received</option><option value="payment">Payment received</option><option value="expense">Expense</option><option value="refund">Refund</option></select></label>
         <label>Invoice number<input name="invoice_number" placeholder="SBD-0001" /></label>
-        <label>Amount (CAD)<input name="amount" type="number" min="0" step="0.01" required /></label>
+        <label>Amount (CAD)<input name="amount" type="number" min="0.01" step="0.01" required /></label>
         <label>Status<select name="status"><option value="pending">Pending</option><option value="due">Due</option><option value="overdue">Overdue</option><option value="paid">Paid</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></label>
         <label>Payment method<input name="payment_method" placeholder="E-transfer, cash, bank transfer…" /></label>
         <label>Date<input name="occurred_at" type="datetime-local" /></label>
@@ -430,6 +434,7 @@
         <div class="modal-heading"><div><p class="kicker">Client agreement</p><h2>Create a contract</h2></div><button type="button" data-close-dialog aria-label="Close">×</button></div>
         <div class="contract-form-grid">
           <label>Client<select name="client_id" id="contractClient" required><option value="">Select a client</option></select></label>
+          <label>Project (optional)<select name="project_id" id="contractProject"><option value="">No linked project</option></select></label>
           <label>Project title<input name="title" required /></label>
           <label>Service date<input name="service_date" type="date" /></label>
           <label>Location<input name="location" value="Montréal, Québec" /></label>
@@ -491,6 +496,6 @@
 
     <div class="crm-toast" id="crmToast" role="status" aria-live="polite"></div>
     </div>
-    <script src="assets/js/admin-live.js?v=2"></script>
+    <script src="assets/js/admin-live.js?v=3"></script>
   </body>
 </html>

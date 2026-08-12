@@ -30,11 +30,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showToast(message, tone = 'success') {
     if (!crmToast) return;
-    crmToast.textContent = message;
+    crmToast.textContent = cleanMessage(message, tone === 'warning' ? 'Something went wrong. Please retry.' : 'Done.');
     crmToast.dataset.tone = tone;
     crmToast.classList.add('show');
     window.clearTimeout(showToast.timer);
     showToast.timer = window.setTimeout(() => crmToast.classList.remove('show'), 3200);
+  }
+
+  function cleanMessage(value, fallback = 'Something went wrong. Please retry.') {
+    const message = typeof value === 'string' ? value.trim() : '';
+    return message && !['null', 'undefined', '[object Object]'].includes(message.toLowerCase()) ? message : fallback;
+  }
+
+  function errorMessage(error, fallback) {
+    const message = cleanMessage(error?.message || (typeof error === 'string' ? error : ''), fallback);
+    if (fallback && /(foreign key constraint|violates .* constraint|invalid input syntax|duplicate key)/i.test(message)) return fallback;
+    return message;
   }
 
   function escapeHTML(value) {
@@ -88,6 +99,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function clientName(clientId) {
     const client = state.clients.find((item) => item.id === clientId);
     return client ? (client.company || client.name) : 'No client';
+  }
+
+  function projectName(projectId) {
+    const project = state.projects.find((item) => item.id === projectId);
+    return project?.title || '';
+  }
+
+  function leadName(leadId) {
+    const lead = state.leads.find((item) => item.id === leadId);
+    return lead ? (lead.company || lead.name) : '';
   }
 
   async function getConfig() {
@@ -211,22 +232,32 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: { Prefer: 'return=representation' },
       body: row,
     });
-    return Array.isArray(result) ? result[0] : result;
+    const created = Array.isArray(result) ? result[0] : result;
+    if (!created?.id) throw new Error('The record was not confirmed by the database. Please retry.');
+    return created;
   }
 
   async function updateRow(table, id, changes) {
-    await api(`/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+    const result = await api(`/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
       method: 'PATCH',
-      headers: { Prefer: 'return=minimal' },
+      headers: { Prefer: 'return=representation' },
       body: changes,
     });
+    if (!Array.isArray(result) || !result.some((row) => row.id === id)) {
+      throw new Error('The update was not confirmed by the database. Refresh and retry.');
+    }
+    return result[0];
   }
 
   async function deleteRow(table, id) {
-    await api(`/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+    const result = await api(`/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      headers: { Prefer: 'return=minimal' },
+      headers: { Prefer: 'return=representation' },
     });
+    if (!Array.isArray(result) || !result.some((row) => row.id === id)) {
+      throw new Error('The record was not removed. Refresh the CRM and retry.');
+    }
+    return result[0];
   }
 
   function showLogin(message = '') {
@@ -382,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderAll() {
-    populateClientSelects();
+    populateRelationshipSelects();
     renderLeads();
     renderClients();
     renderProjects();
@@ -395,15 +426,32 @@ document.addEventListener('DOMContentLoaded', () => {
     renderOverview();
   }
 
-  function populateClientSelects() {
-    const options = state.clients.map((client) => {
+  function replaceSelectOptions(id, placeholder, options) {
+    const select = byId(id);
+    if (!select) return;
+    const selected = select.value;
+    select.innerHTML = `<option value="">${escapeHTML(placeholder)}</option>${options}`;
+    if ([...select.options].some((option) => option.value === selected)) select.value = selected;
+  }
+
+  function populateRelationshipSelects() {
+    const clientOptions = state.clients.map((client) => {
       const name = client.company || client.name;
       return `<option value="${escapeHTML(client.id)}">${escapeHTML(name)}</option>`;
     }).join('');
-    ['projectClient', 'contractClient', 'financeClient'].forEach((id) => {
-      const select = byId(id);
-      if (select) select.innerHTML = `<option value="">Select a client</option>${options}`;
-    });
+    replaceSelectOptions('projectClient', 'Select a client', clientOptions);
+    replaceSelectOptions('contractClient', 'Select a client', clientOptions);
+    replaceSelectOptions('financeClient', 'No client / general expense', clientOptions);
+
+    const projectOptions = state.projects.map((project) =>
+      `<option value="${escapeHTML(project.id)}" data-client-id="${escapeHTML(project.client_id)}">${escapeHTML(project.title)} · ${escapeHTML(clientName(project.client_id))}</option>`).join('');
+    ['taskProject', 'financeProject', 'contractProject'].forEach((id) =>
+      replaceSelectOptions(id, 'No linked project', projectOptions));
+
+    const leadOptions = state.leads.map((lead) =>
+      `<option value="${escapeHTML(lead.id)}">${escapeHTML(lead.company || lead.name)} · ${escapeHTML(titleCase(lead.stage))}</option>`).join('');
+    replaceSelectOptions('projectLead', 'No linked lead', leadOptions);
+    replaceSelectOptions('taskLead', 'No linked lead', leadOptions);
   }
 
   function leadModel(row) {
@@ -477,11 +525,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container) return;
     container.innerHTML = state.clients.map((client) => {
       const name = client.company || client.name;
+      const projectCount = state.projects.filter((item) => item.client_id === client.id).length;
+      const contractCount = state.contracts.filter((item) => item.client_id === client.id).length;
+      const financeCount = state.finances.filter((item) => item.client_id === client.id).length;
+      const relationshipText = [`${projectCount} project${projectCount === 1 ? '' : 's'}`, `${contractCount} contract${contractCount === 1 ? '' : 's'}`, `${financeCount} finance entr${financeCount === 1 ? 'y' : 'ies'}`].join(' · ');
       return `<article class="client-card">
         <div class="avatar">${escapeHTML(name.slice(0, 2).toUpperCase())}</div>
         <strong>${escapeHTML(name)}</strong>
         <span>${escapeHTML(client.industry || 'Client')}</span>
         <span>${escapeHTML(client.email || client.phone || 'No contact details')}</span>
+        <small class="relationship-note">${escapeHTML(relationshipText)}</small>
         <div class="record-actions"><button class="danger-link" data-delete-client="${escapeHTML(client.id)}">Remove</button></div>
       </article>`;
     }).join('') || '<p class="empty-state">No clients yet. Add a client manually or convert a booked lead.</p>';
@@ -509,13 +562,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!a.completed_at && b.completed_at) return -1;
       return new Date(a.due_at || '2999-01-01') - new Date(b.due_at || '2999-01-01');
     });
-    container.innerHTML = sorted.map((task) => `<label>
+    container.innerHTML = sorted.map((task) => {
+      const relationship = projectName(task.project_id) || leadName(task.lead_id) || 'General task';
+      return `<label>
       <input type="checkbox" data-task-toggle="${escapeHTML(task.id)}" ${task.completed_at ? 'checked' : ''} />
-      <span>${escapeHTML(task.title)}</span>
+      <span><strong>${escapeHTML(task.title)}</strong><small>${escapeHTML(relationship)}</small></span>
       <em>${escapeHTML(task.category || 'Task')}</em>
       <span>${escapeHTML(dateTimeValue(task.due_at))}</span>
       <button type="button" class="danger-link" data-delete-task="${escapeHTML(task.id)}">Remove</button>
-    </label>`).join('') || '<p class="empty-state">No tasks yet.</p>';
+    </label>`;
+    }).join('') || '<p class="empty-state">No tasks yet.</p>';
   }
 
   function renderContracts() {
@@ -528,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container) return;
     container.innerHTML = state.contracts.map((contract) => `<div class="contract-row">
       <strong>${escapeHTML(contract.title)}</strong>
-      <span>${escapeHTML(clientName(contract.client_id))}</span>
+      <span>${escapeHTML(clientName(contract.client_id))}${contract.project_id ? `<small>${escapeHTML(projectName(contract.project_id) || 'Linked project')}</small>` : ''}</span>
       <span>${money(contract.total_amount)}</span>
       <b class="badge ${contract.status === 'signed' ? 'success' : contract.status === 'sent' || contract.status === 'viewed' ? 'warning' : ''}">${escapeHTML(titleCase(contract.status))}</b>
       <div class="record-actions">
@@ -550,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'Client',
       source: 'Client directory',
       removable: false,
+      managedView: 'clients',
     }));
     state.leads.forEach((lead) => rows.push({
       id: `lead:${lead.id}`,
@@ -559,6 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'Lead',
       source: lead.source || 'Website',
       removable: false,
+      managedView: 'leads',
     }));
     state.contacts.filter((contact) => ['audience', 'contact', 'subscriber'].includes(contact.status)).forEach((contact) => rows.push({
       id: contact.id,
@@ -589,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div><strong>${escapeHTML(row.name)}</strong><small>${escapeHTML(row.email || row.phone || 'No contact details')}</small></div>
       <span class="badge">${escapeHTML(row.type)}</span>
       <span>${escapeHTML(row.source)}</span>
-      <div class="record-actions">${row.removable ? `<button class="danger-link" data-delete-contact="${escapeHTML(row.id)}">Remove</button>` : '<span>Managed in its module</span>'}</div>
+      <div class="record-actions">${row.removable ? `<button class="danger-link" data-delete-contact="${escapeHTML(row.id)}">Remove</button>` : `<button data-open-managed="${escapeHTML(row.managedView)}">Open ${escapeHTML(row.type.toLowerCase())}</button>`}</div>
     </div>`).join('') || '<p class="empty-state">No contacts yet.</p>'}`;
   }
 
@@ -628,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = byId('invoiceList');
     if (!container) return;
     container.innerHTML = state.finances.map((entry) => `<div class="invoice-row invoice-row-actions">
-      <span>${escapeHTML(entry.invoice_number || titleCase(entry.entry_type))} · ${escapeHTML(clientName(entry.client_id))}<small>${escapeHTML(entry.payment_method || dateValue(entry.occurred_at) || '')}</small></span>
+      <span>${escapeHTML(entry.invoice_number || titleCase(entry.entry_type))} · ${escapeHTML(clientName(entry.client_id))}<small>${escapeHTML([projectName(entry.project_id), entry.payment_method || dateValue(entry.occurred_at)].filter(Boolean).join(' · '))}</small></span>
       <strong>${money(entry.amount)}</strong>
       <b class="badge ${['paid','completed','received'].includes(entry.status) ? 'success' : entry.status === 'overdue' ? 'danger' : 'warning'}">${escapeHTML(titleCase(entry.status))}</b>
       <div class="record-actions">${['payment','deposit'].includes(entry.entry_type) ? `<button data-receipt-entry="${escapeHTML(entry.id)}">Receipt</button>` : ''}<button class="danger-link" data-delete-finance="${escapeHTML(entry.id)}">Remove</button></div>
@@ -636,14 +694,46 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const builtInMedia = [
-    ['image', 'Homepage hero poster', 'assets/images/hero/hero-launch.jpg', 'Homepage · Hero'],
-    ['video', 'Homepage background reel', 'assets/videos/hero-video.mp4', 'Homepage · Hero'],
-    ['video', 'Featured work reel', 'assets/videos/artist-reel.mp4', 'Work · Featured'],
-    ['image', 'About portrait', 'assets/images/about/portrait-optimized.jpg', 'Homepage · About'],
+    { media_type: 'image', name: 'Homepage hero poster', url: 'assets/images/hero/hero-launch.jpg', website_placement: 'home-hero-poster', placement_label: 'Homepage · Hero', alt_text: 'ShotByDiallo hero poster', managed: false },
+    { media_type: 'video', name: 'Homepage background reel', url: 'assets/videos/hero-video.mp4', website_placement: 'home-hero-video', placement_label: 'Homepage · Hero', alt_text: '', managed: false },
+    { media_type: 'video', name: 'Featured work reel', url: 'assets/videos/artist-reel.mp4', website_placement: 'work-featured-video', placement_label: 'Work · Featured', alt_text: '', managed: false },
+    { media_type: 'image', name: 'About portrait', url: 'assets/images/about/portrait-optimized.jpg', website_placement: 'about-portrait', placement_label: 'Homepage · About', alt_text: 'Portrait of ShotByDiallo', managed: false },
   ];
+
+  const mediaPlacementLabels = {
+    'home-hero-poster': 'Homepage · Hero poster',
+    'home-hero-video': 'Homepage · Hero video',
+    'work-featured-video': 'Work · Featured video',
+    'music-video-cover': 'Services · Music video cover',
+    'business-video-cover': 'Services · Business video cover',
+    'event-video-cover': 'Services · Event cover',
+    'about-portrait': 'Homepage · About portrait',
+  };
 
   function publicMediaUrl(path) {
     return `${config.url}/storage/v1/object/public/site-media/${path}`;
+  }
+
+  function mediaRows() {
+    const managedByPlacement = new Map(state.media.map((item) => [item.website_placement, item]));
+    const rows = builtInMedia.map((fallback) => {
+      const managed = managedByPlacement.get(fallback.website_placement);
+      if (!managed) return fallback;
+      managedByPlacement.delete(fallback.website_placement);
+      return {
+        ...managed,
+        url: publicMediaUrl(managed.storage_path),
+        placement_label: mediaPlacementLabels[managed.website_placement] || fallback.placement_label,
+        managed: true,
+      };
+    });
+    managedByPlacement.forEach((managed) => rows.push({
+      ...managed,
+      url: publicMediaUrl(managed.storage_path),
+      placement_label: mediaPlacementLabels[managed.website_placement] || managed.website_placement || 'Website',
+      managed: true,
+    }));
+    return rows;
   }
 
   function renderMedia() {
@@ -651,13 +741,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container || !config) return;
     const search = (byId('mediaSearch')?.value || '').toLowerCase();
     const type = byId('mediaFilter')?.value || 'all';
-    const rows = state.media.length
-      ? state.media.map((item) => [item.media_type, item.name, publicMediaUrl(item.storage_path), item.website_placement || 'Website', item.alt_text || ''])
-      : builtInMedia;
-    const visible = rows.filter((item) => (type === 'all' || item[0] === type) && item[1].toLowerCase().includes(search));
+    const rows = mediaRows();
+    const visible = rows.filter((item) => {
+      const haystack = `${item.name} ${item.placement_label}`.toLowerCase();
+      return (type === 'all' || item.media_type === type) && haystack.includes(search);
+    });
     container.innerHTML = visible.map((item) => `<article class="media-card">
-      ${item[0] === 'video' ? '<div class="video-file-placeholder"><span>▶</span><small>Website video</small></div><span class="media-type">Video</span>' : `<img src="${escapeHTML(item[2])}" alt="${escapeHTML(item[4])}" loading="lazy" /><span class="media-type">Image</span>`}
-      <div><strong>${escapeHTML(item[1])}</strong><span>${escapeHTML(item[3])}</span><code>${escapeHTML(item[2])}</code><div class="record-actions"><button data-open-media="${escapeHTML(item[2])}">Open</button></div></div>
+      ${item.media_type === 'video' ? '<div class="video-file-placeholder"><span>▶</span><small>Website video</small></div><span class="media-type">Video</span>' : `<img src="${escapeHTML(item.url)}" alt="${escapeHTML(item.alt_text || '')}" loading="lazy" /><span class="media-type">Image</span>`}
+      <div><strong>${escapeHTML(item.name)}</strong><span>${escapeHTML(item.placement_label)}</span><small class="media-source">${item.managed ? 'Custom upload · live on website' : 'Built-in website fallback'}</small><code>${escapeHTML(item.url)}</code><div class="record-actions"><button data-open-media="${escapeHTML(item.url)}">Open</button><button data-replace-media="${escapeHTML(item.website_placement)}" data-media-alt="${escapeHTML(item.alt_text || '')}">Replace</button>${item.managed ? `<button class="danger-link" data-delete-media="${escapeHTML(item.id)}">Remove custom</button>` : ''}</div></div>
     </article>`).join('') || '<p class="empty-state">No media found.</p>';
   }
 
@@ -778,7 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await action(new FormData(event.currentTarget));
       event.currentTarget.reset();
     } catch (error) {
-      showToast(error.message, 'warning');
+      showToast(errorMessage(error, 'The change could not be saved. Please retry.'), 'warning');
     } finally {
       if (button) button.disabled = false;
     }
@@ -826,8 +917,31 @@ document.addEventListener('DOMContentLoaded', () => {
   byId('addContactButton')?.addEventListener('click', () => openDialog('audienceContactModal'));
   byId('addProspectButton')?.addEventListener('click', () => openDialog('marketingContactModal'));
   byId('addTransactionButton')?.addEventListener('click', () => openDialog('transactionModal'));
-  byId('addMediaButton')?.addEventListener('click', () => openDialog('mediaUploadModal'));
+  function prepareMediaUpload(placement = '', alt = '') {
+    const form = byId('mediaUploadForm');
+    if (!form) return;
+    form.reset();
+    if (placement) form.elements.placement.value = placement;
+    form.elements.alt.value = alt;
+    const replacing = Boolean(placement);
+    const heading = byId('mediaUploadModal')?.querySelector('h2');
+    const submit = form.querySelector('[type="submit"]');
+    if (heading) heading.textContent = replacing ? 'Replace website media' : 'Upload or replace media';
+    if (submit) submit.textContent = replacing ? 'Replace and publish' : 'Upload and publish';
+    openDialog('mediaUploadModal');
+  }
+  byId('addMediaButton')?.addEventListener('click', () => prepareMediaUpload());
   byId('retryCrmLoad')?.addEventListener('click', () => loadAll());
+
+  ['financeProject', 'contractProject'].forEach((id) => byId(id)?.addEventListener('change', (event) => {
+    const clientId = event.target.selectedOptions[0]?.dataset.clientId;
+    const clientSelect = byId(id === 'financeProject' ? 'financeClient' : 'contractClient');
+    if (clientId && clientSelect) clientSelect.value = clientId;
+  }));
+  byId('projectLead')?.addEventListener('change', (event) => {
+    const lead = state.leads.find((item) => item.id === event.target.value);
+    if (lead?.client_id) byId('projectClient').value = lead.client_id;
+  });
 
   byId('newLeadForm')?.addEventListener('submit', (event) => submitForm(event, async (form) => {
     await insertRow('leads', {
@@ -845,7 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     closeDialog('leadModal');
     await loaders.leads();
-    renderLeads(); renderAudience(); renderOverview();
+    populateRelationshipSelects(); renderLeads(); renderAudience(); renderOverview();
     showToast('Lead added. Website inquiries also arrive here automatically.');
   }));
 
@@ -861,14 +975,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     closeDialog('clientModal');
     await loaders.clients();
-    populateClientSelects(); renderClients(); renderAudience(); renderOverview();
+    populateRelationshipSelects(); renderClients(); renderAudience(); renderOverview();
     showToast('Client added.');
   }));
 
   byId('projectFormAdmin')?.addEventListener('submit', (event) => submitForm(event, async (form) => {
+    const sourceLead = state.leads.find((item) => item.id === form.get('lead_id'));
+    if (sourceLead?.client_id && sourceLead.client_id !== form.get('client_id')) {
+      throw new Error('The selected lead is linked to a different client. Choose the matching client.');
+    }
     await insertRow('projects', {
       owner_id: currentUser.id,
       client_id: form.get('client_id'),
+      lead_id: form.get('lead_id') || null,
       title: form.get('title').trim(),
       service: form.get('service'),
       stage: form.get('stage'),
@@ -879,13 +998,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     closeDialog('projectModal');
     await loaders.projects();
-    renderProjects(); renderOverview();
+    populateRelationshipSelects(); renderProjects(); renderOverview();
     showToast('Project added.');
   }));
 
   byId('taskForm')?.addEventListener('submit', (event) => submitForm(event, async (form) => {
     await insertRow('tasks', {
       owner_id: currentUser.id,
+      project_id: form.get('project_id') || null,
+      lead_id: form.get('lead_id') || null,
       title: form.get('title').trim(),
       category: form.get('category')?.trim() || null,
       due_at: form.get('due_at') ? new Date(form.get('due_at')).toISOString() : null,
@@ -935,9 +1056,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }));
 
   byId('transactionForm')?.addEventListener('submit', (event) => submitForm(event, async (form) => {
-    await insertRow('financial_entries', {
+    const project = state.projects.find((item) => item.id === form.get('project_id'));
+    const created = await insertRow('financial_entries', {
       owner_id: currentUser.id,
-      client_id: form.get('client_id') || null,
+      client_id: project?.client_id || form.get('client_id') || null,
+      project_id: form.get('project_id') || null,
       invoice_number: form.get('invoice_number')?.trim() || null,
       entry_type: form.get('entry_type'),
       amount: Number(form.get('amount') || 0),
@@ -947,18 +1070,27 @@ document.addEventListener('DOMContentLoaded', () => {
       notes: form.get('notes')?.trim() || null,
     });
     closeDialog('transactionModal');
-    await loaders.finances();
+    let synced = true;
+    try { await loaders.finances(); }
+    catch {
+      synced = false;
+      state.finances = [created, ...state.finances.filter((item) => item.id !== created.id)];
+      setConnection('warning', 'Saved · refresh pending', true);
+    }
     renderFinances();
-    showToast('Financial entry saved.');
+    showToast(synced ? 'Financial entry saved and synced.' : 'Financial entry saved. The list will resync when the connection recovers.', synced ? 'success' : 'warning');
   }));
 
   let previewContractHTML = '';
   byId('contractForm')?.addEventListener('submit', (event) => submitForm(event, async (form) => {
     const data = Object.fromEntries(form.entries());
+    const project = state.projects.find((item) => item.id === data.project_id);
+    if (project) data.client_id = project.client_id;
     data.contract_html = buildContractHTML(data);
     await insertRow('contracts', {
       owner_id: currentUser.id,
       client_id: data.client_id,
+      project_id: data.project_id || null,
       title: data.title.trim(),
       contract_html: data.contract_html,
       total_amount: Number(data.total_amount || 0),
@@ -1027,21 +1159,33 @@ document.addEventListener('DOMContentLoaded', () => {
           updated_at: new Date().toISOString(),
         });
         await Promise.all([loaders.leads(), loaders.clients()]);
-        populateClientSelects(); renderLeads(); renderClients(); renderAudience(); renderOverview();
+        populateRelationshipSelects(); renderLeads(); renderClients(); renderAudience(); renderOverview();
         showToast('Lead linked to the client directory.');
       } catch (error) { showToast(error.message, 'warning'); }
     }
     if (remove && confirm('Remove this lead permanently?')) {
-      try { await deleteRow('leads', remove.dataset.deleteLead); await loaders.leads(); renderLeads(); renderAudience(); renderOverview(); showToast('Lead removed.'); }
+      try { await deleteRow('leads', remove.dataset.deleteLead); await loaders.leads(); populateRelationshipSelects(); renderLeads(); renderAudience(); renderOverview(); showToast('Lead removed.'); }
       catch (error) { showToast(error.message, 'warning'); }
     }
   });
 
   byId('clientGrid')?.addEventListener('click', async (event) => {
     const remove = event.target.closest('[data-delete-client]');
-    if (remove && confirm('Remove this client? Projects or contracts linked to the client may prevent deletion.')) {
-      try { await deleteRow('clients', remove.dataset.deleteClient); await loaders.clients(); populateClientSelects(); renderClients(); renderAudience(); renderOverview(); showToast('Client removed.'); }
-      catch (error) { showToast(error.message, 'warning'); }
+    if (!remove) return;
+    const clientId = remove.dataset.deleteClient;
+    const projectCount = state.projects.filter((item) => item.client_id === clientId).length;
+    const contractCount = state.contracts.filter((item) => item.client_id === clientId).length;
+    if (projectCount || contractCount) {
+      const links = [
+        projectCount ? `${projectCount} project${projectCount === 1 ? '' : 's'}` : '',
+        contractCount ? `${contractCount} contract${contractCount === 1 ? '' : 's'}` : '',
+      ].filter(Boolean).join(' and ');
+      showToast(`This client is protected because it has ${links}. Remove or reassign those records first.`, 'warning');
+      return;
+    }
+    if (confirm('Remove this client from the CRM? Finance entries and leads will stay saved but become unlinked.')) {
+      try { await deleteRow('clients', clientId); await Promise.all([loaders.clients(), loaders.leads(), loaders.finances()]); populateRelationshipSelects(); renderClients(); renderLeads(); renderAudience(); renderFinances(); renderOverview(); showToast('Client removed and related history preserved.'); }
+      catch (error) { showToast(errorMessage(error, 'The client could not be removed because another record still depends on it.'), 'warning'); }
     }
   });
 
@@ -1054,7 +1198,7 @@ document.addEventListener('DOMContentLoaded', () => {
   byId('projectTable')?.addEventListener('click', async (event) => {
     const remove = event.target.closest('[data-delete-project]');
     if (remove && confirm('Remove this project?')) {
-      try { await deleteRow('projects', remove.dataset.deleteProject); await loaders.projects(); renderProjects(); renderOverview(); showToast('Project removed.'); }
+      try { await deleteRow('projects', remove.dataset.deleteProject); await loaders.projects(); populateRelationshipSelects(); renderProjects(); renderOverview(); showToast('Project removed.'); }
       catch (error) { showToast(error.message, 'warning'); }
     }
   });
@@ -1099,9 +1243,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   byId('audienceTable')?.addEventListener('click', async (event) => {
     const remove = event.target.closest('[data-delete-contact]');
+    const managed = event.target.closest('[data-open-managed]');
+    if (managed) switchView(managed.dataset.openManaged);
     if (remove && confirm('Remove this manual contact?')) {
-      try { await deleteRow('marketing_contacts', remove.dataset.deleteContact); await loaders.contacts(); renderAudience(); renderMarketing(); showToast('Contact removed.'); }
-      catch (error) { showToast(error.message, 'warning'); }
+      try {
+        const id = remove.dataset.deleteContact;
+        await deleteRow('marketing_contacts', id);
+        state.contacts = state.contacts.filter((item) => item.id !== id);
+        try { await loaders.contacts(); } catch { setConnection('warning', 'Removed · refresh pending', true); }
+        renderAudience(); renderMarketing(); showToast('Contact removed and deletion confirmed.');
+      }
+      catch (error) { showToast(errorMessage(error, 'The contact could not be removed. Refresh and retry.'), 'warning'); }
     }
   });
   byId('exportContacts')?.addEventListener('click', () => {
@@ -1146,28 +1298,78 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     if (remove && confirm('Remove this financial entry?')) {
-      try { await deleteRow('financial_entries', remove.dataset.deleteFinance); await loaders.finances(); renderFinances(); showToast('Financial entry removed.'); }
-      catch (error) { showToast(error.message, 'warning'); }
+      try {
+        const id = remove.dataset.deleteFinance;
+        await deleteRow('financial_entries', id);
+        state.finances = state.finances.filter((item) => item.id !== id);
+        try { await loaders.finances(); } catch { setConnection('warning', 'Removed · refresh pending', true); }
+        renderFinances(); showToast('Financial entry removed and deletion confirmed.');
+      }
+      catch (error) { showToast(errorMessage(error, 'The financial entry could not be removed. Refresh and retry.'), 'warning'); }
     }
   });
   byId('printReceipt')?.addEventListener('click', () => window.print());
 
   byId('mediaSearch')?.addEventListener('input', renderMedia);
   byId('mediaFilter')?.addEventListener('change', renderMedia);
-  byId('mediaGrid')?.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-open-media]');
-    if (button) window.open(button.dataset.openMedia, '_blank', 'noopener');
+  async function deleteStorageObject(path) {
+    if (!path) return;
+    await ensureFreshSession();
+    const response = await fetch(`${config.url}/storage/v1/object/site-media`, {
+      method: 'DELETE',
+      headers: apiHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ prefixes: [path] }),
+    });
+    if (!response.ok && response.status !== 404) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload?.message || 'The old media file could not be removed from storage.');
+    }
+  }
+
+  byId('mediaGrid')?.addEventListener('click', async (event) => {
+    const open = event.target.closest('[data-open-media]');
+    const replace = event.target.closest('[data-replace-media]');
+    const remove = event.target.closest('[data-delete-media]');
+    if (open) window.open(open.dataset.openMedia, '_blank', 'noopener');
+    if (replace) prepareMediaUpload(replace.dataset.replaceMedia, replace.dataset.mediaAlt || '');
+    if (remove) {
+      const asset = state.media.find((item) => item.id === remove.dataset.deleteMedia);
+      if (!asset || !confirm('Remove this custom media? A built-in image or video will return when that placement has a fallback.')) return;
+      try {
+        await deleteRow('media_assets', asset.id);
+        state.media = state.media.filter((item) => item.id !== asset.id);
+        let cleanupWarning = false;
+        try { await deleteStorageObject(asset.storage_path); } catch { cleanupWarning = true; }
+        try { await loaders.media(); } catch { setConnection('warning', 'Removed · refresh pending', true); }
+        renderMedia();
+        showToast(cleanupWarning ? 'Custom media removed. The website fallback is active; storage cleanup needs a retry.' : 'Custom media removed. The website fallback is now active.', cleanupWarning ? 'warning' : 'success');
+      } catch (error) {
+        showToast(errorMessage(error, 'The custom media could not be removed. Refresh and retry.'), 'warning');
+      }
+    }
   });
   byId('mediaUploadForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const submit = event.submitter;
+    if (submit) submit.disabled = true;
     const form = new FormData(event.currentTarget);
     const file = form.get('file');
-    if (!(file instanceof File) || !file.size) return;
+    if (!(file instanceof File) || !file.size) {
+      if (submit) submit.disabled = false;
+      return showToast('Choose a media file first.', 'warning');
+    }
     const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'video/mp4', 'video/webm']);
-    if (!allowedTypes.has(file.type)) return showToast('Use JPG, PNG, WebP, AVIF, MP4 or WebM media.', 'warning');
-    if (file.size > 50 * 1024 * 1024) return showToast('Media must be 50 MB or smaller.', 'warning');
+    if (!allowedTypes.has(file.type)) {
+      if (submit) submit.disabled = false;
+      return showToast('Use JPG, PNG, WebP, AVIF, MP4 or WebM media.', 'warning');
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      if (submit) submit.disabled = false;
+      return showToast('Media must be 50 MB or smaller.', 'warning');
+    }
     const placement = form.get('placement');
     const path = `${placement}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
+    let uploaded = false;
     try {
       await ensureFreshSession();
       const upload = await fetch(`${config.url}/storage/v1/object/site-media/${path}`, {
@@ -1175,7 +1377,11 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: apiHeaders({ 'Content-Type': file.type, 'x-upsert': 'false' }),
         body: file,
       });
-      if (!upload.ok) throw new Error('Media upload failed.');
+      if (!upload.ok) {
+        const payload = await upload.json().catch(() => ({}));
+        throw new Error(payload?.message || 'Media upload failed.');
+      }
+      uploaded = true;
       const mediaRecord = {
         owner_id: currentUser.id,
         name: file.name,
@@ -1185,13 +1391,36 @@ document.addEventListener('DOMContentLoaded', () => {
         alt_text: form.get('alt')?.trim() || null,
       };
       const existing = state.media.find((item) => item.website_placement === placement);
-      if (existing) await updateRow('media_assets', existing.id, mediaRecord);
-      else await insertRow('media_assets', mediaRecord);
+      let savedRecord;
+      if (existing) {
+        await updateRow('media_assets', existing.id, mediaRecord);
+        savedRecord = { ...existing, ...mediaRecord };
+      } else {
+        savedRecord = await insertRow('media_assets', mediaRecord);
+      }
+      uploaded = false;
+      let cleanupWarning = false;
+      if (existing?.storage_path && existing.storage_path !== path) {
+        try { await deleteStorageObject(existing.storage_path); } catch { cleanupWarning = true; }
+      }
       closeDialog('mediaUploadModal');
       event.currentTarget.reset();
-      await loaders.media(); renderMedia();
-      showToast('Media uploaded and available to the website.');
-    } catch (error) { showToast(error.message, 'warning'); }
+      let syncWarning = false;
+      try { await loaders.media(); }
+      catch {
+        syncWarning = true;
+        state.media = [savedRecord, ...state.media.filter((item) => item.id !== savedRecord.id && item.website_placement !== placement)];
+        setConnection('warning', 'Saved · refresh pending', true);
+      }
+      renderMedia();
+      const warning = cleanupWarning || syncWarning;
+      showToast(warning ? 'New media is live. A background cleanup or refresh still needs a retry.' : 'Media replaced and published to the website.', warning ? 'warning' : 'success');
+    } catch (error) {
+      if (uploaded) deleteStorageObject(path).catch(() => {});
+      showToast(errorMessage(error, 'The media could not be published. Please retry.'), 'warning');
+    } finally {
+      if (submit) submit.disabled = false;
+    }
   });
 
   document.querySelectorAll('[data-close-dialog]').forEach((button) => button.addEventListener('click', () => button.closest('dialog')?.close()));
