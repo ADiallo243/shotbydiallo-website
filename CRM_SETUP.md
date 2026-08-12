@@ -20,9 +20,11 @@ provider integrations are complete.
 2. Create the owner profile linked to the Supabase Auth user.
 3. Configure these Vercel variables for Production:
    `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_PUBLISHABLE_KEY`,
-   `SHOTBYDIALLO_OWNER_ID`, `RESEND_API_KEY`, `NOTIFICATION_EMAIL`, `EMAIL_FROM`.
+   `SHOTBYDIALLO_OWNER_ID`, `RESEND_API_KEY`, `EMAIL_FROM`.
 4. Keep the Supabase service-role key and Resend key server-only. Never add
    either key to public JavaScript or Git.
+   Lead notification emails are routed by the server to
+   `shotbydiallo@gmail.com`.
    `SUPABASE_URL` must be the base Project URL (for example,
    `https://your-project.supabase.co`), not the REST endpoint ending in
    `/rest/v1`.
