@@ -86,6 +86,29 @@ select {
   font: inherit;
 }
 
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20000;
+  transform: translateY(-180%);
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 900;
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 /* HEADER */
 
 .site-header {
@@ -1350,6 +1373,20 @@ select {
   gap: 24px;
   color: rgba(168, 162, 154, 0.78);
   font-size: 13px;
+}
+
+.footer-cookie-settings {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-cookie-settings:hover {
+  color: var(--accent);
 }
 
 /* FLOATING SCROLL BUTTON */

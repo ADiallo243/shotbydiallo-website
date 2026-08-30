@@ -33,6 +33,7 @@
   function startAnalytics() {
     if (analyticsStarted) return;
     analyticsStarted = true;
+    window["ga-disable-" + measurementId] = false;
 
     window.dataLayer = window.dataLayer || [];
     window.gtag =
@@ -46,10 +47,26 @@
 
     var googleTag = document.createElement("script");
     googleTag.async = true;
+    googleTag.dataset.shotbydialloAnalytics = measurementId;
     googleTag.src =
       "https://www.googletagmanager.com/gtag/js?id=" +
       encodeURIComponent(measurementId);
     document.head.appendChild(googleTag);
+  }
+
+  function stopAnalytics() {
+    window["ga-disable-" + measurementId] = true;
+    if (typeof window.gtag === "function") {
+      window.gtag("consent", "update", { analytics_storage: "denied" });
+    }
+    document.querySelector('[data-shotbydiallo-analytics]')?.remove();
+    analyticsStarted = false;
+
+    var analyticsCookie = "_ga_" + measurementId.replace("G-", "");
+    ["_ga", analyticsCookie].forEach(function (cookieName) {
+      document.cookie = cookieName + "=; Max-Age=0; path=/; SameSite=Lax";
+      document.cookie = cookieName + "=; Max-Age=0; path=/; domain=.shotbydiallo.com; SameSite=Lax";
+    });
   }
 
   function removeConsentNotice() {
@@ -64,9 +81,10 @@
     notice.id = "analyticsConsent";
     notice.setAttribute("role", "dialog");
     notice.setAttribute("aria-labelledby", "analyticsConsentTitle");
+    notice.setAttribute("aria-describedby", "analyticsConsentDescription");
     notice.innerHTML =
       '<div><strong id="analyticsConsentTitle">Your privacy matters</strong>' +
-      '<p>We use optional Google Analytics cookies to understand site visits and improve the experience. The contact form works without them. <a href="/privacy">Privacy policy</a></p></div>' +
+      '<p id="analyticsConsentDescription">We use optional Google Analytics cookies to understand site visits and improve the experience. The contact form works without them. <a href="/privacy">Privacy policy</a></p></div>' +
       '<div class="cookie-consent-actions"><button type="button" class="btn secondary-btn" data-analytics-choice="declined">Reject optional</button>' +
       '<button type="button" class="btn primary-btn" data-analytics-choice="accepted">Accept analytics</button></div>';
 
@@ -76,6 +94,7 @@
         saveChoice(choice);
         removeConsentNotice();
         if (choice === "accepted") startAnalytics();
+        else stopAnalytics();
       });
     });
 
@@ -83,13 +102,10 @@
   }
 
   function setupChoiceControls() {
-    document.getElementById("cookieSettingsButton")?.addEventListener("click", function () {
-      try {
-        window.localStorage.removeItem(consentKey);
-      } catch {
-        // The notice can still be shown when local storage is unavailable.
-      }
-      showConsentNotice();
+    document.querySelectorAll("#cookieSettingsButton, [data-cookie-settings]").forEach(function (control) {
+      control.addEventListener("click", function () {
+        showConsentNotice();
+      });
     });
   }
 
