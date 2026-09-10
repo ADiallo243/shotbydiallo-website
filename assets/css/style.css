@@ -2160,6 +2160,10 @@ select {
     height: 38px;
   }
 
+  html[lang^='fr'] .scroll-toggle {
+    bottom: 18px;
+  }
+
   .mobile-menu a[lang] {
     margin-top: 4px;
     font-size: 11px;
