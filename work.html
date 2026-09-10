@@ -41,7 +41,7 @@
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
     <script defer src="/site-config.js"></script>
     <script defer src="/assets/js/google-analytics.js?v=5"></script>
-    <link rel="stylesheet" href="assets/css/style.css?v=44" />
+    <link rel="stylesheet" href="assets/css/style.css?v=47" />
   </head>
 
   <body>
@@ -138,6 +138,26 @@
         </div>
       </section>
 
+      <section class="case-study-teasers" aria-labelledby="case-study-teasers-title">
+        <div class="case-study-teasers-heading">
+          <div>
+            <p class="eyebrow">More case studies</p>
+            <h2 id="case-study-teasers-title">See how the work was built.</h2>
+          </div>
+          <p>Two campaigns, from the objective to the final delivery.</p>
+        </div>
+        <div class="case-study-teasers-grid">
+          <a class="case-study-teaser" href="/work/voice-of-guinea-conakry-raconte">
+            <img src="assets/images/work/voice-of-guinea-conakry-raconte-poster.jpg" alt="Katy in the Voice of Guinea Conakry Raconte interview" loading="lazy" decoding="async" />
+            <div><span>Editorial series · 55K+ views</span><h3>Voice of Guinea</h3><strong>View case study →</strong></div>
+          </a>
+          <a class="case-study-teaser" href="/work/liprobakin-all-star-game">
+            <img src="assets/images/work/liprobakin-all-star-games-poster.jpg" alt="LIPROBAKIN All Star Game player interview in Kinshasa" loading="lazy" decoding="async" />
+            <div><span>Sports campaign · Kinshasa</span><h3>LIPROBAKIN All Star Game</h3><strong>View case study →</strong></div>
+          </a>
+        </div>
+      </section>
+
       <section class="portfolio-section">
         <div class="portfolio-top">
           <div>
@@ -161,7 +181,7 @@
         </div>
 
         <div class="portfolio-grid">
-          <article id="oseibou-collection" class="portfolio-card tall portfolio-video-card" data-category="business">
+          <button type="button" id="oseibou-collection" class="portfolio-card tall portfolio-video-card media-preview-trigger" data-category="business" data-media-preview aria-label="Open a larger preview of the OSEIBOU collection film">
             <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/oseibou-collection-poster.jpg" aria-hidden="true">
               <source data-src="assets/videos/oseibou-collection-preview.mp4" type="video/mp4" />
             </video>
@@ -169,29 +189,9 @@
               <p>Collection Launch · Kinshasa, DR Congo · June 2026</p>
               <h3>OSEIBOU</h3>
             </div>
-          </article>
+          </button>
 
-          <a href="/work/voice-of-guinea-conakry-raconte" id="voice-of-guinea-conakry-raconte" class="portfolio-card tall portfolio-video-card" data-category="business" aria-label="View the Voice of Guinea Conakry Raconte case study">
-            <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/voice-of-guinea-conakry-raconte-poster.jpg" aria-hidden="true">
-              <source data-src="assets/videos/voice-of-guinea-conakry-raconte-preview.mp4" type="video/mp4" />
-            </video>
-            <div class="portfolio-info">
-              <p>Conakry Raconte · Katy E1 · Conakry · July 2026</p>
-              <h3>Voice of Guinea</h3>
-            </div>
-          </a>
-
-          <a href="/work/liprobakin-all-star-game" id="liprobakin-all-star-games" class="portfolio-card tall portfolio-video-card" data-category="business" aria-label="View the LIPROBAKIN All Star Game case study">
-            <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/liprobakin-all-star-games-poster.jpg" aria-hidden="true">
-              <source data-src="assets/videos/liprobakin-all-star-games-preview.mp4" type="video/mp4" />
-            </video>
-            <div class="portfolio-info">
-              <p>Tournament Campaign · Kinshasa · June 2026</p>
-              <h3>LIPROBAKIN All Star Game</h3>
-            </div>
-          </a>
-
-          <article id="diaspora-brand-campaign" class="portfolio-card tall portfolio-video-card" data-category="business">
+          <button type="button" id="diaspora-brand-campaign" class="portfolio-card tall portfolio-video-card media-preview-trigger" data-category="business" data-media-preview aria-label="Open a larger preview of the Diaspora Brand campaign">
             <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/diaspora-brand-campaign-poster.jpg" aria-hidden="true">
               <source data-src="assets/videos/diaspora-brand-campaign-preview.mp4" type="video/mp4" />
             </video>
@@ -199,9 +199,9 @@
               <p>Brand Campaign · Trois-Rivières · July 2025</p>
               <h3>Diaspora Brand</h3>
             </div>
-          </article>
+          </button>
 
-          <article id="fusion-entertainment-keblack" class="portfolio-card tall portfolio-video-card" data-category="business">
+          <button type="button" id="fusion-entertainment-keblack" class="portfolio-card tall portfolio-video-card media-preview-trigger" data-category="business" data-media-preview aria-label="Open a larger preview of the Fusion Entertainment Keblack campaign">
             <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/fusion-entertainment-keblack-poster.jpg" aria-hidden="true">
               <source data-src="assets/videos/fusion-entertainment-keblack-preview.mp4" type="video/mp4" />
             </video>
@@ -209,9 +209,9 @@
               <p>Concert Promotion · Ottawa · April 2025</p>
               <h3>Fusion Entertainment · Keblack</h3>
             </div>
-          </article>
+          </button>
 
-          <article id="zeusdiallo-short-form" class="portfolio-card tall portfolio-video-card" data-category="business">
+          <button type="button" id="zeusdiallo-short-form" class="portfolio-card tall portfolio-video-card media-preview-trigger" data-category="business" data-media-preview aria-label="Open a larger preview of the ZeusDiallo short-form series">
             <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/zeusdiallo-short-form-poster.jpg" aria-hidden="true">
               <source data-src="assets/videos/zeusdiallo-short-form-preview.mp4" type="video/mp4" />
             </video>
@@ -219,9 +219,9 @@
               <p>TikTok Short-form Series · September 2026</p>
               <h3>ZeusDiallo · Muana Frite</h3>
             </div>
-          </article>
+          </button>
 
-          <article id="cyberxis-afro-foudre" class="portfolio-card tall portfolio-video-card" data-category="music">
+          <button type="button" id="cyberxis-afro-foudre" class="portfolio-card tall portfolio-video-card media-preview-trigger" data-category="music" data-media-preview aria-label="Open a larger preview of Cyberxis Afro Foudre">
             <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/cyberxis-afro-foudre-poster.jpg" aria-hidden="true">
               <source data-src="assets/videos/cyberxis-afro-foudre-preview.mp4" type="video/mp4" />
             </video>
@@ -229,9 +229,9 @@
               <p>Social Visualizer · Montreal · April 2026</p>
               <h3>Cyberxis · Afro Foudre</h3>
             </div>
-          </article>
+          </button>
 
-          <article id="young-gielo-release-visualizer" class="portfolio-card tall portfolio-video-card" data-category="music">
+          <button type="button" id="young-gielo-release-visualizer" class="portfolio-card tall portfolio-video-card media-preview-trigger" data-category="music" data-media-preview aria-label="Open a larger preview of the Young Gielo visualizer">
             <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/young-gielo-release-visualizer-poster.jpg" aria-hidden="true">
               <source data-src="assets/videos/young-gielo-release-visualizer-preview.mp4" type="video/mp4" />
             </video>
@@ -239,9 +239,9 @@
               <p>Release Visualizer · Montreal · September 2025</p>
               <h3>Young Gielo</h3>
             </div>
-          </article>
+          </button>
 
-          <article id="bilouki-showcase-recap" class="portfolio-card tall portfolio-video-card" data-category="music">
+          <button type="button" id="bilouki-showcase-recap" class="portfolio-card tall portfolio-video-card media-preview-trigger" data-category="music" data-media-preview aria-label="Open a larger preview of the Bilouki showcase recap">
             <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/bilouki-showcase-recap-poster.jpg" aria-hidden="true">
               <source data-src="assets/videos/bilouki-showcase-recap-preview.mp4" type="video/mp4" />
             </video>
@@ -249,9 +249,9 @@
               <p>Showcase Recap · Ottawa · May 2026</p>
               <h3>Bilouki</h3>
             </div>
-          </article>
+          </button>
 
-          <article id="yami-conakry-visualizer" class="portfolio-card tall portfolio-video-card" data-category="music">
+          <button type="button" id="yami-conakry-visualizer" class="portfolio-card tall portfolio-video-card media-preview-trigger" data-category="music" data-media-preview aria-label="Open a larger preview of Yami Conakry">
             <video autoplay muted loop playsinline preload="metadata" poster="assets/images/work/yami-conakry-visualizer-poster.jpg" aria-hidden="true">
               <source data-src="assets/videos/yami-conakry-visualizer-preview.mp4" type="video/mp4" />
             </video>
@@ -259,7 +259,7 @@
               <p>Social Visualizer · Montreal · April 2026</p>
               <h3>Yami · Conakry</h3>
             </div>
-          </article>
+          </button>
         </div>
       </section>
 
@@ -276,7 +276,7 @@
         </div>
 
         <div class="portfolio-grid other-work-grid">
-          <article class="portfolio-card">
+          <button type="button" class="portfolio-card media-preview-trigger" data-media-preview aria-label="Open the Maison Attractive campaign photograph">
             <img
               src="assets/images/work/brand-video-web.jpg"
               alt="Maison Attractive clothing brand promotional campaign photographed in Montreal in June 2023"
@@ -287,9 +287,9 @@
               <p>Campaign Photography · Montreal · June 2023</p>
               <h3>Maison Attractive</h3>
             </div>
-          </article>
+          </button>
 
-          <article class="portfolio-card tall">
+          <button type="button" class="portfolio-card tall media-preview-trigger" data-media-preview aria-label="Open the King Alasko performance photograph">
             <img
               src="assets/images/work/music-video-web.jpg"
               alt="King Alasko performing at a private barbecue at Plage Saint-Zotique in August 2025"
@@ -300,9 +300,9 @@
               <p>Live Performance · Saint-Zotique · August 2025</p>
               <h3>King Alasko</h3>
             </div>
-          </article>
+          </button>
 
-          <article class="portfolio-card tall">
+          <button type="button" class="portfolio-card tall media-preview-trigger" data-media-preview aria-label="Open the networking event photograph">
             <img
               src="assets/images/work/event-video-web.jpg"
               alt="Corporate event networking coverage in Montreal by ShotByDiallo"
@@ -313,9 +313,9 @@
               <p>Corporate Event</p>
               <h3>Networking Event Coverage</h3>
             </div>
-          </article>
+          </button>
 
-          <article class="portfolio-card wide">
+          <button type="button" class="portfolio-card wide media-preview-trigger" data-media-preview aria-label="Open the wedding reception photograph">
             <img
               src="assets/images/work/wedding-video-web.jpg"
               alt="Montreal wedding reception coverage by ShotByDiallo"
@@ -326,9 +326,9 @@
               <p>Wedding</p>
               <h3>Reception Highlight Moments</h3>
             </div>
-          </article>
+          </button>
 
-          <article class="portfolio-card">
+          <button type="button" class="portfolio-card media-preview-trigger" data-media-preview aria-label="Open the streetwear lookbook photograph">
             <img
               src="assets/images/work/streetwear-brand-optimized.jpg"
               alt="Streetwear brand fashion photography by ShotByDiallo"
@@ -339,9 +339,9 @@
               <p>Brand Photography</p>
               <h3>Streetwear Lookbook</h3>
             </div>
-          </article>
+          </button>
 
-          <article class="portfolio-card tall">
+          <button type="button" class="portfolio-card tall media-preview-trigger" data-media-preview aria-label="Open the cinematic portrait photograph">
             <img
               src="assets/images/work/creative-portrait-optimized.jpg"
               alt="Cinematic artist portrait at night in Montreal by ShotByDiallo"
@@ -352,9 +352,9 @@
               <p>Artist Portrait</p>
               <h3>Cinematic Night Portrait</h3>
             </div>
-          </article>
+          </button>
 
-          <article class="portfolio-card wide">
+          <button type="button" class="portfolio-card wide media-preview-trigger" data-media-preview aria-label="Open the cultural celebration photograph">
             <img
               src="assets/images/work/cultural-event-optimized.jpg"
               alt="African cultural event celebration in Montreal photographed by ShotByDiallo"
@@ -365,7 +365,7 @@
               <p>Event Coverage</p>
               <h3>Cultural Celebration</h3>
             </div>
-          </article>
+          </button>
         </div>
       </section>
 
@@ -465,6 +465,6 @@
       <span aria-hidden="true"></span>
     </button>
 
-    <script src="assets/js/main.js?v=44"></script>
+    <script src="assets/js/main.js?v=47"></script>
   </body>
 </html>

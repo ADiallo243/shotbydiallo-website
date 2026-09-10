@@ -289,6 +289,114 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  document.querySelectorAll('.case-study-frame, .case-study-gallery figure, .costume-project-still').forEach(function (mediaFigure) {
+    const image = mediaFigure.querySelector('img');
+    if (!image) return;
+    mediaFigure.dataset.mediaPreview = '';
+    mediaFigure.tabIndex = 0;
+    mediaFigure.setAttribute('role', 'button');
+    mediaFigure.setAttribute(
+      'aria-label',
+      isFrench ? `Agrandir l’image : ${image.alt}` : `Enlarge image: ${image.alt}`,
+    );
+  });
+
+  const mediaPreviewTriggers = document.querySelectorAll('[data-media-preview]');
+
+  if (mediaPreviewTriggers.length) {
+    const mediaDialog = document.createElement('dialog');
+    const mediaDialogInner = document.createElement('div');
+    const mediaDialogStage = document.createElement('div');
+    const mediaDialogTitle = document.createElement('p');
+    const mediaDialogClose = document.createElement('button');
+    let mediaPreviewReturnFocus = null;
+
+    mediaDialog.className = 'media-lightbox';
+    mediaDialog.setAttribute('aria-labelledby', 'mediaLightboxTitle');
+    mediaDialogInner.className = 'media-lightbox-inner';
+    mediaDialogStage.className = 'media-lightbox-stage';
+    mediaDialogTitle.className = 'media-lightbox-title';
+    mediaDialogTitle.id = 'mediaLightboxTitle';
+    mediaDialogClose.className = 'media-lightbox-close';
+    mediaDialogClose.type = 'button';
+    mediaDialogClose.setAttribute('aria-label', isFrench ? 'Fermer l’aperçu' : 'Close preview');
+    mediaDialogClose.textContent = '×';
+    mediaDialogInner.append(mediaDialogStage, mediaDialogTitle, mediaDialogClose);
+    mediaDialog.append(mediaDialogInner);
+    document.body.append(mediaDialog);
+
+    function closeMediaPreview() {
+      if (mediaDialog.open) mediaDialog.close();
+    }
+
+    function clearMediaPreview() {
+      const activeVideo = mediaDialogStage.querySelector('video');
+      if (activeVideo) activeVideo.pause();
+      mediaDialogStage.replaceChildren();
+      document.body.classList.remove('media-dialog-open');
+      if (mediaPreviewReturnFocus) mediaPreviewReturnFocus.focus();
+      mediaPreviewReturnFocus = null;
+    }
+
+    function openMediaPreview(trigger) {
+      const sourceVideo = trigger.querySelector('video');
+      const sourceImage = trigger.querySelector('img');
+      const title = trigger.querySelector('h3')?.textContent?.trim()
+        || trigger.getAttribute('aria-label')
+        || (isFrench ? 'Aperçu du projet' : 'Project preview');
+      let previewMedia = null;
+
+      if (sourceVideo) {
+        const source = sourceVideo.querySelector('source');
+        const videoUrl = sourceVideo.currentSrc
+          || source?.src
+          || source?.dataset.src;
+        if (!videoUrl) return;
+        previewMedia = document.createElement('video');
+        previewMedia.src = videoUrl;
+        previewMedia.controls = true;
+        previewMedia.autoplay = true;
+        previewMedia.playsInline = true;
+        previewMedia.preload = 'metadata';
+        previewMedia.poster = sourceVideo.poster;
+        previewMedia.setAttribute('aria-label', title);
+      } else if (sourceImage) {
+        previewMedia = document.createElement('img');
+        previewMedia.src = sourceImage.currentSrc || sourceImage.src;
+        previewMedia.alt = sourceImage.alt || title;
+      }
+
+      if (!previewMedia) return;
+      mediaPreviewReturnFocus = trigger;
+      mediaDialogTitle.textContent = title;
+      mediaDialogStage.replaceChildren(previewMedia);
+      document.body.classList.add('media-dialog-open');
+      mediaDialog.showModal();
+      mediaDialogClose.focus();
+      trackEvent('select_content', {
+        content_type: sourceVideo ? 'video_preview' : 'image_preview',
+        item_id: trigger.id || title,
+      });
+    }
+
+    mediaPreviewTriggers.forEach(function (trigger) {
+      trigger.addEventListener('click', function () {
+        openMediaPreview(trigger);
+      });
+      trigger.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        openMediaPreview(trigger);
+      });
+    });
+
+    mediaDialogClose.addEventListener('click', closeMediaPreview);
+    mediaDialog.addEventListener('click', function (event) {
+      if (event.target === mediaDialog) closeMediaPreview();
+    });
+    mediaDialog.addEventListener('close', clearMediaPreview);
+  }
+
   if (scrollToggle) {
     function updateScrollButton() {
       const scrollPosition = getScrollTop();
