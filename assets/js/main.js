@@ -95,8 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function canLoadDeferredVideos() {
     return !navigator.connection?.saveData
-      && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      && window.matchMedia('(min-width: 768px)').matches;
+      && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
   function loadDeferredVideo(video) {
@@ -145,6 +144,86 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function initializeVideoSoundControls() {
+    const autoplayVideos = document.querySelectorAll('video[autoplay]');
+    const audioHosts = [
+      '.hero',
+      '.audience-video-card',
+      '.work-card',
+      '.portfolio-card',
+      '.about-image',
+      '.service-example',
+      '.phone-video-frame',
+      '.featured-reel-media',
+    ].join(',');
+
+    function controlCopy(video) {
+      if (video.muted) {
+        return {
+          label: isFrench ? 'Activer le son' : 'Turn sound on',
+          short: isFrench ? 'Son coupé' : 'Sound off',
+        };
+      }
+      return {
+        label: isFrench ? 'Couper le son' : 'Mute video',
+        short: isFrench ? 'Son activé' : 'Sound on',
+      };
+    }
+
+    function updateControl(control, video) {
+      const copy = controlCopy(video);
+      control.setAttribute('aria-label', copy.label);
+      control.setAttribute('title', copy.label);
+      control.classList.toggle('is-audible', !video.muted);
+      control.innerHTML = `<span aria-hidden="true">${video.muted ? '◖' : '◉'}</span><small>${copy.short}</small>`;
+    }
+
+    function toggleSound(video, control) {
+      if (video.muted) {
+        autoplayVideos.forEach(function (otherVideo) {
+          if (otherVideo === video) return;
+          otherVideo.muted = true;
+          otherVideo.defaultMuted = true;
+          const otherControl = document.querySelector(`[data-video-sound-for="${otherVideo.dataset.soundId}"]`);
+          if (otherControl) updateControl(otherControl, otherVideo);
+        });
+      }
+      video.muted = !video.muted;
+      video.defaultMuted = video.muted;
+      if (!video.muted) video.play().catch(function () {});
+      updateControl(control, video);
+      trackEvent('video_audio_toggle', {
+        state: video.muted ? 'muted' : 'audible',
+        video: video.currentSrc || video.querySelector('source')?.dataset.src || 'unknown',
+      });
+    }
+
+    autoplayVideos.forEach(function (video, index) {
+      const host = video.closest(audioHosts);
+      if (!host || host.querySelector(':scope > .video-sound-toggle')) return;
+
+      video.muted = true;
+      video.defaultMuted = true;
+      video.setAttribute('muted', '');
+      video.dataset.soundId = `video-${index + 1}`;
+      host.classList.add('video-audio-host');
+
+      const hostIsInteractive = host.matches('a, button');
+      const control = document.createElement(hostIsInteractive ? 'span' : 'button');
+      if (!hostIsInteractive) control.type = 'button';
+      control.className = 'video-sound-toggle';
+      control.dataset.videoSoundFor = video.dataset.soundId;
+      updateControl(control, video);
+      control.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleSound(video, control);
+      });
+      host.appendChild(control);
+    });
+  }
+
+  initializeVideoSoundControls();
   loadManagedMedia().finally(scheduleDeferredVideos);
 
   function restoreVisiblePage() {
@@ -166,20 +245,6 @@ document.addEventListener('DOMContentLoaded', function () {
       document.documentElement.scrollTop ||
       document.body.scrollTop ||
       0
-    );
-  }
-
-  function getScrollableHeight() {
-    return Math.max(
-      0,
-      Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight,
-      ) - window.innerHeight,
     );
   }
 
@@ -356,6 +421,8 @@ document.addEventListener('DOMContentLoaded', function () {
         previewMedia.src = videoUrl;
         previewMedia.controls = true;
         previewMedia.autoplay = true;
+        previewMedia.muted = true;
+        previewMedia.defaultMuted = true;
         previewMedia.playsInline = true;
         previewMedia.preload = 'metadata';
         previewMedia.poster = sourceVideo.poster;
@@ -400,16 +467,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (scrollToggle) {
     function updateScrollButton() {
       const scrollPosition = getScrollTop();
-      const pageHeight = getScrollableHeight();
-      const switchPoint = pageHeight * 0.35;
-
-      if (scrollPosition > switchPoint) {
-        scrollToggle.classList.add('go-up');
-        scrollToggle.setAttribute('aria-label', isFrench ? 'Revenir en haut' : 'Scroll to top');
-      } else {
-        scrollToggle.classList.remove('go-up');
-        scrollToggle.setAttribute('aria-label', isFrench ? 'Faire défiler vers le bas' : 'Scroll down');
-      }
+      scrollToggle.classList.toggle('is-visible', scrollPosition > 360);
+      scrollToggle.setAttribute('aria-label', isFrench ? 'Revenir en haut' : 'Back to top');
     }
 
     updateScrollButton();
@@ -418,20 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('resize', updateScrollButton);
 
     scrollToggle.addEventListener('click', function () {
-      const isGoingUp = scrollToggle.classList.contains('go-up');
-      const pageHeight = getScrollableHeight();
-
-      if (isGoingUp) {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        });
-      } else {
-        window.scrollTo({
-          top: Math.min(getScrollTop() + window.innerHeight * 0.92, pageHeight),
-          behavior: 'smooth',
-        });
-      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 

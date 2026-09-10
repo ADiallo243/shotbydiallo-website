@@ -3,7 +3,7 @@
 
   var config = window.SHOTBYDIALLO_CONFIG || {};
   var measurementId = String(config.googleAnalyticsMeasurementId || "").trim();
-  var consentKey = "shotbydiallo_analytics_consent_v1";
+  var consentKey = "shotbydiallo_analytics_consent_v2";
   var analyticsStarted = false;
   var isFrench = document.documentElement.lang.toLowerCase().indexOf("fr") === 0;
 
@@ -116,9 +116,15 @@
     });
   }
 
-  if (storedChoice() === "accepted") startAnalytics();
-  document.addEventListener("DOMContentLoaded", function () {
+  function initializeConsent() {
     setupChoiceControls();
     if (!storedChoice()) showConsentNotice();
-  });
+    else if (storedChoice() === "accepted") startAnalytics();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeConsent, { once: true });
+  } else {
+    initializeConsent();
+  }
 })();
