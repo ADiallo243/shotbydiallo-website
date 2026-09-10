@@ -439,6 +439,11 @@ document.addEventListener('DOMContentLoaded', function () {
       mediaDialogStage.replaceChildren(previewMedia);
       document.body.classList.add('media-dialog-open');
       mediaDialog.showModal();
+      if (sourceVideo) {
+        previewMedia.play().catch(function () {
+          // Native controls remain available if a browser blocks autoplay.
+        });
+      }
       mediaDialogClose.focus();
       trackEvent('select_content', {
         content_type: sourceVideo ? 'video_preview' : 'image_preview',
