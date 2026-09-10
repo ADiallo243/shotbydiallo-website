@@ -23,6 +23,28 @@ document.addEventListener('DOMContentLoaded', function () {
       'assets/images/hero/hero-launch.jpg': 'home-hero-poster',
       'assets/videos/hero-video.mp4': 'home-hero-video',
       'assets/videos/artist-reel.mp4': 'work-featured-video',
+      'assets/videos/cyberxis-afro-foudre-preview.mp4': 'cyberxis-afro-foudre-preview',
+      'assets/images/work/cyberxis-afro-foudre-poster.jpg': 'cyberxis-afro-foudre-cover',
+      'assets/videos/oseibou-collection-preview.mp4': 'oseibou-collection-preview',
+      'assets/images/work/oseibou-collection-poster.jpg': 'oseibou-collection-cover',
+      'assets/videos/voice-of-guinea-conakry-raconte-preview.mp4': 'voice-of-guinea-conakry-raconte-preview',
+      'assets/images/work/voice-of-guinea-conakry-raconte-poster.jpg': 'voice-of-guinea-conakry-raconte-cover',
+      'assets/videos/liprobakin-all-star-games-preview.mp4': 'liprobakin-all-star-games-preview',
+      'assets/images/work/liprobakin-all-star-games-poster.jpg': 'liprobakin-all-star-games-cover',
+      'assets/videos/young-gielo-release-visualizer-preview.mp4': 'young-gielo-release-visualizer-preview',
+      'assets/images/work/young-gielo-release-visualizer-poster.jpg': 'young-gielo-release-visualizer-cover',
+      'assets/videos/behind-the-scenes-preview.mp4': 'behind-the-scenes-preview',
+      'assets/images/about/behind-the-scenes-poster.jpg': 'behind-the-scenes-cover',
+      'assets/videos/diaspora-brand-campaign-preview.mp4': 'diaspora-brand-campaign-preview',
+      'assets/images/work/diaspora-brand-campaign-poster.jpg': 'diaspora-brand-campaign-cover',
+      'assets/videos/fusion-entertainment-keblack-preview.mp4': 'fusion-entertainment-keblack-preview',
+      'assets/images/work/fusion-entertainment-keblack-poster.jpg': 'fusion-entertainment-keblack-cover',
+      'assets/videos/zeusdiallo-short-form-preview.mp4': 'zeusdiallo-short-form-preview',
+      'assets/images/work/zeusdiallo-short-form-poster.jpg': 'zeusdiallo-short-form-cover',
+      'assets/videos/bilouki-showcase-recap-preview.mp4': 'bilouki-showcase-recap-preview',
+      'assets/images/work/bilouki-showcase-recap-poster.jpg': 'bilouki-showcase-recap-cover',
+      'assets/videos/yami-conakry-visualizer-preview.mp4': 'yami-conakry-visualizer-preview',
+      'assets/images/work/yami-conakry-visualizer-poster.jpg': 'yami-conakry-visualizer-cover',
       'assets/images/work/music-video-web.jpg': 'music-video-cover',
       'assets/images/work/brand-video-web.jpg': 'business-video-cover',
       'assets/images/work/event-video-web.jpg': 'event-video-cover',
@@ -71,27 +93,56 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function startDeferredVideos() {
-    if (navigator.connection?.saveData || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (!window.matchMedia('(min-width: 768px)').matches) return;
-    document.querySelectorAll('video source[data-src]').forEach(function (source) {
-      if (source.src) return;
+  function canLoadDeferredVideos() {
+    return !navigator.connection?.saveData
+      && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      && window.matchMedia('(min-width: 768px)').matches;
+  }
+
+  function loadDeferredVideo(video) {
+    if (!video || video.dataset.mediaLoaded === 'true') return;
+    const sources = video.querySelectorAll('source[data-src]');
+    if (!sources.length) return;
+    sources.forEach(function (source) {
       source.src = source.dataset.src;
-      const video = source.closest('video');
-      video?.load();
-      video?.play().catch(function () {});
+    });
+    video.dataset.mediaLoaded = 'true';
+    video.load();
+    if (video.autoplay) video.play().catch(function () {});
+  }
+
+  function startDeferredVideos() {
+    if (!canLoadDeferredVideos()) return;
+    const videos = Array.from(new Set(
+      Array.from(document.querySelectorAll('video source[data-src]')).map(function (source) {
+        return source.closest('video');
+      }).filter(Boolean),
+    ));
+    if (!('IntersectionObserver' in window)) {
+      videos.forEach(loadDeferredVideo);
+      return;
+    }
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          loadDeferredVideo(entry.target);
+          if (entry.target.autoplay) entry.target.play().catch(function () {});
+        } else if (!entry.target.paused) {
+          entry.target.pause();
+        }
+      });
+    }, { rootMargin: '320px 0px' });
+    videos.forEach(function (video) {
+      observer.observe(video);
     });
   }
 
   function scheduleDeferredVideos() {
-    let started = false;
-    const startOnce = function () {
-      if (started) return;
-      started = true;
-      startDeferredVideos();
-      ['pointerdown', 'keydown', 'scroll'].forEach((eventName) => window.removeEventListener(eventName, startOnce));
-    };
-    ['pointerdown', 'keydown', 'scroll'].forEach((eventName) => window.addEventListener(eventName, startOnce, { passive: true, once: true }));
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(startDeferredVideos, { timeout: 1200 });
+    } else {
+      window.setTimeout(startDeferredVideos, 250);
+    }
   }
 
   loadManagedMedia().finally(scheduleDeferredVideos);
@@ -206,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const filterButtons = document.querySelectorAll('.filter-btn');
-  const portfolioCards = document.querySelectorAll('.portfolio-card');
+  const portfolioCards = document.querySelectorAll('.portfolio-section .portfolio-card');
 
   if (filterButtons.length && portfolioCards.length) {
     filterButtons.forEach(function (button) {
@@ -431,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function () {
       button.setAttribute('aria-pressed', String(button.dataset.audienceJump === audience));
     });
     if (shouldScroll) {
-      document.getElementById('chooseService')?.scrollIntoView({
+      (document.getElementById('chooseService') || document.getElementById('services'))?.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       });

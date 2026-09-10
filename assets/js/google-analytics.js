@@ -72,6 +72,7 @@
 
   function removeConsentNotice() {
     document.getElementById("analyticsConsent")?.remove();
+    document.body.classList.remove("consent-open");
   }
 
   function showConsentNotice() {
@@ -84,14 +85,14 @@
     notice.setAttribute("aria-labelledby", "analyticsConsentTitle");
     notice.setAttribute("aria-describedby", "analyticsConsentDescription");
     notice.innerHTML = isFrench
-      ? '<div><strong id="analyticsConsentTitle">Votre vie privée compte</strong>' +
-        '<p id="analyticsConsentDescription">Nous utilisons des témoins Google Analytics facultatifs pour comprendre les visites et améliorer le site. Le formulaire fonctionne sans eux. <a href="/fr/confidentialite">Politique de confidentialité</a></p></div>' +
-        '<div class="cookie-consent-actions"><button type="button" class="btn secondary-btn" data-analytics-choice="declined">Refuser</button>' +
-        '<button type="button" class="btn primary-btn" data-analytics-choice="accepted">Accepter l’analyse</button></div>'
-      : '<div><strong id="analyticsConsentTitle">Your privacy matters</strong>' +
-        '<p id="analyticsConsentDescription">We use optional Google Analytics cookies to understand site visits and improve the experience. The contact form works without them. <a href="/privacy">Privacy policy</a></p></div>' +
-        '<div class="cookie-consent-actions"><button type="button" class="btn secondary-btn" data-analytics-choice="declined">Reject optional</button>' +
-        '<button type="button" class="btn primary-btn" data-analytics-choice="accepted">Accept analytics</button></div>';
+      ? '<div class="cookie-consent-copy"><span class="cookie-consent-label">Confidentialité</span><strong id="analyticsConsentTitle">Nous respectons votre vie privée.</strong>' +
+        '<p id="analyticsConsentDescription">Nous utilisons des témoins d’analyse facultatifs pour mesurer l’audience et améliorer votre expérience. Aucun témoin d’analyse n’est activé sans votre accord. En cliquant sur « Tout accepter », vous consentez à notre <a href="/fr/confidentialite#temoins">politique de confidentialité et de témoins</a>.</p></div>' +
+        '<div class="cookie-consent-actions"><button type="button" class="btn cookie-choice cookie-reject" data-analytics-choice="declined">Tout refuser</button>' +
+        '<button type="button" class="btn cookie-choice cookie-accept" data-analytics-choice="accepted">Tout accepter</button></div>'
+      : '<div class="cookie-consent-copy"><span class="cookie-consent-label">Privacy</span><strong id="analyticsConsentTitle">We respect your privacy.</strong>' +
+        '<p id="analyticsConsentDescription">We use optional analytics cookies to measure visits and improve your experience. No analytics cookie is enabled without your permission. By selecting “Accept all,” you agree to our <a href="/privacy#cookies">privacy and cookie policy</a>.</p></div>' +
+        '<div class="cookie-consent-actions"><button type="button" class="btn cookie-choice cookie-reject" data-analytics-choice="declined">Reject all</button>' +
+        '<button type="button" class="btn cookie-choice cookie-accept" data-analytics-choice="accepted">Accept all</button></div>';
 
     notice.querySelectorAll("[data-analytics-choice]").forEach(function (button) {
       button.addEventListener("click", function () {
@@ -103,6 +104,7 @@
       });
     });
 
+    document.body.classList.add("consent-open");
     document.body.appendChild(notice);
   }
 
