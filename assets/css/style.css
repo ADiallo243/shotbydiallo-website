@@ -1747,44 +1747,52 @@ select {
 
 .video-sound-toggle {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 12px;
+  left: 12px;
   z-index: 8;
-  min-height: 34px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 10px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: 1px solid rgba(244, 241, 234, 0.28);
-  border-radius: 999px;
+  border-radius: 50%;
   background: rgba(11, 11, 11, 0.72);
-  color: var(--text);
+  color: var(--accent);
   cursor: pointer;
   backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
-.video-sound-toggle span {
-  color: var(--accent);
-  font-size: 13px;
-  line-height: 1;
+.video-sound-toggle svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
 }
 
-.video-sound-toggle small {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+.video-sound-toggle svg path:last-child {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.video-audio-host:hover > .video-sound-toggle,
+.video-audio-host:focus-within > .video-sound-toggle,
+.video-sound-toggle.is-audible {
+  opacity: 0.9;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .video-sound-toggle.is-audible {
   border-color: rgba(201, 164, 106, 0.72);
   background: rgba(11, 11, 11, 0.9);
-}
-
-.hero > .video-sound-toggle {
-  top: auto;
-  right: 104px;
-  bottom: 27px;
-  left: auto;
 }
 
 /* RESPONSIVE */
@@ -2158,17 +2166,12 @@ select {
   }
 
   .video-sound-toggle {
-    top: 12px;
-    left: 12px;
-    min-height: 32px;
-    padding: 6px 9px;
-  }
-
-  .hero > .video-sound-toggle {
-    top: 92px;
-    right: auto;
-    bottom: auto;
-    left: 22px;
+    width: 28px;
+    height: 28px;
+    opacity: 0.72;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
   }
 
   .footer-main {
@@ -2182,6 +2185,15 @@ select {
 
   .footer-column a {
     margin-bottom: 10px;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .video-sound-toggle {
+    opacity: 0.72;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
   }
 }
 /* PROJECT REQUEST FLOW */

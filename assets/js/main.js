@@ -145,28 +145,33 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function initializeVideoSoundControls() {
-    const autoplayVideos = document.querySelectorAll('video[autoplay]');
+    const pagePath = window.location.pathname.replace(/\/+$/, '') || '/';
+    const supportsSoundControls = pagePath === '/'
+      || pagePath === '/index.html'
+      || pagePath === '/fr'
+      || pagePath === '/work'
+      || pagePath === '/work.html'
+      || pagePath === '/fr/realisations';
+    if (!supportsSoundControls) return;
+
+    const autoplayVideos = Array.from(document.querySelectorAll('video[autoplay]')).filter(function (video) {
+      return !video.closest('.hero');
+    });
     const audioHosts = [
-      '.hero',
       '.audience-video-card',
       '.work-card',
       '.portfolio-card',
       '.about-image',
-      '.service-example',
-      '.phone-video-frame',
-      '.featured-reel-media',
     ].join(',');
 
     function controlCopy(video) {
       if (video.muted) {
         return {
           label: isFrench ? 'Activer le son' : 'Turn sound on',
-          short: isFrench ? 'Son coupé' : 'Sound off',
         };
       }
       return {
         label: isFrench ? 'Couper le son' : 'Mute video',
-        short: isFrench ? 'Son activé' : 'Sound on',
       };
     }
 
@@ -175,7 +180,9 @@ document.addEventListener('DOMContentLoaded', function () {
       control.setAttribute('aria-label', copy.label);
       control.setAttribute('title', copy.label);
       control.classList.toggle('is-audible', !video.muted);
-      control.innerHTML = `<span aria-hidden="true">${video.muted ? '◖' : '◉'}</span><small>${copy.short}</small>`;
+      control.innerHTML = video.muted
+        ? '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="m17 9 5 6m0-6-5 6"/></svg>'
+        : '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8a6 6 0 0 1 0 8m2.5-10.5a9.5 9.5 0 0 1 0 13"/></svg>';
     }
 
     function toggleSound(video, control) {
@@ -184,13 +191,20 @@ document.addEventListener('DOMContentLoaded', function () {
           if (otherVideo === video) return;
           otherVideo.muted = true;
           otherVideo.defaultMuted = true;
+          otherVideo.setAttribute('muted', '');
           const otherControl = document.querySelector(`[data-video-sound-for="${otherVideo.dataset.soundId}"]`);
           if (otherControl) updateControl(otherControl, otherVideo);
         });
       }
       video.muted = !video.muted;
       video.defaultMuted = video.muted;
-      if (!video.muted) video.play().catch(function () {});
+      if (video.muted) {
+        video.setAttribute('muted', '');
+      } else {
+        video.removeAttribute('muted');
+        video.volume = 1;
+        video.play().catch(function () {});
+      }
       updateControl(control, video);
       trackEvent('video_audio_toggle', {
         state: video.muted ? 'muted' : 'audible',
@@ -208,13 +222,19 @@ document.addEventListener('DOMContentLoaded', function () {
       video.dataset.soundId = `video-${index + 1}`;
       host.classList.add('video-audio-host');
 
-      const hostIsInteractive = host.matches('a, button');
-      const control = document.createElement(hostIsInteractive ? 'span' : 'button');
-      if (!hostIsInteractive) control.type = 'button';
+      const control = document.createElement('div');
       control.className = 'video-sound-toggle';
+      control.setAttribute('role', 'button');
+      control.tabIndex = 0;
       control.dataset.videoSoundFor = video.dataset.soundId;
       updateControl(control, video);
       control.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleSound(video, control);
+      });
+      control.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
         event.preventDefault();
         event.stopPropagation();
         toggleSound(video, control);
