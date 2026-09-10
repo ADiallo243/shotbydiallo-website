@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const builtInMedia = [
     { media_type: 'image', name: 'Homepage hero poster', url: 'assets/images/hero/hero-launch.jpg', website_placement: 'home-hero-poster', placement_label: 'Homepage · Hero', alt_text: 'ShotByDiallo hero poster', managed: false },
-    { media_type: 'video', name: 'Homepage background reel', url: 'assets/videos/hero-video.mp4', website_placement: 'home-hero-video', placement_label: 'Homepage · Hero', alt_text: '', managed: false },
+    { media_type: 'video', name: 'Costume International campaign — Gatineau, June 2025', url: 'assets/videos/hero-video.mp4', website_placement: 'home-hero-video', placement_label: 'Homepage · Hero', alt_text: 'Costume International suit shop campaign filmed in Gatineau in June 2025', managed: false },
     { media_type: 'video', name: 'Featured work reel', url: 'assets/videos/artist-reel.mp4', website_placement: 'work-featured-video', placement_label: 'Work · Featured', alt_text: '', managed: false },
     { media_type: 'image', name: 'About portrait', url: 'assets/images/about/portrait-optimized.jpg', website_placement: 'about-portrait', placement_label: 'Homepage · About', alt_text: 'Portrait of ShotByDiallo', managed: false },
   ];

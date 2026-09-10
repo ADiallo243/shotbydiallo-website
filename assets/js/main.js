@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+  const isFrench = document.documentElement.lang.toLowerCase().startsWith('fr');
   const siteHeader = document.getElementById('siteHeader');
   const menuBtn = document.getElementById('menuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -45,13 +46,24 @@ document.addEventListener('DOMContentLoaded', function () {
       const byPlacement = new Map(assets.map((asset) => [asset.website_placement, asset]));
       document.querySelectorAll('img,video,source').forEach(function (element) {
         const source = element.getAttribute('src') || element.getAttribute('poster') || element.dataset.src;
-        const placement = placements[source];
+        const normalizedSource = source && source.replace(/^\/+/, '');
+        const placement = placements[normalizedSource];
         const asset = placement && byPlacement.get(placement);
         if (!asset) return;
         const publicUrl = `${config.url}/storage/v1/object/public/site-media/${asset.storage_path}`;
-        if (element.tagName === 'VIDEO') element.poster = publicUrl;
-        else if (element.tagName === 'SOURCE' && element.dataset.src) element.dataset.src = publicUrl;
-        else element.src = publicUrl;
+        if (element.tagName === 'VIDEO') {
+          element.poster = publicUrl;
+        } else if (element.tagName === 'SOURCE') {
+          if (element.dataset.src) element.dataset.src = publicUrl;
+          else element.src = publicUrl;
+          const video = element.closest('video');
+          if (video && !element.dataset.src) {
+            video.load();
+            if (video.autoplay) video.play().catch(function () {});
+          }
+        } else {
+          element.src = publicUrl;
+        }
         if (element.tagName === 'IMG' && asset.alt_text) element.alt = asset.alt_text;
       });
     } catch {
@@ -127,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
     mobileMenu.classList.remove('active');
     document.body.classList.remove('menu-open');
     menuBtn.setAttribute('aria-expanded', 'false');
-    menuBtn.setAttribute('aria-label', 'Open menu');
+    menuBtn.setAttribute('aria-label', isFrench ? 'Ouvrir le menu' : 'Open menu');
     mobileMenu.setAttribute('aria-hidden', 'true');
   }
 
@@ -138,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
     mobileMenu.classList.add('active');
     document.body.classList.add('menu-open');
     menuBtn.setAttribute('aria-expanded', 'true');
-    menuBtn.setAttribute('aria-label', 'Close menu');
+    menuBtn.setAttribute('aria-label', isFrench ? 'Fermer le menu' : 'Close menu');
     mobileMenu.setAttribute('aria-hidden', 'false');
   }
 
@@ -234,10 +246,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (scrollPosition > switchPoint) {
         scrollToggle.classList.add('go-up');
-        scrollToggle.setAttribute('aria-label', 'Scroll to top');
+        scrollToggle.setAttribute('aria-label', isFrench ? 'Revenir en haut' : 'Scroll to top');
       } else {
         scrollToggle.classList.remove('go-up');
-        scrollToggle.setAttribute('aria-label', 'Scroll down');
+        scrollToggle.setAttribute('aria-label', isFrench ? 'Faire défiler vers le bas' : 'Scroll down');
       }
     }
 
@@ -257,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       } else {
         window.scrollTo({
-          top: Math.min(window.innerHeight * 0.92, pageHeight),
+          top: Math.min(getScrollTop() + window.innerHeight * 0.92, pageHeight),
           behavior: 'smooth',
         });
       }
@@ -289,6 +301,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const nextButton = document.getElementById('stepNext');
     const submitButton = projectForm.querySelector('.step-submit');
     const formStatus = document.getElementById('projectFormStatus');
+    const sendingLabel = projectForm.dataset.sendingLabel || 'Sending…';
+    const submitLabel = projectForm.dataset.submitLabel || 'Submit Project Request';
+    const successMessage =
+      projectForm.dataset.successMessage ||
+      'Thanks — your project request was received. ShotByDiallo will be in touch within one business day.';
+    const fallbackErrorMessage =
+      projectForm.dataset.errorMessage ||
+      'Something went wrong. Please email shotbydiallo@gmail.com instead.';
     let currentStep = 0;
 
     function setFormStatus(message, tone) {
@@ -350,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!projectForm.checkValidity()) return;
 
       submitButton.disabled = true;
-      submitButton.textContent = 'Sending…';
+      submitButton.textContent = sendingLabel;
       setFormStatus('');
 
       try {
@@ -379,17 +399,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         projectForm.reset();
         showStep(0, false);
-        setFormStatus(
-          'Thanks — your project request was received. ShotByDiallo will be in touch shortly.',
-        );
+        setFormStatus(successMessage);
       } catch (error) {
         setFormStatus(
-          error.message || 'Something went wrong. Please email shotbydiallo@gmail.com instead.',
+          projectForm.dataset.errorMessage || error.message || fallbackErrorMessage,
           'error',
         );
       } finally {
         submitButton.disabled = false;
-        submitButton.textContent = 'Submit Project Request';
+        submitButton.textContent = submitLabel;
       }
     });
 
@@ -456,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const selectedTab = Array.from(audienceTabs).find(function (tab) {
       return tab.getAttribute('aria-selected') === 'true';
     });
-    selectAudience(selectedTab?.dataset.audienceTab || 'artist', false);
+    selectAudience(selectedTab?.dataset.audienceTab || 'business', false);
   }
 
   document.querySelectorAll('a[href^="mailto:"], a[href^="tel:"]').forEach(function (link) {
@@ -466,9 +484,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  const internalLinks = document.querySelectorAll(
-    'a[href="/"], a[href="/work"], a[href="/services"], a[href="/contact"]',
-  );
+  const internalLinks = document.querySelectorAll('a[href^="/"]');
 
   internalLinks.forEach(function (link) {
     link.addEventListener('click', function (event) {

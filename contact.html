@@ -35,10 +35,13 @@
     <meta name="twitter:image" content="https://www.shotbydiallo.com/assets/images/hero/hero.jpg" />
 
     <link rel="canonical" href="https://www.shotbydiallo.com/contact" />
+    <link rel="alternate" hreflang="en-CA" href="https://www.shotbydiallo.com/contact" />
+    <link rel="alternate" hreflang="fr-CA" href="https://www.shotbydiallo.com/fr/contact" />
+    <link rel="alternate" hreflang="x-default" href="https://www.shotbydiallo.com/contact" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
     <script defer src="/site-config.js"></script>
-    <script defer src="/assets/js/google-analytics.js?v=3"></script>
-    <link rel="stylesheet" href="assets/css/style.css?v=37" />
+    <script defer src="/assets/js/google-analytics.js?v=4"></script>
+    <link rel="stylesheet" href="assets/css/style.css?v=41" />
   </head>
 
   <body>
@@ -49,14 +52,15 @@
       </a>
 
       <nav class="desktop-nav" aria-label="Desktop navigation">
-        <a href="/work">Work</a>
         <a href="/services">Services</a>
+        <a href="/work">Work</a>
         <a href="/contact" aria-current="page">Contact</a>
       </nav>
 
-      <a href="/contact" class="nav-cta" aria-current="page">
-        Start a Project
-      </a>
+      <div class="header-actions">
+        <a href="/fr/contact" class="language-switch" lang="fr" aria-label="Voir cette page en français">FR</a>
+        <a href="/contact" class="nav-cta" aria-current="page">Start a Project</a>
+      </div>
 
       <button
         class="menu-btn"
@@ -73,9 +77,10 @@
 
     <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
       <a href="/">Home</a>
-      <a href="/work">Work</a>
       <a href="/services">Services</a>
+      <a href="/work">Work</a>
       <a href="/contact" aria-current="page">Contact</a>
+      <a href="/fr/contact" lang="fr">Français</a>
       <a href="/contact" class="mobile-cta" aria-current="page">
         Start a Project
       </a>
@@ -103,8 +108,8 @@
           <h2>Ready to create?</h2>
 
           <p>
-            The best way to start is to send a short message with what you need,
-            your date, location and the type of video you want.
+            Start with the essentials. The form takes about two minutes and
+            every request is reviewed personally within one business day.
           </p>
 
           <div class="contact-methods">
@@ -158,16 +163,14 @@
               off your first project.
             </div>
 
-            <div class="form-progress" aria-label="Project request progress">
+            <div class="form-progress form-progress-two" role="group" aria-label="Project request progress">
               <span class="active" data-progress="1">01</span>
               <span data-progress="2">02</span>
-              <span data-progress="3">03</span>
-              <span data-progress="4">04</span>
             </div>
 
             <section class="form-step active" data-step="1">
-              <p class="eyebrow">Step 1 of 4</p>
-              <h2>What are we creating?</h2>
+              <p class="eyebrow">Step 1 of 2</p>
+              <h2>Tell me who you are and what we are creating.</h2>
               <div class="choice-grid">
                 <label class="choice-card">
                   <input type="radio" name="project_type" value="Music video" required />
@@ -186,14 +189,21 @@
                   <span><strong>Something else</strong>Tell me what you have in mind</span>
                 </label>
               </div>
+              <div class="form-row"><label for="name">Name</label><input type="text" id="name" name="name" placeholder="Your name" autocomplete="name" required /></div>
+              <div class="form-row"><label for="email">Email</label><input type="email" id="email" name="email" placeholder="your@email.com" autocomplete="email" required /></div>
+              <div class="form-row"><label for="company">Company or artist name <span class="optional-label">Optional</span></label><input type="text" id="company" name="company" placeholder="Company or artist name" /></div>
             </section>
 
             <section class="form-step" data-step="2">
-              <p class="eyebrow">Step 2 of 4</p>
-              <h2>Scope and timing</h2>
+              <p class="eyebrow">Step 2 of 2</p>
+              <h2>Share the goal. Everything else can stay flexible.</h2>
               <div class="form-row">
-                <label for="budget">Estimated budget</label>
-                <select id="budget" name="budget" required>
+                <label for="message">What should this video accomplish?</label>
+                <textarea id="message" name="message" rows="6" placeholder="Tell me what you are promoting, who should see it and where it will be used." required></textarea>
+              </div>
+              <div class="form-row">
+                <label for="budget">Estimated budget <span class="optional-label">Optional</span></label>
+                <select id="budget" name="budget">
                   <option value="">Choose a range</option>
                   <option>Under $1,000</option>
                   <option>$1,000–$2,500</option>
@@ -204,39 +214,25 @@
                 </select>
               </div>
               <div class="form-row">
-                <label for="date">Desired shoot date or timeline</label>
-                <input type="text" id="date" name="project_date" placeholder="Example: September 2026" required />
+                <label for="date">Desired shoot date or timeline <span class="optional-label">Optional</span></label>
+                <input type="text" id="date" name="project_date" placeholder="Example: September 2026 or flexible" />
               </div>
               <div class="form-row">
-                <label for="location">Project location</label>
-                <input type="text" id="location" name="project_location" placeholder="Montreal, Laval or another city" required />
-              </div>
-            </section>
-
-            <section class="form-step" data-step="3">
-              <p class="eyebrow">Step 3 of 4</p>
-              <h2>Your vision</h2>
-              <div class="form-row">
-                <label for="message">What should this video accomplish?</label>
-                <textarea id="message" name="message" rows="6" placeholder="Share the idea, audience, deliverables and result you want." required></textarea>
+                <label for="location">Project location <span class="optional-label">Optional</span></label>
+                <input type="text" id="location" name="project_location" placeholder="Montreal, Laval, remote or another city" />
               </div>
               <div class="form-row">
-                <label for="source">How did you find ShotByDiallo?</label>
-                <select id="source" name="lead_source" required>
+                <label for="phone">Phone number <span class="optional-label">Optional</span></label>
+                <input type="tel" id="phone" name="phone" placeholder="Your phone number" autocomplete="tel" />
+              </div>
+              <div class="form-row">
+                <label for="source">How did you find ShotByDiallo? <span class="optional-label">Optional</span></label>
+                <select id="source" name="lead_source">
                   <option value="">Select one</option>
                   <option>Instagram</option><option>TikTok</option><option>Google</option>
                   <option>Referral</option><option>Previous client</option><option>Other</option>
                 </select>
               </div>
-            </section>
-
-            <section class="form-step" data-step="4">
-              <p class="eyebrow">Step 4 of 4</p>
-              <h2>Where should I reach you?</h2>
-              <div class="form-row"><label for="name">Name</label><input type="text" id="name" name="name" placeholder="Your name" autocomplete="name" required /></div>
-              <div class="form-row"><label for="company">Company or artist name</label><input type="text" id="company" name="company" placeholder="Optional" /></div>
-              <div class="form-row"><label for="email">Email</label><input type="email" id="email" name="email" placeholder="your@email.com" autocomplete="email" required /></div>
-              <div class="form-row"><label for="phone">Phone number</label><input type="tel" id="phone" name="phone" placeholder="Your phone number" autocomplete="tel" /></div>
               <div class="form-row"><label for="contactPreference">Preferred contact</label><select id="contactPreference" name="contact_preference"><option>Email</option><option>Phone</option><option>Instagram</option></select></div>
             </section>
 
@@ -250,7 +246,7 @@
 
             <p class="form-note">
               Your request goes directly to ShotByDiallo and is reviewed
-              personally. You can also email
+              personally within one business day. You can also email
               <a href="mailto:shotbydiallo@gmail.com">shotbydiallo@gmail.com</a>.
               By submitting, you acknowledge the <a href="/privacy">privacy policy</a>.
             </p>
@@ -329,8 +325,7 @@
           <a href="/" class="footer-logo">ShotByDiallo</a>
 
           <p>
-            Montreal-based videographer creating cinematic visuals for brands,
-            artists and businesses.
+            Montreal business video production partner and music video director.
           </p>
 
           <a href="/contact" class="footer-cta" aria-current="page">
@@ -350,8 +345,8 @@
         <div class="footer-column">
           <h3>Services</h3>
 
-          <a href="/services">Business Videos</a>
-          <a href="/services">Music Videos</a>
+          <a href="/business-video-production-montreal">Business Videos</a>
+          <a href="/music-video-production-montreal">Music Videos</a>
           <a href="/services">Company Stories</a>
           <a href="/services">Monthly Content</a>
         </div>
@@ -381,7 +376,7 @@
       <div class="footer-bottom">
         <p>© 2026 ShotByDiallo. All rights reserved.</p>
 
-        <p>Montreal, Canada · <a href="/privacy">Privacy</a> · <button type="button" class="footer-cookie-settings" data-cookie-settings>Cookie settings</button></p>
+        <p>Montreal, Canada · <a href="/fr/contact" lang="fr">Français</a> · <a href="/privacy">Privacy</a> · <button type="button" class="footer-cookie-settings" data-cookie-settings>Cookie settings</button></p>
       </div>
     </footer>
 
@@ -394,6 +389,6 @@
       <span aria-hidden="true"></span>
     </button>
 
-    <script src="assets/js/main.js?v=38"></script>
+    <script src="assets/js/main.js?v=41"></script>
   </body>
 </html>

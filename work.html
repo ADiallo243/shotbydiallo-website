@@ -9,18 +9,18 @@
 
     <meta
       name="description"
-      content="View ShotByDiallo’s videography and photography portfolio featuring brand campaigns, music visuals, event recaps, wedding moments and social media content in Montreal."
+      content="Explore ShotByDiallo’s Montreal video portfolio for company stories, brand campaigns, business content, music videos and selected artist visuals."
     />
     <meta
       name="keywords"
-      content="ShotByDiallo portfolio, Montreal videographer portfolio, brand video Montreal, music video Montreal, event videography Montreal, wedding videographer Montreal"
+      content="ShotByDiallo portfolio, Montreal business videographer portfolio, corporate video Montreal, brand video Montreal, music video Montreal"
     />
     <meta name="author" content="ShotByDiallo" />
 
     <meta property="og:title" content="Videography Portfolio | ShotByDiallo" />
     <meta
       property="og:description"
-      content="Portfolio of cinematic visuals for brands, artists, events and weddings in Montreal."
+      content="Business-first video production and selected music visuals created in Montreal."
     />
     <meta property="og:image" content="https://www.shotbydiallo.com/assets/images/work/brand-video.jpg" />
     <meta property="og:type" content="website" />
@@ -28,14 +28,17 @@
     <meta property="og:site_name" content="Shot By Diallo" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Videography Portfolio | Shot By Diallo" />
-    <meta name="twitter:description" content="Portfolio of cinematic visuals for brands, artists, events and weddings in Montreal." />
+    <meta name="twitter:description" content="Business-first video production and selected music visuals created in Montreal." />
     <meta name="twitter:image" content="https://www.shotbydiallo.com/assets/images/work/brand-video.jpg" />
 
     <link rel="canonical" href="https://www.shotbydiallo.com/work" />
+    <link rel="alternate" hreflang="en-CA" href="https://www.shotbydiallo.com/work" />
+    <link rel="alternate" hreflang="fr-CA" href="https://www.shotbydiallo.com/fr" />
+    <link rel="alternate" hreflang="x-default" href="https://www.shotbydiallo.com/work" />
     <link rel="icon" type="image/png" href="assets/images/logo/favicon.png" />
     <script defer src="/site-config.js"></script>
-    <script defer src="/assets/js/google-analytics.js?v=3"></script>
-    <link rel="stylesheet" href="assets/css/style.css?v=37" />
+    <script defer src="/assets/js/google-analytics.js?v=4"></script>
+    <link rel="stylesheet" href="assets/css/style.css?v=41" />
   </head>
 
   <body>
@@ -46,12 +49,15 @@
       </a>
 
       <nav class="desktop-nav" aria-label="Desktop navigation">
-        <a href="/work" aria-current="page">Work</a>
         <a href="/services">Services</a>
+        <a href="/work" aria-current="page">Work</a>
         <a href="/contact">Contact</a>
       </nav>
 
-      <a href="/contact" class="nav-cta">Start a Project</a>
+      <div class="header-actions">
+        <a href="/fr" class="language-switch" lang="fr" aria-label="Voir le site en français">FR</a>
+        <a href="/contact" class="nav-cta">Start a Project</a>
+      </div>
 
       <button
         class="menu-btn"
@@ -68,9 +74,10 @@
 
     <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
       <a href="/">Home</a>
-      <a href="/work" aria-current="page">Work</a>
       <a href="/services">Services</a>
+      <a href="/work" aria-current="page">Work</a>
       <a href="/contact">Contact</a>
+      <a href="/fr" lang="fr">Français</a>
       <a href="/contact" class="mobile-cta">Start a Project</a>
     </nav>
 
@@ -79,41 +86,40 @@
         <p class="eyebrow">Portfolio</p>
 
         <h1>
-          Selected work across<br />
-          brands, artists &amp; events.
+          Business stories first.<br />
+          Music visuals by selection.
         </h1>
 
         <p>
-          A collection of visuals created for fashion campaigns, artist content,
-          music performances, weddings, corporate events and lifestyle projects.
+          Current work across brand campaigns, company and event content, music
+          performances, artist visuals and selected personal projects.
         </p>
       </section>
 
-      <section class="featured-reel-section">
+      <section class="featured-reel-section featured-project-video">
         <div class="featured-reel-copy">
-          <p class="eyebrow">Featured reel</p>
+          <p class="eyebrow">Featured business project · June 2025</p>
 
-          <h2>Short-form visuals made for artists and social platforms.</h2>
+          <h2>Costume International, Gatineau.</h2>
 
           <p>
-            A quick vertical preview showing the energy, movement and style
-            behind artist-focused content made for Instagram, TikTok and digital
-            promotion.
+            Promotional video created for Costume International, a suit shop in
+            Gatineau. This project is also the film featured on the homepage.
           </p>
 
-          <a href="/contact" class="btn primary-btn">Create a Reel</a>
+          <a href="/contact?type=business-video" class="btn primary-btn">Plan a Brand Video</a>
         </div>
 
-        <div class="phone-video-frame">
+        <div class="project-video-frame">
           <video
-            autoplay
             muted
-            loop
+            controls
             playsinline
-            preload="none"
-            poster="assets/images/work/music-video-web.jpg"
+            preload="metadata"
+            aria-label="Costume International promotional video filmed in Gatineau in June 2025"
           >
-            <source data-src="assets/videos/artist-reel.mp4" type="video/mp4" />
+            <source src="assets/videos/hero-video.mp4" type="video/mp4" />
+            Your browser does not support HTML video.
           </video>
         </div>
       </section>
@@ -122,60 +128,56 @@
         <div class="portfolio-top">
           <div>
             <p class="eyebrow">Work</p>
-            <h2>Visuals with atmosphere, intention and style.</h2>
+            <h2>Business, music and selected creative work.</h2>
           </div>
 
-          <div class="filter-buttons" aria-label="Portfolio filters">
+          <div class="filter-buttons" role="group" aria-label="Portfolio filters">
             <button class="filter-btn active" type="button" data-filter="all" aria-pressed="true">
               All
             </button>
 
-            <button class="filter-btn" type="button" data-filter="brand" aria-pressed="false">
-              Brands
+            <button class="filter-btn" type="button" data-filter="business" aria-pressed="false">
+              Business
             </button>
 
-            <button class="filter-btn" type="button" data-filter="artist" aria-pressed="false">
-              Artists
+            <button class="filter-btn" type="button" data-filter="music" aria-pressed="false">
+              Music
             </button>
 
-            <button class="filter-btn" type="button" data-filter="event" aria-pressed="false">
-              Events
-            </button>
-
-            <button class="filter-btn" type="button" data-filter="wedding" aria-pressed="false">
-              Weddings
+            <button class="filter-btn" type="button" data-filter="other" aria-pressed="false">
+              Other work
             </button>
           </div>
         </div>
 
         <div class="portfolio-grid">
-          <article class="portfolio-card" data-category="brand">
+          <article class="portfolio-card" data-category="business">
             <img
               src="assets/images/work/brand-video-web.jpg"
-              alt="Studio fashion campaign shot by ShotByDiallo in Montreal"
+              alt="Maison Attractive clothing brand promotional campaign in Montreal in June 2023"
               loading="lazy"
               decoding="async"
             />
             <div class="portfolio-info">
-              <p>Brand Campaign</p>
-              <h3>Studio Fashion Campaign</h3>
+              <p>Brand Campaign · Montreal · June 2023</p>
+              <h3>Maison Attractive</h3>
             </div>
           </article>
 
-          <article class="portfolio-card tall" data-category="artist">
+          <article class="portfolio-card tall" data-category="music">
             <img
               src="assets/images/work/music-video-web.jpg"
-              alt="Montreal music performance video by ShotByDiallo"
+              alt="King Alasko performing at a private barbecue at Plage Saint-Zotique in August 2025"
               loading="lazy"
               decoding="async"
             />
             <div class="portfolio-info">
-              <p>Artist Content</p>
-              <h3>Music Performance Visuals</h3>
+              <p>Live Performance · Saint-Zotique · August 2025</p>
+              <h3>King Alasko</h3>
             </div>
           </article>
 
-          <article class="portfolio-card" data-category="event">
+          <article class="portfolio-card" data-category="business">
             <img
               src="assets/images/work/event-video-web.jpg"
               alt="Corporate event networking coverage in Montreal by ShotByDiallo"
@@ -188,7 +190,7 @@
             </div>
           </article>
 
-          <article class="portfolio-card wide" data-category="wedding">
+          <article class="portfolio-card wide" data-category="other">
             <img
               src="assets/images/work/wedding-video-web.jpg"
               alt="Montreal wedding reception video by ShotByDiallo"
@@ -201,7 +203,7 @@
             </div>
           </article>
 
-          <article class="portfolio-card" data-category="brand">
+          <article class="portfolio-card" data-category="business">
             <img
               src="assets/images/work/streetwear-brand-optimized.jpg"
               alt="Streetwear brand fashion shoot by ShotByDiallo"
@@ -214,7 +216,7 @@
             </div>
           </article>
 
-          <article class="portfolio-card tall" data-category="artist">
+          <article class="portfolio-card tall" data-category="music">
             <img
               src="assets/images/work/creative-portrait-optimized.jpg"
               alt="Cinematic artist portrait at night in Montreal by ShotByDiallo"
@@ -227,7 +229,7 @@
             </div>
           </article>
 
-          <article class="portfolio-card" data-category="event">
+          <article class="portfolio-card" data-category="other">
             <img
               src="assets/images/work/cultural-event-optimized.jpg"
               alt="African cultural event celebration in Montreal by ShotByDiallo"
@@ -240,7 +242,7 @@
             </div>
           </article>
 
-          <article class="portfolio-card" data-category="brand">
+          <article class="portfolio-card" data-category="business">
             <img
               src="assets/images/work/lifestyle-brand-optimized.jpg"
               alt="Lifestyle brand visuals in Montreal by ShotByDiallo"
@@ -267,10 +269,9 @@
 
         <div class="featured-copy">
           <p>
-            Whether the project is for a business, an artist or an event, the
-            goal is not just to film something. The goal is to create content
-            that helps people understand the story, remember the moment and
-            trust the brand behind it.
+            Most projects begin with a business question: what should the
+            audience understand, trust or do next? The production is then shaped
+            around that outcome instead of simply making something attractive.
           </p>
 
           <p>
@@ -286,11 +287,11 @@
         <h2>Like the style?</h2>
 
         <p>
-          Let’s create visuals for your brand, event, campaign or next release.
+          Let’s create useful visuals for your company, campaign or next release.
         </p>
 
         <div class="contact-actions">
-          <a href="/contact" class="btn primary-btn">Contact Me</a>
+          <a href="/contact?type=business-video" class="btn primary-btn">Plan a Business Video</a>
           <a href="/services" class="btn secondary-btn">View Services</a>
         </div>
       </section>
@@ -302,7 +303,7 @@
           <a href="/" class="footer-logo">ShotByDiallo</a>
 
           <p>
-            Montreal music video director and business video production partner.
+            Montreal business video production partner and music video director.
           </p>
 
           <a href="/contact" class="footer-cta">Start a Project</a>
@@ -320,8 +321,8 @@
         <div class="footer-column">
           <h3>Services</h3>
 
-          <a href="/services">Business Videos</a>
-          <a href="/services">Music Videos</a>
+          <a href="/business-video-production-montreal">Business Videos</a>
+          <a href="/music-video-production-montreal">Music Videos</a>
           <a href="/services">Company Stories</a>
           <a href="/services">Monthly Content</a>
         </div>
@@ -351,7 +352,7 @@
       <div class="footer-bottom">
         <p>© 2026 ShotByDiallo. All rights reserved.</p>
 
-        <p>Montreal, Canada · <a href="/privacy">Privacy</a> · <button type="button" class="footer-cookie-settings" data-cookie-settings>Cookie settings</button></p>
+        <p>Montreal, Canada · <a href="/fr" lang="fr">Français</a> · <a href="/privacy">Privacy</a> · <button type="button" class="footer-cookie-settings" data-cookie-settings>Cookie settings</button></p>
       </div>
     </footer>
 
@@ -364,6 +365,6 @@
       <span aria-hidden="true"></span>
     </button>
 
-    <script src="assets/js/main.js?v=38"></script>
+    <script src="assets/js/main.js?v=41"></script>
   </body>
 </html>

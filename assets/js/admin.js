@@ -634,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const media = [
     ['image', 'Homepage hero poster', 'assets/images/hero/hero.jpg', 'Homepage · Hero'],
-    ['video', 'Homepage background reel', 'assets/videos/hero-video.mp4', 'Homepage · Hero'],
+    ['video', 'Costume International campaign — Gatineau, June 2025', 'assets/videos/hero-video.mp4', 'Homepage · Hero'],
     ['video', 'Artist reel', 'assets/videos/artist-reel.mp4', 'Work · Featured reel'],
     ['image', 'Music video cover', 'assets/images/work/music-video.jpg', 'Homepage · Selected work'],
     ['image', 'Business video cover', 'assets/images/work/brand-video.jpg', 'Homepage · Selected work'],

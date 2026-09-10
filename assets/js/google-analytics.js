@@ -5,6 +5,7 @@
   var measurementId = String(config.googleAnalyticsMeasurementId || "").trim();
   var consentKey = "shotbydiallo_analytics_consent_v1";
   var analyticsStarted = false;
+  var isFrench = document.documentElement.lang.toLowerCase().indexOf("fr") === 0;
 
   // Keep analytics disabled until a real GA4 web-stream ID is configured.
   if (!measurementId) return;
@@ -76,17 +77,21 @@
   function showConsentNotice() {
     if (document.getElementById("analyticsConsent")) return;
 
-    var notice = document.createElement("aside");
+    var notice = document.createElement("div");
     notice.className = "cookie-consent";
     notice.id = "analyticsConsent";
     notice.setAttribute("role", "dialog");
     notice.setAttribute("aria-labelledby", "analyticsConsentTitle");
     notice.setAttribute("aria-describedby", "analyticsConsentDescription");
-    notice.innerHTML =
-      '<div><strong id="analyticsConsentTitle">Your privacy matters</strong>' +
-      '<p id="analyticsConsentDescription">We use optional Google Analytics cookies to understand site visits and improve the experience. The contact form works without them. <a href="/privacy">Privacy policy</a></p></div>' +
-      '<div class="cookie-consent-actions"><button type="button" class="btn secondary-btn" data-analytics-choice="declined">Reject optional</button>' +
-      '<button type="button" class="btn primary-btn" data-analytics-choice="accepted">Accept analytics</button></div>';
+    notice.innerHTML = isFrench
+      ? '<div><strong id="analyticsConsentTitle">Votre vie privée compte</strong>' +
+        '<p id="analyticsConsentDescription">Nous utilisons des témoins Google Analytics facultatifs pour comprendre les visites et améliorer le site. Le formulaire fonctionne sans eux. <a href="/fr/confidentialite">Politique de confidentialité</a></p></div>' +
+        '<div class="cookie-consent-actions"><button type="button" class="btn secondary-btn" data-analytics-choice="declined">Refuser</button>' +
+        '<button type="button" class="btn primary-btn" data-analytics-choice="accepted">Accepter l’analyse</button></div>'
+      : '<div><strong id="analyticsConsentTitle">Your privacy matters</strong>' +
+        '<p id="analyticsConsentDescription">We use optional Google Analytics cookies to understand site visits and improve the experience. The contact form works without them. <a href="/privacy">Privacy policy</a></p></div>' +
+        '<div class="cookie-consent-actions"><button type="button" class="btn secondary-btn" data-analytics-choice="declined">Reject optional</button>' +
+        '<button type="button" class="btn primary-btn" data-analytics-choice="accepted">Accept analytics</button></div>';
 
     notice.querySelectorAll("[data-analytics-choice]").forEach(function (button) {
       button.addEventListener("click", function () {
