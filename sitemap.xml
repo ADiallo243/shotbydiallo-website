@@ -121,4 +121,14 @@
     <xhtml:link rel="alternate" hreflang="en-CA" href="https://www.shotbydiallo.com/privacy" />
     <xhtml:link rel="alternate" hreflang="fr-CA" href="https://www.shotbydiallo.com/fr/confidentialite" />
   </url>
+  <url>
+    <loc>https://www.shotbydiallo.com/insights</loc><lastmod>2026-10-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://www.shotbydiallo.com/insights" />
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://www.shotbydiallo.com/fr/conseils" />
+  </url>
+  <url>
+    <loc>https://www.shotbydiallo.com/fr/conseils</loc><lastmod>2026-10-28</lastmod><changefreq>daily</changefreq><priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://www.shotbydiallo.com/insights" />
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://www.shotbydiallo.com/fr/conseils" />
+  </url>
 </urlset>
