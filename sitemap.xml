@@ -122,7 +122,7 @@
     <xhtml:link rel="alternate" hreflang="fr-CA" href="https://www.shotbydiallo.com/fr/confidentialite" />
   </url>
   <url>
-    <loc>https://www.shotbydiallo.com/insights</loc><lastmod>2026-11-09</lastmod><changefreq>daily</changefreq><priority>0.8</priority>
+    <loc>https://www.shotbydiallo.com/insights</loc><lastmod>2026-11-10</lastmod><changefreq>daily</changefreq><priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en-CA" href="https://www.shotbydiallo.com/insights" />
     <xhtml:link rel="alternate" hreflang="fr-CA" href="https://www.shotbydiallo.com/fr/conseils" />
   </url>
@@ -184,5 +184,8 @@
   </url>
   <url>
     <loc>https://www.shotbydiallo.com/insights/business-video-deliverables-checklist</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.shotbydiallo.com/insights/on-camera-business-interview-preparation-checklist</loc><lastmod>2026-11-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority>
   </url>
 </urlset>
