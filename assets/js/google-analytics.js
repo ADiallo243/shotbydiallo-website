@@ -5,6 +5,7 @@
   var measurementId = String(config.googleAnalyticsMeasurementId || "").trim();
   var consentKey = "shotbydiallo_analytics_consent_v2";
   var analyticsStarted = false;
+  var tagInstalled = false;
   var isFrench = document.documentElement.lang.toLowerCase().indexOf("fr") === 0;
 
   // Keep analytics disabled until a real GA4 web-stream ID is configured.
@@ -43,6 +44,9 @@
         window.dataLayer.push(arguments);
       };
 
+    window.gtag("consent", "update", { analytics_storage: "granted" });
+    if (tagInstalled) return;
+    tagInstalled = true;
     window.gtag("js", new Date());
     window.gtag("config", measurementId, { anonymize_ip: true });
 
@@ -60,7 +64,7 @@
     if (typeof window.gtag === "function") {
       window.gtag("consent", "update", { analytics_storage: "denied" });
     }
-    document.querySelector('[data-shotbydiallo-analytics]')?.remove();
+
     analyticsStarted = false;
 
     var analyticsCookie = "_ga_" + measurementId.replace("G-", "");

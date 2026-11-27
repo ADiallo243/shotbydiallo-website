@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const audienceJumpButtons = document.querySelectorAll('[data-audience-jump]');
 
   function trackEvent(name, parameters) {
-    if (typeof window.gtag !== 'function') return;
+    const measurementId = window.SHOTBYDIALLO_CONFIG?.googleAnalyticsMeasurementId;
+    if (!measurementId || window['ga-disable-' + measurementId] !== false || typeof window.gtag !== 'function') return;
     window.gtag('event', name, parameters || {});
   }
 
@@ -518,9 +519,13 @@ document.addEventListener('DOMContentLoaded', function () {
       referralNotice.querySelector('strong').textContent = referralInput.value;
     }
     if (requestedType) {
-      const requestedRadio = projectForm.querySelector(
-        `input[name="project_type"][value="${requestedType === 'music-video' ? 'Music video' : requestedType === 'business-video' ? 'Business video' : ''}"]`,
-      );
+      const projectTypes = new Map([
+        ['music-video', 'Music video'],
+        ['business-video', 'Business video'],
+        ['monthly-content', 'Monthly content'],
+      ]);
+      const requestedRadio = Array.from(projectForm.elements.project_type)
+        .find(input => input.value === projectTypes.get(requestedType));
       if (requestedRadio) requestedRadio.checked = true;
     }
     const steps = Array.from(projectForm.querySelectorAll('.form-step'));
@@ -597,7 +602,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     projectForm.addEventListener('submit', async function (event) {
       event.preventDefault();
-      if (!projectForm.checkValidity()) return;
+      if (submitButton.disabled || !projectForm.checkValidity()) return;
 
       submitButton.disabled = true;
       submitButton.textContent = sendingLabel;
@@ -616,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return {};
         });
 
-        if (!response.ok) {
+        if (!response.ok || result.ok !== true) {
           throw new Error(result.error || 'Unable to send your request.');
         }
 
