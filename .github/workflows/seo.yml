@@ -1,0 +1,10 @@
+name: Static SEO validation
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/seo_audit.py
