@@ -48,7 +48,10 @@
     if (tagInstalled) return;
     tagInstalled = true;
     window.gtag("js", new Date());
-    window.gtag("config", measurementId, { anonymize_ip: true });
+    window.gtag("config", measurementId, {
+      page_location: window.location.origin + window.location.pathname,
+      page_referrer: document.referrer ? new URL(document.referrer).origin : "",
+    });
 
     var googleTag = document.createElement("script");
     googleTag.async = true;

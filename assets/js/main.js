@@ -15,6 +15,22 @@ document.addEventListener('DOMContentLoaded', function () {
     window.gtag('event', name, parameters || {});
   }
 
+  const articleMenu = document.querySelector('.nav .menu[aria-controls]');
+  if (articleMenu) {
+    const links = document.getElementById(articleMenu.getAttribute('aria-controls'));
+    const setOpen = open => {
+      links.classList.toggle('open', open);
+      articleMenu.setAttribute('aria-expanded', String(open));
+    };
+    articleMenu.addEventListener('click', () => setOpen(articleMenu.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && articleMenu.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        articleMenu.focus();
+      }
+    });
+  }
+
   document.body.classList.remove('page-exit');
   document.body.classList.add('page-loaded');
 
@@ -68,14 +84,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const assets = await mediaResponse.json();
       const byPlacement = new Map(assets.map((asset) => [asset.website_placement, asset]));
       document.querySelectorAll('img,video,source').forEach(function (element) {
-        const source = element.getAttribute('src') || element.getAttribute('poster') || element.dataset.src;
+        const source = element.getAttribute('src') || element.getAttribute('poster') || element.dataset.poster || element.dataset.src;
         const normalizedSource = source && source.replace(/^\/+/, '');
         const placement = placements[normalizedSource];
         const asset = placement && byPlacement.get(placement);
         if (!asset) return;
         const publicUrl = `${config.url}/storage/v1/object/public/site-media/${asset.storage_path}`;
         if (element.tagName === 'VIDEO') {
-          element.poster = publicUrl;
+          if (element.dataset.poster && !element.hasAttribute('poster')) element.dataset.poster = publicUrl;
+          else element.poster = publicUrl;
         } else if (element.tagName === 'SOURCE') {
           if (element.dataset.src) element.dataset.src = publicUrl;
           else element.src = publicUrl;
@@ -111,6 +128,23 @@ document.addEventListener('DOMContentLoaded', function () {
     if (video.autoplay) video.play().catch(function () {});
   }
 
+  function loadNearbyPosters() {
+    const videos = document.querySelectorAll('video[data-poster]');
+    if (!videos.length) return;
+    if (!('IntersectionObserver' in window)) {
+      videos.forEach(video => { video.poster = video.dataset.poster; });
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.poster = entry.target.dataset.poster;
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '180px 0px' });
+    videos.forEach(video => observer.observe(video));
+  }
+
   function startDeferredVideos() {
     if (!canLoadDeferredVideos()) return;
     const videos = Array.from(new Set(
@@ -131,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
           entry.target.pause();
         }
       });
-    }, { rootMargin: '320px 0px' });
+    }, { rootMargin: '0px' });
     videos.forEach(function (video) {
       observer.observe(video);
     });
@@ -245,6 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   initializeVideoSoundControls();
+  loadNearbyPosters();
   loadManagedMedia().finally(scheduleDeferredVideos);
 
   function restoreVisiblePage() {
@@ -277,6 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.remove('menu-open');
     menuBtn.setAttribute('aria-expanded', 'false');
     menuBtn.setAttribute('aria-label', isFrench ? 'Ouvrir le menu' : 'Open menu');
+    mobileMenu.inert = true;
     mobileMenu.setAttribute('aria-hidden', 'true');
   }
 
@@ -288,6 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.add('menu-open');
     menuBtn.setAttribute('aria-expanded', 'true');
     menuBtn.setAttribute('aria-label', isFrench ? 'Fermer le menu' : 'Close menu');
+    mobileMenu.inert = false;
     mobileMenu.setAttribute('aria-hidden', 'false');
   }
 
@@ -315,6 +352,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (menuBtn && mobileMenu) {
+    mobileMenu.inert = true;
     mobileMenu.setAttribute('aria-hidden', 'true');
 
     menuBtn.addEventListener('click', function (event) {
@@ -587,11 +625,15 @@ document.addEventListener('DOMContentLoaded', function () {
       return true;
     }
 
+    let started = false;
+    projectForm.addEventListener('input', function () {
+      if (started) return;
+      started = true;
+      trackEvent('form_start', { form_id: 'project_request' });
+    });
+
     nextButton.addEventListener('click', function () {
       if (validateCurrentStep()) {
-        if (currentStep === 0) {
-          trackEvent('form_start', { form_id: 'project_request' });
-        }
         showStep(currentStep + 1, true);
       }
     });
@@ -626,16 +668,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const submittedData = Object.fromEntries(new FormData(projectForm));
-        trackEvent('generate_lead', {
-          form_id: 'project_request',
-          project_type: submittedData.project_type || 'unknown',
-          lead_source: submittedData.lead_source || 'unknown',
-          contact_preference: submittedData.contact_preference || 'Email',
-        });
+        if (!submittedData.website) {
+          const knownTypes = ['Music video', 'Business video', 'Monthly content', 'Other'];
+          trackEvent('generate_lead', {
+            form_id: 'project_request',
+            project_type: knownTypes.includes(submittedData.project_type) ? submittedData.project_type : 'Other',
+            language: isFrench ? 'fr-CA' : 'en-CA',
+          });
+        }
+        started = false;
         projectForm.reset();
         showStep(0, false);
         setFormStatus(successMessage);
       } catch (error) {
+        trackEvent('form_error', { form_id: 'project_request', error_type: 'submission_failed' });
         setFormStatus(
           projectForm.dataset.errorMessage || error.message || fallbackErrorMessage,
           'error',
@@ -724,6 +770,9 @@ document.addEventListener('DOMContentLoaded', function () {
   internalLinks.forEach(function (link) {
     link.addEventListener('click', function (event) {
       const href = link.getAttribute('href');
+      if (/^\/(?:fr\/)?contact(?:[?#]|$)/.test(href) && !event.defaultPrevented) {
+        trackEvent('service_inquiry_click', { language: isFrench ? 'fr-CA' : 'en-CA' });
+      }
 
       if (
         !href ||

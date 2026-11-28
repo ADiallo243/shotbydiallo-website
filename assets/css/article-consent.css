@@ -1,0 +1,30 @@
+.cookie-consent {
+  position: fixed;
+  z-index: 100;
+  right: 1rem;
+  bottom: 1rem;
+  max-width: min(32rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  background: var(--panel);
+  color: var(--cream);
+  padding: 1.25rem;
+  border: 1px solid var(--gold);
+  border-radius: 1rem;
+}
+.cookie-consent-label { display: block; color: var(--gold); }
+.cookie-consent strong { font-size: 1.25rem; }
+.cookie-consent a, .article-cookie-settings { text-decoration: underline; }
+.cookie-consent-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.cookie-choice, .article-cookie-settings {
+  font: inherit;
+  cursor: pointer;
+  color: var(--cream);
+  background: var(--panel);
+  border: 1px solid var(--gold);
+  padding: .5rem 1rem;
+  border-radius: 2rem;
+}
+.article-cookie-settings { justify-self: start; }
+
+.related > .eyebrow { color: #69512c; }

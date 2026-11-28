@@ -22,6 +22,8 @@ class Page(HTMLParser):
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         f = self.fields
+        if a.get("id"):
+            f["ids"].append(a["id"])
         if tag == "html":
             f["language"].append(a.get("lang", ""))
         if tag == "meta":
@@ -39,7 +41,7 @@ class Page(HTMLParser):
             f["assets"].extend(item.split()[0] for item in a["srcset"].split(",") if item.strip())
         if tag == "a" and a.get("href"):
             f["links"].append(a["href"])
-        for attr in ("src", "poster", "data-src"):
+        for attr in ("src", "poster", "data-src", "data-poster"):
             if a.get(attr):
                 f["assets"].append(a[attr])
         if tag in ("title", "h1") or (tag == "script" and a.get("type") == "application/ld+json"):
@@ -123,6 +125,8 @@ def audit():
                     continue
                 path = unquote(target.path)
                 if path in pages:
+                    if key == "links" and target.fragment and unquote(target.fragment) not in pages[path][1]["ids"]:
+                        report("ERROR", file, f"missing link target {raw}")
                     outgoing.add(path)
                     if path != route and public:
                         incoming[path].add(route)
