@@ -84,14 +84,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const assets = await mediaResponse.json();
       const byPlacement = new Map(assets.map((asset) => [asset.website_placement, asset]));
       document.querySelectorAll('img,video,source').forEach(function (element) {
-        const source = element.getAttribute('src') || element.getAttribute('poster') || element.dataset.src;
+        const source = element.getAttribute('src') || element.getAttribute('poster') || element.dataset.poster || element.dataset.src;
         const normalizedSource = source && source.replace(/^\/+/, '');
         const placement = placements[normalizedSource];
         const asset = placement && byPlacement.get(placement);
         if (!asset) return;
         const publicUrl = `${config.url}/storage/v1/object/public/site-media/${asset.storage_path}`;
         if (element.tagName === 'VIDEO') {
-          element.poster = publicUrl;
+          if (element.dataset.poster && !element.hasAttribute('poster')) element.dataset.poster = publicUrl;
+          else element.poster = publicUrl;
         } else if (element.tagName === 'SOURCE') {
           if (element.dataset.src) element.dataset.src = publicUrl;
           else element.src = publicUrl;
@@ -127,6 +128,23 @@ document.addEventListener('DOMContentLoaded', function () {
     if (video.autoplay) video.play().catch(function () {});
   }
 
+  function loadNearbyPosters() {
+    const videos = document.querySelectorAll('video[data-poster]');
+    if (!videos.length) return;
+    if (!('IntersectionObserver' in window)) {
+      videos.forEach(video => { video.poster = video.dataset.poster; });
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.poster = entry.target.dataset.poster;
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '180px 0px' });
+    videos.forEach(video => observer.observe(video));
+  }
+
   function startDeferredVideos() {
     if (!canLoadDeferredVideos()) return;
     const videos = Array.from(new Set(
@@ -147,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
           entry.target.pause();
         }
       });
-    }, { rootMargin: '320px 0px' });
+    }, { rootMargin: '0px' });
     videos.forEach(function (video) {
       observer.observe(video);
     });
@@ -261,6 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   initializeVideoSoundControls();
+  loadNearbyPosters();
   loadManagedMedia().finally(scheduleDeferredVideos);
 
   function restoreVisiblePage() {

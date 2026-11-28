@@ -41,7 +41,7 @@ class Page(HTMLParser):
             f["assets"].extend(item.split()[0] for item in a["srcset"].split(",") if item.strip())
         if tag == "a" and a.get("href"):
             f["links"].append(a["href"])
-        for attr in ("src", "poster", "data-src"):
+        for attr in ("src", "poster", "data-src", "data-poster"):
             if a.get(attr):
                 f["assets"].append(a[attr])
         if tag in ("title", "h1") or (tag == "script" and a.get("type") == "application/ld+json"):
