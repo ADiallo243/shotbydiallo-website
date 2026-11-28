@@ -15,6 +15,22 @@ document.addEventListener('DOMContentLoaded', function () {
     window.gtag('event', name, parameters || {});
   }
 
+  const articleMenu = document.querySelector('.nav .menu[aria-controls]');
+  if (articleMenu) {
+    const links = document.getElementById(articleMenu.getAttribute('aria-controls'));
+    const setOpen = open => {
+      links.classList.toggle('open', open);
+      articleMenu.setAttribute('aria-expanded', String(open));
+    };
+    articleMenu.addEventListener('click', () => setOpen(articleMenu.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && articleMenu.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        articleMenu.focus();
+      }
+    });
+  }
+
   document.body.classList.remove('page-exit');
   document.body.classList.add('page-loaded');
 
@@ -277,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.remove('menu-open');
     menuBtn.setAttribute('aria-expanded', 'false');
     menuBtn.setAttribute('aria-label', isFrench ? 'Ouvrir le menu' : 'Open menu');
+    mobileMenu.inert = true;
     mobileMenu.setAttribute('aria-hidden', 'true');
   }
 
@@ -288,6 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.add('menu-open');
     menuBtn.setAttribute('aria-expanded', 'true');
     menuBtn.setAttribute('aria-label', isFrench ? 'Fermer le menu' : 'Close menu');
+    mobileMenu.inert = false;
     mobileMenu.setAttribute('aria-hidden', 'false');
   }
 
@@ -315,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (menuBtn && mobileMenu) {
+    mobileMenu.inert = true;
     mobileMenu.setAttribute('aria-hidden', 'true');
 
     menuBtn.addEventListener('click', function (event) {
@@ -587,11 +606,15 @@ document.addEventListener('DOMContentLoaded', function () {
       return true;
     }
 
+    let started = false;
+    projectForm.addEventListener('input', function () {
+      if (started) return;
+      started = true;
+      trackEvent('form_start', { form_id: 'project_request' });
+    });
+
     nextButton.addEventListener('click', function () {
       if (validateCurrentStep()) {
-        if (currentStep === 0) {
-          trackEvent('form_start', { form_id: 'project_request' });
-        }
         showStep(currentStep + 1, true);
       }
     });
@@ -626,16 +649,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const submittedData = Object.fromEntries(new FormData(projectForm));
-        trackEvent('generate_lead', {
-          form_id: 'project_request',
-          project_type: submittedData.project_type || 'unknown',
-          lead_source: submittedData.lead_source || 'unknown',
-          contact_preference: submittedData.contact_preference || 'Email',
-        });
+        if (!submittedData.website) {
+          const knownTypes = ['Music video', 'Business video', 'Monthly content', 'Other'];
+          trackEvent('generate_lead', {
+            form_id: 'project_request',
+            project_type: knownTypes.includes(submittedData.project_type) ? submittedData.project_type : 'Other',
+            language: isFrench ? 'fr-CA' : 'en-CA',
+          });
+        }
+        started = false;
         projectForm.reset();
         showStep(0, false);
         setFormStatus(successMessage);
       } catch (error) {
+        trackEvent('form_error', { form_id: 'project_request', error_type: 'submission_failed' });
         setFormStatus(
           projectForm.dataset.errorMessage || error.message || fallbackErrorMessage,
           'error',
@@ -724,6 +751,9 @@ document.addEventListener('DOMContentLoaded', function () {
   internalLinks.forEach(function (link) {
     link.addEventListener('click', function (event) {
       const href = link.getAttribute('href');
+      if (/^\/(?:fr\/)?contact(?:[?#]|$)/.test(href) && !event.defaultPrevented) {
+        trackEvent('service_inquiry_click', { language: isFrench ? 'fr-CA' : 'en-CA' });
+      }
 
       if (
         !href ||

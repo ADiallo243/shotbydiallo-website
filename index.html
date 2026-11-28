@@ -59,8 +59,8 @@
       }
     </script>
     <script defer src="/site-config.js"></script>
-    <script defer src="/assets/js/google-analytics.js?v=7"></script>
-    <link rel="stylesheet" href="assets/css/style.css?v=50" />
+    <script defer src="/assets/js/google-analytics.js?v=8"></script>
+    <link rel="stylesheet" href="assets/css/style.css?v=53" />
   </head>
 
   <body>
@@ -111,10 +111,10 @@
           muted
           loop
           playsinline
-          preload="auto"
+          preload="none" poster="/assets/images/hero/costume-international-social.jpg"
           aria-hidden="true"
         >
-          <source src="assets/videos/hero-video.mp4" type="video/mp4" />
+          <source media="(max-width: 700px)" data-src="/assets/videos/hero-mobile.mp4" type="video/mp4" /><source data-src="assets/videos/hero-video.mp4" type="video/mp4" />
         </video>
 
         <div class="hero-overlay" aria-hidden="true"></div>
@@ -161,11 +161,11 @@
         </div>
         <div id="businessPanel" class="audience-panel active" role="tabpanel" aria-labelledby="businessTab" data-audience-panel="business">
           <div class="audience-visual audience-video-pair" aria-label="Selected business videos">
-            <a class="audience-video-card" href="/work/voice-of-guinea-conakry-raconte" aria-label="See the Voice of Guinea case study">
+            <a class="audience-video-card" href="/work/voice-of-guinea-conakry-raconte">
               <video autoplay muted loop playsinline preload="none" poster="assets/images/work/voice-of-guinea-conakry-raconte-poster.jpg" aria-hidden="true"><source data-src="assets/videos/voice-of-guinea-conakry-raconte-preview.mp4?v=2" type="video/mp4" /></video>
               <span><strong>Voice of Guinea</strong><small>Editorial series · Conakry</small></span>
             </a>
-            <a class="audience-video-card" href="/work#fusion-entertainment-keblack" aria-label="See the Fusion Entertainment Keblack campaign">
+            <a class="audience-video-card" href="/work#fusion-entertainment-keblack">
               <video autoplay muted loop playsinline preload="none" poster="assets/images/work/fusion-entertainment-keblack-poster.jpg" aria-hidden="true"><source data-src="assets/videos/fusion-entertainment-keblack-preview.mp4?v=2" type="video/mp4" /></video>
               <span><strong>Fusion Entertainment</strong><small>Keblack campaign · Ottawa</small></span>
             </a>
@@ -180,11 +180,11 @@
         </div>
         <div id="artistPanel" class="audience-panel" role="tabpanel" aria-labelledby="artistTab" data-audience-panel="artist" hidden>
           <div class="audience-visual audience-video-pair" aria-label="Selected artist videos">
-            <a class="audience-video-card" href="/work#yami-conakry-visualizer" aria-label="See the Yami Conakry visualizer">
+            <a class="audience-video-card" href="/work#yami-conakry-visualizer">
               <video autoplay muted loop playsinline preload="none" poster="assets/images/work/yami-conakry-visualizer-poster.jpg" aria-hidden="true"><source data-src="assets/videos/yami-conakry-visualizer-preview.mp4?v=2" type="video/mp4" /></video>
               <span><strong>Yami · Conakry</strong><small>Release visualizer · Montreal</small></span>
             </a>
-            <a class="audience-video-card" href="/work#bilouki-showcase-recap" aria-label="See the Bilouki showcase recap">
+            <a class="audience-video-card" href="/work#bilouki-showcase-recap">
               <video autoplay muted loop playsinline preload="none" poster="assets/images/work/bilouki-showcase-recap-poster.jpg" aria-hidden="true"><source data-src="assets/videos/bilouki-showcase-recap-preview.mp4?v=2" type="video/mp4" /></video>
               <span><strong>Bilouki</strong><small>Showcase recap · Ottawa</small></span>
             </a>
@@ -314,7 +314,7 @@
           <a href="https://www.google.com/maps/search/?api=1&amp;query=Shot+By+Diallo+Montreal" target="_blank" rel="noopener noreferrer" class="reviews-google-link">Read on Google <span aria-hidden="true">↗</span></a>
         </div>
 
-        <div class="reviews-grid">
+        <div class="reviews-grid" tabindex="0">
           <article class="review-card">
             <div class="review-stars" role="img" aria-label="5 star review">★★★★★</div>
             <p>“He captured my idea perfectly and delivered videos beyond my expectations—in record time.”</p>
@@ -426,6 +426,6 @@
       <span aria-hidden="true"></span>
     </button>
 
-    <script src="assets/js/main.js?v=51"></script>
+    <script src="assets/js/main.js?v=52"></script>
   </body>
 </html>
